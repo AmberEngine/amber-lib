@@ -6,7 +6,7 @@ import hashlib
 import base64
 
 
-class AmberAPIError(object):
+class AmberError(object):
 
     def __init__(self, status_code, body):
         self.body = body
@@ -41,9 +41,9 @@ def _send_request(url, public_key, private_key, method='GET',
 
     if r and r.status_code == 200:
         return json.loads(r.text)
-    raise AmberAPIError(r.status_code, json.loads(r.text))
+    raise AmberError(r.status_code, json.loads(r.text))
 
-class AmberAPI(object):
+class AmberClient(object):
 
     def init(self, api_url, pub_key, pri_key):
         self.api_url = api_url
