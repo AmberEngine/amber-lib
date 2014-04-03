@@ -120,7 +120,6 @@ class AmberClient(object):
         }
         return _send_request(**args)
 
-
     def _search(self, *path, **data):
         url = self._url(*path)
         headers = {'Content-Type': 'application/json'}
@@ -133,6 +132,9 @@ class AmberClient(object):
             'headers': headers
         }
         return _send_request(**args)
+
+    def update_ngram_index(self):
+        return self._get('update_ngram_index')
 
     # PRODUCT:
 
