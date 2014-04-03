@@ -207,6 +207,9 @@ class AmberClient(object):
     def get_manufacturers(self):
         return self._get('manufacturers')
 
+    def add_manufacturer(self, data):
+        return self._post('manufacturers', **data)
+
     # USER:
 
     def get_roles(self):
