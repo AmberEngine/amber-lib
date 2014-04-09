@@ -6,7 +6,7 @@ import hashlib
 import base64
 
 
-class AmberError(object):
+class AmberError(BaseException):
 
     def __init__(self, status_code, body):
         self.body = body
