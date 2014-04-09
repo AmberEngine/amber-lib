@@ -6,11 +6,12 @@ import hashlib
 import base64
 
 
-class AmberError(BaseException):
+class AmberError(Exception):
 
     def __init__(self, status_code, body):
         self.body = body
         self.status_code = status_code
+        Exception.__init__(self, body)
 
 def _send_request(url, public_key, private_key, method='GET',
                  data=None, headers=None):
