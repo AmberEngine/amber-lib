@@ -5,7 +5,7 @@ Packaging amber-lib
 -------------------
 
 ```bash
-python setup.py clean sdist
+$ python setup.py clean sdist
 ```
 
 
