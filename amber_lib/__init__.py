@@ -7,48 +7,57 @@ import base64
 
 
 class AmberError(Exception):
-
     def __init__(self, status_code, body):
         self.body = body
         self.status_code = status_code
         Exception.__init__(self, body)
 
-def _send_request(url, public_key, private_key, method='GET',
-                 data=None, headers=None):
-    if not data:
-        data = {}
-    if not headers:
-        headers = {'Content-Type': 'application/json'}
-    timestamp = datetime.isoformat(datetime.utcnow())
-    request_data = {
-        'url': url,
-        'data': data,
-        'headers': headers,
-        'timestamp': timestamp,
-        'api_key': public_key
-    }
-    request_string = json.dumps(request_data, sort_keys=True)
-    request_data['signature'] = base64.b64encode(hashlib.sha256(
-        request_string + private_key).hexdigest())
-    r = False
-    if method == 'GET':
-        r = requests.get(url, data=json.dumps(request_data), headers=headers)
-    elif method == 'PUT':
-        r = requests.put(url, data=json.dumps(request_data), headers=headers)
-    elif method == 'POST':
-        r = requests.post(url, data=json.dumps(request_data), headers=headers)
-    elif method == 'DELETE':
-        r = requests.delete(url, data=json.dumps(request_data), headers=headers)
 
-    if r and r.status_code == 200:
-        return json.loads(r.text)
+def _send_request(url, public_key, private_key, method='GET',
+                  data=None, headers=None):
+    retries = 3
+    r = False
+    while retries > 0:
+        if not data:
+            data = {}
+        if not headers:
+            headers = {'Content-Type': 'application/json'}
+        timestamp = datetime.isoformat(datetime.utcnow())
+        request_data = {
+            'url': url,
+            'data': data,
+            'headers': headers,
+            'timestamp': timestamp,
+            'api_key': public_key
+        }
+        request_string = json.dumps(request_data, sort_keys=True)
+        request_data['signature'] = base64.b64encode(hashlib.sha256(
+            request_string + private_key).hexdigest())
+        r = False
+        if method == 'GET':
+            r = requests.get(
+                url, data=json.dumps(request_data), headers=headers)
+        elif method == 'PUT':
+            r = requests.put(
+                url, data=json.dumps(request_data), headers=headers)
+        elif method == 'POST':
+            r = requests.post(
+                url, data=json.dumps(request_data), headers=headers)
+        elif method == 'DELETE':
+            r = requests.delete(
+                url, data=json.dumps(request_data), headers=headers)
+
+        if r and r.status_code == 200:
+            return json.loads(r.text)
+        else:
+            retries -= 1
     try:
         raise AmberError(r.status_code, json.loads(r.text))
     except ValueError:
         raise AmberError(r.status_code, r.text)
 
-class AmberClient(object):
 
+class AmberClient(object):
     def init(self, api_url, pub_key, pri_key):
         self.api_url = api_url
         self.pub_key = pub_key
