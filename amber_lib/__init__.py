@@ -44,7 +44,7 @@ def _send_request(url, public_key, private_key, method='GET',
         return json.loads(r.text)
     try:
         raise AmberError(r.status_code, json.loads(r.text))
-    except(ValueError):
+    except ValueError:
         raise AmberError(r.status_code, r.text)
 
 class AmberClient(object):
