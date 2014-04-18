@@ -229,5 +229,5 @@ class AmberClient(object):
 
     # COLLECTIONS:
 
-    def get_collections(self):
-        return self._get('collections')
+    def get_product_lines(self):
+        return self._get('product_lines')
