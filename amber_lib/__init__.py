@@ -4,6 +4,13 @@ import requests
 from datetime import datetime
 import hashlib
 import base64
+import decimal
+
+class DecimalEncoder(json.JSONEncoder):
+    def _iterencode(self, o, markers=None):
+        if isinstance(o, decimal.Decimal):
+            return (str(o) for o in [o])
+        return super(DecimalEncoder, self)._iterencode(o, markers)
 
 
 class AmberError(Exception):
@@ -30,23 +37,34 @@ def _send_request(url, public_key, private_key, method='GET',
             'timestamp': timestamp,
             'api_key': public_key
         }
-        request_string = json.dumps(request_data, sort_keys=True)
+        request_string = json.dumps(request_data, sort_keys=True, cls=DecimalEncoder)
         request_data['signature'] = base64.b64encode(hashlib.sha256(
             request_string + private_key).hexdigest())
         r = False
         if method == 'GET':
             r = requests.get(
-                url, data=json.dumps(request_data), headers=headers)
+                url,
+                data=json.dumps(request_data, cls=DecimalEncoder),
+                headers=headers
+            )
         elif method == 'PUT':
             r = requests.put(
-                url, data=json.dumps(request_data), headers=headers)
+                url,
+                data=json.dumps(request_data, cls=DecimalEncoder),
+                headers=headers
+            )
         elif method == 'POST':
             r = requests.post(
-                url, data=json.dumps(request_data), headers=headers)
+                url,
+                data=json.dumps(request_data, cls=DecimalEncoder),
+                headers=headers
+            )
         elif method == 'DELETE':
             r = requests.delete(
-                url, data=json.dumps(request_data), headers=headers)
-
+                url,
+                data=json.dumps(request_data, cls=DecimalEncoder),
+                headers=headers
+            )
         if r and r.status_code == 200:
             return json.loads(r.text)
         else:
