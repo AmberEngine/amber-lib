@@ -7,9 +7,9 @@ import base64
 import decimal
 
 class DecimalEncoder(json.JSONEncoder):
-    def _iterencode(self, o, markers=None):
+    def default(self, o):
         if isinstance(o, decimal.Decimal):
-            return (str(o) for o in [o])
+            return str(o)
         return super(DecimalEncoder, self)._iterencode(o, markers)
 
 
