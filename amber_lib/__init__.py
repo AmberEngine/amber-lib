@@ -92,7 +92,7 @@ class AmberClient(object):
             'public_key': self.pub_key,
             'private_key': self.pri_key,
             'method': 'GET',
-            'data': json.dumps(data),
+            'data': json.dumps(data, cls=DecimalEncoder),
             'headers': headers
         }
         return _send_request(**args)
@@ -107,7 +107,7 @@ class AmberClient(object):
             'public_key': self.pub_key,
             'private_key': self.pri_key,
             'method': 'POST',
-            'data': json.dumps(data),
+            'data': json.dumps(data, cls=DecimalEncoder),
             'headers': headers
         }
         return _send_request(**args)
@@ -120,7 +120,7 @@ class AmberClient(object):
             'public_key': self.pub_key,
             'private_key': self.pri_key,
             'method': 'POST',
-            'data': json.dumps(data_list),
+            'data': json.dumps(data_list, cls=DecimalEncoder),
             'headers': headers
         }
         return _send_request(**args)
@@ -133,7 +133,7 @@ class AmberClient(object):
             'public_key': self.pub_key,
             'private_key': self.pri_key,
             'method': 'PUT',
-            'data': json.dumps(data),
+            'data': json.dumps(data, cls=DecimalEncoder),
             'headers': headers
         }
         return _send_request(**args)
@@ -159,7 +159,7 @@ class AmberClient(object):
             'public_key': self.pub_key,
             'private_key': self.pri_key,
             'method': 'POST',
-            'data': json.dumps(data),
+            'data': json.dumps(data, cls=DecimalEncoder),
             'headers': headers
         }
         return _send_request(**args)
