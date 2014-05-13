@@ -267,3 +267,26 @@ class AmberClient(object):
 
     def get_product_lines(self):
         return self._get('product_lines')
+
+    # GROUPS:
+
+    def add_group(self, mfr_id):
+        data = {
+            'manufacturer_id': mfr_id
+        }
+        return self._post('groups', **data)
+
+    def get_group(self, group_id):
+        return self._get('groups', group_id)
+
+    def update_group(self, group_id, **data):
+        return self._put('groups', group_id, **data)
+
+    def delete_group(self, group_id):
+        return self._delete('groups', group_id)
+
+    def add_product_to_group(self, group_id, products_ids):
+        return self._post_list(products_ids, 'groups', group_id, 'products')
+
+    def delete_product_from_group(self, group_id, prod_id):
+        return self._delete('groups', group_id, 'products', prod_id)
