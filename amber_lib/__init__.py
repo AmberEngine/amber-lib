@@ -270,16 +270,16 @@ class AmberClient(object):
 
     # GROUPS:
 
-    def add_group(self, mfr_id):
-        data = {
-            'manufacturer_id': mfr_id
-        }
+    def add_group(self, data):
         return self._post('groups', **data)
 
     def get_group(self, group_id):
         return self._get('groups', group_id)
 
-    def update_group(self, group_id, **data):
+    def get_groups(self, mfr_id, data):
+        return self._get('manufacturers', mfr_id, 'groups', **data)
+
+    def update_group(self, group_id, data):
         return self._put('groups', group_id, **data)
 
     def delete_group(self, group_id):
