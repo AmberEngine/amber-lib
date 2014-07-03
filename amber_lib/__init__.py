@@ -14,7 +14,7 @@ class AmberError(Exception):
 
 
 def _send_request(url, public_key, private_key, method='GET',
-                  data=None, headers=None):
+                  data=None, headers=None, user_identifier=None):
     retries = 3
     r = False
     while retries > 0:
@@ -28,7 +28,8 @@ def _send_request(url, public_key, private_key, method='GET',
             'data': data,
             'headers': headers,
             'timestamp': timestamp,
-            'api_key': public_key
+            'api_key': public_key,
+            'user_identifier': user_identifier
         }
         request_string = json.dumps(request_data, sort_keys=True)
         request_data['signature'] = base64.b64encode(hashlib.sha256(
@@ -75,7 +76,8 @@ class AmberClient(object):
             'private_key': self.pri_key,
             'method': 'GET',
             'data': json.dumps(data),
-            'headers': headers
+            'headers': headers,
+            'user_identifier': data.get('user_identifier'),
         }
         return _send_request(**args)
 
@@ -90,11 +92,12 @@ class AmberClient(object):
             'private_key': self.pri_key,
             'method': 'POST',
             'data': json.dumps(data),
-            'headers': headers
+            'headers': headers,
+            'user_identifier': data.get('user_identifier'),
         }
         return _send_request(**args)
 
-    def _post_list(self, data_list, *path):
+    def _post_list(self, data_list, *path, **data):
         url = self._url(*path)
         headers = {'Content-Type': 'application/json'}
         args = {
@@ -103,7 +106,8 @@ class AmberClient(object):
             'private_key': self.pri_key,
             'method': 'POST',
             'data': json.dumps(data_list),
-            'headers': headers
+            'headers': headers,
+            'user_identifier': data.get('user_identifier'),
         }
         return _send_request(**args)
 
@@ -116,11 +120,12 @@ class AmberClient(object):
             'private_key': self.pri_key,
             'method': 'PUT',
             'data': json.dumps(data),
-            'headers': headers
+            'headers': headers,
+            'user_identifier': data.get('user_identifier'),
         }
         return _send_request(**args)
 
-    def _delete(self, *path):
+    def _delete(self, *path, **data):
         url = self._url(*path)
         headers = {'Content-Type': 'application/json'}
         args = {
@@ -129,7 +134,8 @@ class AmberClient(object):
             'private_key': self.pri_key,
             'method': 'DELETE',
             'data': json.dumps(None),
-            'headers': headers
+            'headers': headers,
+            'user_identifier': data.get('user_identifier'),
         }
         return _send_request(**args)
 
@@ -142,7 +148,8 @@ class AmberClient(object):
             'private_key': self.pri_key,
             'method': 'POST',
             'data': json.dumps(data),
-            'headers': headers
+            'headers': headers,
+            'user_identifier': data.get('user_identifier'),
         }
         return _send_request(**args)
 
