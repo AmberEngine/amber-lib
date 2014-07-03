@@ -4,6 +4,13 @@ import requests
 from datetime import datetime
 import hashlib
 import base64
+import decimal
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, decimal.Decimal):
+            return str(o)
+        return super(DecimalEncoder, self)._iterencode(o, markers)
 
 
 class AmberError(Exception):
@@ -31,23 +38,34 @@ def _send_request(url, public_key, private_key, method='GET',
             'api_key': public_key,
             'user_identifier': user_identifier
         }
-        request_string = json.dumps(request_data, sort_keys=True)
+        request_string = json.dumps(request_data, sort_keys=True, cls=DecimalEncoder)
         request_data['signature'] = base64.b64encode(hashlib.sha256(
             request_string + private_key).hexdigest())
         r = False
         if method == 'GET':
             r = requests.get(
-                url, data=json.dumps(request_data), headers=headers)
+                url,
+                data=json.dumps(request_data, cls=DecimalEncoder),
+                headers=headers
+            )
         elif method == 'PUT':
             r = requests.put(
-                url, data=json.dumps(request_data), headers=headers)
+                url,
+                data=json.dumps(request_data, cls=DecimalEncoder),
+                headers=headers
+            )
         elif method == 'POST':
             r = requests.post(
-                url, data=json.dumps(request_data), headers=headers)
+                url,
+                data=json.dumps(request_data, cls=DecimalEncoder),
+                headers=headers
+            )
         elif method == 'DELETE':
             r = requests.delete(
-                url, data=json.dumps(request_data), headers=headers)
-
+                url,
+                data=json.dumps(request_data, cls=DecimalEncoder),
+                headers=headers
+            )
         if r and r.status_code == 200:
             return json.loads(r.text)
         else:
@@ -75,7 +93,7 @@ class AmberClient(object):
             'public_key': self.pub_key,
             'private_key': self.pri_key,
             'method': 'GET',
-            'data': json.dumps(data),
+            'data': json.dumps(data, cls=DecimalEncoder),
             'headers': headers,
             'user_identifier': data.get('user_identifier'),
         }
@@ -91,7 +109,7 @@ class AmberClient(object):
             'public_key': self.pub_key,
             'private_key': self.pri_key,
             'method': 'POST',
-            'data': json.dumps(data),
+            'data': json.dumps(data, cls=DecimalEncoder),
             'headers': headers,
             'user_identifier': data.get('user_identifier'),
         }
@@ -105,7 +123,7 @@ class AmberClient(object):
             'public_key': self.pub_key,
             'private_key': self.pri_key,
             'method': 'POST',
-            'data': json.dumps(data_list),
+            'data': json.dumps(data_list, cls=DecimalEncoder),
             'headers': headers,
             'user_identifier': data.get('user_identifier'),
         }
@@ -119,7 +137,7 @@ class AmberClient(object):
             'public_key': self.pub_key,
             'private_key': self.pri_key,
             'method': 'PUT',
-            'data': json.dumps(data),
+            'data': json.dumps(data, cls=DecimalEncoder),
             'headers': headers,
             'user_identifier': data.get('user_identifier'),
         }
@@ -147,7 +165,7 @@ class AmberClient(object):
             'public_key': self.pub_key,
             'private_key': self.pri_key,
             'method': 'POST',
-            'data': json.dumps(data),
+            'data': json.dumps(data, cls=DecimalEncoder),
             'headers': headers,
             'user_identifier': data.get('user_identifier'),
         }
@@ -254,5 +272,28 @@ class AmberClient(object):
 
     # COLLECTIONS:
 
-    def get_collections(self):
-        return self._get('collections')
+    def get_product_lines(self):
+        return self._get('product_lines')
+
+    # GROUPS:
+
+    def add_group(self, data):
+        return self._post('groups', **data)
+
+    def get_group(self, group_id):
+        return self._get('groups', group_id)
+
+    def get_groups(self, mfr_id, data):
+        return self._get('manufacturers', mfr_id, 'groups', **data)
+
+    def update_group(self, group_id, data):
+        return self._put('groups', group_id, **data)
+
+    def delete_group(self, group_id):
+        return self._delete('groups', group_id)
+
+    def add_product_to_group(self, group_id, products_ids):
+        return self._post_list(products_ids, 'groups', group_id, 'products')
+
+    def delete_product_from_group(self, group_id, prod_id):
+        return self._delete('groups', group_id, 'products', prod_id)
