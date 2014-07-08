@@ -299,3 +299,8 @@ class AmberClient(object):
     def delete_product_from_group(
             self, group_id, prod_id, user_identifier=None):
         return self._delete(user_identifier, 'groups', group_id, 'products', prod_id)
+
+    # LOGS:
+
+    def get_logss(self, user_identifier=None):
+        return self._get(user_identifier, 'logs')
