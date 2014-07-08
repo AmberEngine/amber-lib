@@ -303,4 +303,4 @@ class AmberClient(object):
     # LOGS:
 
     def get_logss(self, user_id, user_identifier=None):
-        return self._get(user_identifier, 'logs', user_id)
+        return self._get(user_identifier, 'logs', user_id=user_id)
