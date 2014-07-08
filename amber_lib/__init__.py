@@ -244,8 +244,8 @@ class AmberClient(object):
     def get_manufacturer(self, mfr_id, user_identifier=None):
         return self._get(user_identifier, 'manufacturers', mfr_id)
 
-    def get_manufacturers(self, user_identifier=None):
-        return self._get(user_identifier, 'manufacturers')
+    def get_manufacturers(self, data, user_identifier=None):
+        return self._get(user_identifier, 'manufacturers', **data)
 
     def add_manufacturer(self, data, user_identifier=None):
         return self._post(user_identifier, 'manufacturers', **data)
