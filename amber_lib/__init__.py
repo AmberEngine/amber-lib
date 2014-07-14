@@ -6,11 +6,15 @@ import hashlib
 import base64
 import decimal
 
-class DecimalEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, decimal.Decimal):
-            return str(o)
-        return super(DecimalEncoder, self)._iterencode(o, markers)
+
+class ObjectEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, decimal.Decimal):
+            return str(obj)
+        elif isinstance(obj, datetime.datetime):
+            return str(obj)
+
+        return super(ObjectEncoder, self).default(obj)
 
 
 class AmberError(Exception):
@@ -38,32 +42,36 @@ def _send_request(url, public_key, private_key, method='GET',
             'api_key': public_key,
             'user_identifier': user_identifier
         }
-        request_string = json.dumps(request_data, sort_keys=True, cls=DecimalEncoder)
+        request_string = json.dumps(
+            request_data,
+            sort_keys=True,
+            cls=ObjectEncoder
+        )
         request_data['signature'] = base64.b64encode(hashlib.sha256(
             request_string + private_key).hexdigest())
         r = False
         if method == 'GET':
             r = requests.get(
                 url,
-                data=json.dumps(request_data, cls=DecimalEncoder),
+                data=json.dumps(request_data, cls=ObjectEncoder),
                 headers=headers
             )
         elif method == 'PUT':
             r = requests.put(
                 url,
-                data=json.dumps(request_data, cls=DecimalEncoder),
+                data=json.dumps(request_data, cls=ObjectEncoder),
                 headers=headers
             )
         elif method == 'POST':
             r = requests.post(
                 url,
-                data=json.dumps(request_data, cls=DecimalEncoder),
+                data=json.dumps(request_data, cls=ObjectEncoder),
                 headers=headers
             )
         elif method == 'DELETE':
             r = requests.delete(
                 url,
-                data=json.dumps(request_data, cls=DecimalEncoder),
+                data=json.dumps(request_data, cls=ObjectEncoder),
                 headers=headers
             )
         if r and r.status_code == 200:
@@ -93,7 +101,7 @@ class AmberClient(object):
             'public_key': self.pub_key,
             'private_key': self.pri_key,
             'method': 'GET',
-            'data': json.dumps(data, cls=DecimalEncoder),
+            'data': json.dumps(data, cls=ObjectEncoder),
             'headers': headers,
             'user_identifier': user_identifier,
         }
@@ -109,7 +117,7 @@ class AmberClient(object):
             'public_key': self.pub_key,
             'private_key': self.pri_key,
             'method': 'POST',
-            'data': json.dumps(data, cls=DecimalEncoder),
+            'data': json.dumps(data, cls=ObjectEncoder),
             'headers': headers,
             'user_identifier': user_identifier,
         }
@@ -123,7 +131,7 @@ class AmberClient(object):
             'public_key': self.pub_key,
             'private_key': self.pri_key,
             'method': 'POST',
-            'data': json.dumps(data_list, cls=DecimalEncoder),
+            'data': json.dumps(data_list, cls=ObjectEncoder),
             'headers': headers,
             'user_identifier': user_identifier,
         }
@@ -137,7 +145,7 @@ class AmberClient(object):
             'public_key': self.pub_key,
             'private_key': self.pri_key,
             'method': 'PUT',
-            'data': json.dumps(data, cls=DecimalEncoder),
+            'data': json.dumps(data, cls=ObjectEncoder),
             'headers': headers,
             'user_identifier': user_identifier,
         }
@@ -165,142 +173,325 @@ class AmberClient(object):
             'public_key': self.pub_key,
             'private_key': self.pri_key,
             'method': 'POST',
-            'data': json.dumps(data, cls=DecimalEncoder),
+            'data': json.dumps(data, cls=ObjectEncoder),
             'headers': headers,
             'user_identifier': user_identifier,
         }
         return _send_request(**args)
 
     def update_ngram_index(self, user_identifier=None):
-        return self._get('update_ngram_index', user_identifier)
+        return self._get(
+            'update_ngram_index',
+            user_identifier
+        )
 
     # PRODUCT:
 
     def get_product(self, prod_id, user_identifier=None):
-        return self._get(user_identifier, 'products', prod_id)
+        return self._get(
+            user_identifier,
+            'products',
+            prod_id
+        )
 
     def get_products(self, params, user_identifier=None):
-        return self._get(user_identifier, 'products', **params)
+        return self._get(
+            user_identifier,
+            'products',
+            **params
+        )
 
     def search_products(self, params, user_identifier=None):
-        return self._search(user_identifier, 'products', 'search', **params)
+        return self._search(
+            user_identifier,
+            'products',
+            'search',
+            **params
+        )
 
     def add_product(self, data, user_identifier=None):
-        return self._post(user_identifier, 'products', **data)
+        return self._post(
+            user_identifier,
+            'products',
+            **data
+        )
 
     def update_product(self, prod_id, data, user_identifier=None):
-        return self._put(user_identifier, 'products', prod_id, **data)
+        return self._put(
+            user_identifier,
+            'products',
+            prod_id,
+            **data
+        )
 
     def delete_product(self, prod_id, user_identifier=None):
-        return self._delete(user_identifier, 'products', prod_id)
+        return self._delete(
+            user_identifier,
+            'products',
+            prod_id
+        )
 
     # IMAGES:
 
     def get_images(self, prod_id, user_identifier=None):
-        return self._get(user_identifier, 'products', prod_id, 'images')
+        return self._get(
+            user_identifier,
+            'products',
+            prod_id,
+            'images'
+        )
 
     def add_image(self, prod_id, data, user_identifier=None):
-        return self._post(user_identifier, 'products', prod_id, 'images', **data)
+        return self._post(
+            user_identifier,
+            'products',
+            prod_id,
+            'images',
+            **data
+        )
 
     def get_image(self, prod_id, img_id, user_identifier=None):
-        return self._get(user_identifier, 'products', prod_id, 'images', img_id)
+        return self._get(
+            user_identifier,
+            'products',
+            prod_id,
+            'images',
+            img_id
+        )
 
     def edit_image(self, prod_id, img_id, data, user_identifier=None):
-        return self._put(user_identifier, 'products', prod_id, 'images', img_id, **data)
+        return self._put(
+            user_identifier,
+            'products',
+            prod_id,
+            'images',
+            img_id,
+            **data
+        )
 
     def delete_image(self, prod_id, img_id, user_identifier=None):
-        return self._delete(user_identifier, 'products', prod_id, 'images', img_id)
+        return self._delete(
+            user_identifier,
+            'products',
+            prod_id,
+            'images',
+            img_id
+        )
 
     # OPTIONS:
 
     def get_options(self, prod_id, user_identifier=None):
-        return self._get(user_identifier, 'products', prod_id, 'options')
+        return self._get(
+            user_identifier,
+            'products',
+            prod_id,
+            'options'
+        )
 
     def add_option(self, prod_id, data, user_identifier=None):
-        return self._post(user_identifier, 'products', prod_id, 'options', **data)
+        return self._post(
+            user_identifier,
+            'products',
+            prod_id,
+            'options',
+            **data
+        )
 
     def get_option(self, prod_id, opt_id, user_identifier=None):
-        return self._get(user_identifier, 'products', prod_id, 'options', opt_id)
+        return self._get(
+            user_identifier,
+            'products',
+            prod_id,
+            'options',
+            opt_id
+        )
 
     def edit_option(self, prod_id, opt_id, data, user_identifier=None):
-        return self._put(user_identifier, 'products', prod_id, 'options', opt_id, **data)
+        return self._put(
+            user_identifier,
+            'products',
+            prod_id,
+            'options',
+            opt_id,
+            **data
+        )
 
     def delete_option(self, prod_id, opt_id, user_identifier=None):
-        return self._delete(user_identifier, 'products', prod_id, 'options', opt_id)
+        return self._delete(
+            user_identifier,
+            'products',
+            prod_id,
+            'options',
+            opt_id
+        )
 
     # TAGS:
 
     def get_tags(self, prod_id, user_identifier=None):
-        return self._get(user_identifier, 'products', prod_id, 'tags')
+        return self._get(
+            user_identifier,
+            'products',
+            prod_id,
+            'tags'
+        )
 
     def delete_tag(self, prod_id, tag_id, user_identifier=None):
-        return self._delete(user_identifier, 'products', prod_id, 'tags', tag_id)
+        return self._delete(
+            user_identifier,
+            'products',
+            prod_id,
+            'tags',
+            tag_id
+        )
 
     def add_tags(self, prod_id, new_tags, user_identifier=None):
-        return self._post_list(user_identifier, new_tags, 'products', prod_id, 'tags')
+        return self._post_list(
+            user_identifier,
+            new_tags,
+            'products',
+            prod_id,
+            'tags'
+        )
 
     # MANUFACTURER:
 
     def get_manufacturer(self, mfr_id, user_identifier=None):
-        return self._get(user_identifier, 'manufacturers', mfr_id)
+        return self._get(
+            user_identifier,
+            'manufacturers',
+            mfr_id
+        )
 
     def get_manufacturers(self, data, user_identifier=None):
-        return self._get(user_identifier, 'manufacturers', **data)
+        return self._get(
+            user_identifier,
+            'manufacturers',
+            **data
+        )
 
     def add_manufacturer(self, data, user_identifier=None):
-        return self._post(user_identifier, 'manufacturers', **data)
+        return self._post(
+            user_identifier,
+            'manufacturers',
+            **data
+        )
 
     # USER:
 
     def get_roles(self, user_identifier=None):
-        return self._get(user_identifier, 'role')
+        return self._get(
+            user_identifier,
+            'role'
+        )
 
     def get_user(self, user_id, user_identifier=None):
-        return self._get(user_identifier, 'users', user_id)
+        return self._get(
+            user_identifier,
+            'users',
+            user_id
+        )
 
     def get_users(self, user_identifier=None):
-        return self._get(user_identifier, 'users')
+        return self._get(
+            user_identifier,
+            'users'
+        )
 
     def add_user(self, data, user_identifier=None):
-        return self._post(user_identifier, 'users', **data)
+        return self._post(
+            user_identifier,
+            'users',
+            **data
+        )
 
     def update_user(self, user_id, data, user_identifier=None):
-        return self._put(user_identifier, 'users', user_id, **data)
+        return self._put(
+            user_identifier,
+            'users',
+            user_id,
+            **data
+        )
 
     def delete_user(self, user_id, user_identifier=None):
-        return self._delete(user_identifier, 'users', user_id)
+        return self._delete(
+            user_identifier,
+            'users',
+            user_id
+        )
 
     # COLLECTIONS:
 
     def get_product_lines(self, user_identifier=None):
-        return self._get(user_identifier, 'product_lines')
+        return self._get(
+            user_identifier,
+            'product_lines'
+        )
 
     # GROUPS:
 
     def add_group(self, data, user_identifier=None):
-        return self._post(user_identifier, 'groups', **data)
+        return self._post(
+            user_identifier,
+            'groups',
+            **data
+        )
 
     def get_group(self, group_id, user_identifier=None):
-        return self._get(user_identifier, 'groups', group_id)
+        return self._get(
+            user_identifier,
+            'groups',
+            group_id
+        )
 
     def get_groups(self, mfr_id, data, user_identifier=None):
-        return self._get(user_identifier, 'manufacturers', mfr_id, 'groups', **data)
+        return self._get(
+            user_identifier,
+            'manufacturers',
+            mfr_id,
+            'groups',
+            **data
+        )
 
     def update_group(self, group_id, data, user_identifier=None):
-        return self._put(user_identifier, 'groups', group_id, **data)
+        return self._put(
+            user_identifier,
+            'groups',
+            group_id,
+            **data
+        )
 
     def delete_group(self, group_id, user_identifier=None):
-        return self._delete(user_identifier, 'groups', group_id)
+        return self._delete(
+            user_identifier,
+            'groups',
+            group_id
+        )
 
     def add_product_to_group(
             self, group_id, products_ids, user_identifier=None):
-        return self._post_list(user_identifier, products_ids, 'groups', group_id, 'products')
+        return self._post_list(
+            user_identifier,
+            products_ids,
+            'groups',
+            group_id,
+            'products'
+        )
 
     def delete_product_from_group(
             self, group_id, prod_id, user_identifier=None):
-        return self._delete(user_identifier, 'groups', group_id, 'products', prod_id)
+        return self._delete(
+            user_identifier,
+            'groups',
+            group_id,
+            'products',
+            prod_id
+        )
 
     # LOGS:
 
     def get_logss(self, user_id, user_identifier=None):
-        return self._get(user_identifier, 'logs', user_id=user_id)
+        return self._get(
+            user_identifier,
+            'logs',
+            user_id=user_id
+        )
