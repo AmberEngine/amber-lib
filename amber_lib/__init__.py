@@ -376,6 +376,14 @@ class AmberClient(object):
             **data
         )
 
+    def update_manufacturer(self, mfr_id, data, user_identifier=None):
+        return self._put(
+            user_identifier,
+            'manufacturers',
+            mfr_id,
+            **data
+        )
+
     # USER:
 
     def get_roles(self, user_identifier=None):
