@@ -109,7 +109,7 @@ class AmberClient(object):
         }
         return _send_request(**args)
 
-    def _post(self, user_identifier, *path, **data):
+    def _post(self, user_identifier, manufacturer_id, *path, **data):
         url = self._url(*path)
         headers = {'Content-Type': 'application/json'}
         if 'data_list' in data:
@@ -122,6 +122,7 @@ class AmberClient(object):
             'data': json.dumps(data, cls=ObjectEncoder),
             'headers': headers,
             'user_identifier': user_identifier,
+            'manufacturer_id': manufacturer_id
         }
         return _send_request(**args)
 
