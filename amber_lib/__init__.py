@@ -25,7 +25,7 @@ class AmberError(Exception):
 
 
 def _send_request(url, public_key, private_key, method='GET',
-                  data=None, headers=None, user_identifier=None):
+                  data=None, headers=None, user_identifier=None, manufacturer_id=None):
     retries = 3
     r = False
     while retries > 0:
@@ -40,7 +40,8 @@ def _send_request(url, public_key, private_key, method='GET',
             'headers': headers,
             'timestamp': timestamp,
             'api_key': public_key,
-            'user_identifier': user_identifier
+            'user_identifier': user_identifier,
+            'manufacturer_id': manufacturer_id
         }
         request_string = json.dumps(
             request_data,
