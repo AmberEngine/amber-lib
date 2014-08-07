@@ -24,8 +24,16 @@ class AmberError(Exception):
         Exception.__init__(self, body)
 
 
-def _send_request(url, public_key, private_key, method='GET',
-                  data=None, headers=None, user_identifier=None, manufacturer_id=None):
+def _send_request(
+    url,
+    public_key,
+    private_key, 
+    method='GET',
+    data=None,
+    headers=None,
+    user_identifier=None,
+    manufacturer_id=None
+):
     retries = 3
     r = False
     while retries > 0:
@@ -105,7 +113,7 @@ class AmberClient(object):
             'data': json.dumps(data, cls=ObjectEncoder),
             'headers': headers,
             'user_identifier': user_identifier,
-            'manufacturer_id': manufacturer_id
+            'manufacturer_id': manufacturer_id,
         }
         return _send_request(**args)
 
@@ -122,11 +130,11 @@ class AmberClient(object):
             'data': json.dumps(data, cls=ObjectEncoder),
             'headers': headers,
             'user_identifier': user_identifier,
-            'manufacturer_id': manufacturer_id
+            'manufacturer_id': manufacturer_id,
         }
         return _send_request(**args)
 
-    def _post_list(self, user_identifier, data_list, *path):
+    def _post_list(self, user_identifier, manufacturer_id, data_list, *path):
         url = self._url(*path)
         headers = {'Content-Type': 'application/json'}
         args = {
@@ -137,10 +145,11 @@ class AmberClient(object):
             'data': json.dumps(data_list, cls=ObjectEncoder),
             'headers': headers,
             'user_identifier': user_identifier,
+            'manufacturer_id': manufacturer_id,
         }
         return _send_request(**args)
 
-    def _put(self, user_identifier, *path, **data):
+    def _put(self, user_identifier, manufacturer_id, *path, **data):
         url = self._url(*path)
         headers = {'Content-Type': 'application/json'}
         args = {
@@ -151,10 +160,11 @@ class AmberClient(object):
             'data': json.dumps(data, cls=ObjectEncoder),
             'headers': headers,
             'user_identifier': user_identifier,
+            'manufacturer_id': manufacturer_id,
         }
         return _send_request(**args)
 
-    def _delete(self, user_identifier, *path):
+    def _delete(self, user_identifier, manufacturer_id, *path):
         url = self._url(*path)
         headers = {'Content-Type': 'application/json'}
         args = {
@@ -165,10 +175,11 @@ class AmberClient(object):
             'data': json.dumps(None),
             'headers': headers,
             'user_identifier': user_identifier,
+            'manufacturer_id': manufacturer_id,
         }
         return _send_request(**args)
 
-    def _search(self, user_identifier, *path, **data):
+    def _search(self, user_identifier, manufacturer_id, *path, **data):
         url = self._url(*path)
         headers = {'Content-Type': 'application/json'}
         args = {
@@ -179,13 +190,15 @@ class AmberClient(object):
             'data': json.dumps(data, cls=ObjectEncoder),
             'headers': headers,
             'user_identifier': user_identifier,
+            'manufacturer_id': manufacturer_id,
         }
         return _send_request(**args)
 
-    def update_ngram_index(self, user_identifier=None):
+    def update_ngram_index(self, user_identifier=None, manufacturer_id=None):
         return self._get(
             'update_ngram_index',
-            user_identifier
+            user_identifier,
+            manufacturer_id
         )
 
     # PRODUCT:
@@ -198,74 +211,118 @@ class AmberClient(object):
             prod_id
         )
 
-    def get_products(self, params, user_identifier=None):
+    def get_products(self, params, user_identifier=None, manufacturer_id=None):
         return self._get(
             user_identifier,
+            manufacturer_id,
             'products',
             **params
         )
 
-    def search_products(self, params, user_identifier=None):
+    def search_products(
+            self,
+            params,
+            user_identifier=None,
+            manufacturer_id=None
+    ):
         return self._search(
             user_identifier,
+            manufacturer_id,
             'products',
             'search',
             **params
         )
 
-    def add_product(self, data, user_identifier=None):
+    def add_product(self, data, user_identifier=None, manufacturer_id=None):
         return self._post(
             user_identifier,
+            manufacturer_id,
             'products',
             **data
         )
 
-    def update_product(self, prod_id, data, user_identifier=None):
+    def update_product(
+            self,
+            prod_id,
+            data,
+            user_identifier=None,
+            manufacturer_id=None
+    ):
         return self._put(
             user_identifier,
+            manufacturer_id,
             'products',
             prod_id,
             **data
         )
 
-    def delete_product(self, prod_id, user_identifier=None):
+    def delete_product(
+            self,
+            prod_id,
+            user_identifier=None,
+            manufacturer_id=None
+    ):
         return self._delete(
             user_identifier,
+            manufacturer_id,
             'products',
             prod_id
         )
 
     # IMAGES:
 
-    def get_images(self, prod_id, user_identifier=None):
+    def get_images(self, prod_id, user_identifier=None, manufacturer_id=None):
         return self._get(
             user_identifier,
+            manufacturer_id,
             'products',
             prod_id,
             'images'
         )
 
-    def add_image(self, prod_id, data, user_identifier=None):
+    def add_image(
+            self,
+            prod_id,
+            data,
+            user_identifier=None,
+            manufacturer_id=None
+    ):
         return self._post(
             user_identifier,
+            manufacturer_id,
             'products',
             prod_id,
             'images',
             **data
         )
 
-    def get_image(self, prod_id, img_id, user_identifier=None):
+    def get_image(
+            self,
+            prod_id,
+            img_id,
+            user_identifier=None,
+            manufacturer_id=None
+    ):
         return self._get(
             user_identifier,
+            manufacturer_id,
             'products',
             prod_id,
             'images',
             img_id
         )
 
-    def edit_image(self, prod_id, img_id, data, user_identifier=None):
+    def edit_image(
+            self,
+            prod_id,
+            img_id,
+            data,
+            user_identifier=None,
+            manufacturer_id=None
+    ):
         return self._put(
             user_identifier,
+            manufacturer_id,
             'products',
             prod_id,
             'images',
@@ -273,9 +330,16 @@ class AmberClient(object):
             **data
         )
 
-    def delete_image(self, prod_id, img_id, user_identifier=None):
+    def delete_image(
+            self,
+            prod_id,
+            img_id,
+            user_identifier=None,
+            manufacturer_id=None
+    ):
         return self._delete(
             user_identifier,
+            manufacturer_id,
             'products',
             prod_id,
             'images',
@@ -284,35 +348,58 @@ class AmberClient(object):
 
     # OPTIONS:
 
-    def get_options(self, prod_id, user_identifier=None):
+    def get_options(self, prod_id, user_identifier=None, manufacturer_id=None):
         return self._get(
             user_identifier,
+            manufacturer_id,
             'products',
             prod_id,
             'options'
         )
 
-    def add_option(self, prod_id, data, user_identifier=None):
+    def add_option(
+            self,
+            prod_id,
+            data,
+            user_identifier=None,
+            manufacturer_id=None
+    ):
         return self._post(
             user_identifier,
+            manufacturer_id,
             'products',
             prod_id,
             'options',
             **data
         )
 
-    def get_option(self, prod_id, opt_id, user_identifier=None):
+    def get_option(
+            self,
+            prod_id,
+            opt_id,
+            user_identifier=None,
+            manufacturer_id=None
+    ):
         return self._get(
             user_identifier,
+            manufacturer_id,
             'products',
             prod_id,
             'options',
             opt_id
         )
 
-    def edit_option(self, prod_id, opt_id, data, user_identifier=None):
+    def edit_option(
+            self,
+            prod_id,
+            opt_id,
+            data,
+            user_identifier=None,
+            manufacturer_id=None
+    ):
         return self._put(
             user_identifier,
+            manufacturer_id,
             'products',
             prod_id,
             'options',
@@ -320,9 +407,16 @@ class AmberClient(object):
             **data
         )
 
-    def delete_option(self, prod_id, opt_id, user_identifier=None):
+    def delete_option(
+            self,
+            prod_id,
+            opt_id,
+            user_identifier=None,
+            manufacturer_id=None
+    ):
         return self._delete(
             user_identifier,
+            manufacturer_id,
             'products',
             prod_id,
             'options',
@@ -331,26 +425,41 @@ class AmberClient(object):
 
     # TAGS:
 
-    def get_tags(self, prod_id, user_identifier=None):
+    def get_tags(self, prod_id, user_identifier=None, manufacturer_id=None):
         return self._get(
             user_identifier,
+            manufacturer_id,
             'products',
             prod_id,
             'tags'
         )
 
-    def delete_tag(self, prod_id, tag_id, user_identifier=None):
+    def delete_tag(
+            self,
+            prod_id,
+            tag_id,
+            user_identifier=None,
+            manufacturer_id=None
+    ):
         return self._delete(
             user_identifier,
+            manufacturer_id,
             'products',
             prod_id,
             'tags',
             tag_id
         )
 
-    def add_tags(self, prod_id, new_tags, user_identifier=None):
+    def add_tags(
+            self,
+            prod_id,
+            new_tags,
+            user_identifier=None,
+            manufacturer_id=None
+    ):
         return self._post_list(
             user_identifier,
+            manufacturer_id,
             new_tags,
             'products',
             prod_id,
@@ -359,30 +468,55 @@ class AmberClient(object):
 
     # MANUFACTURER:
 
-    def get_manufacturer(self, mfr_id, user_identifier=None):
+    def get_manufacturer(
+            self,
+            mfr_id,
+            user_identifier=None,
+            manufacturer_id=None
+    ):
         return self._get(
             user_identifier,
+            manufacturer_id,
             'manufacturers',
             mfr_id
         )
 
-    def get_manufacturers(self, data, user_identifier=None):
+    def get_manufacturers(
+            self,
+            data,
+            user_identifier=None,
+            manufacturer_id=None
+    ):
         return self._get(
             user_identifier,
+            manufacturer_id,
             'manufacturers',
             **data
         )
 
-    def add_manufacturer(self, data, user_identifier=None):
+    def add_manufacturer(
+            self,
+            data,
+            user_identifier=None,
+            manufacturer_id=None
+    ):
         return self._post(
             user_identifier,
+            manufacturer_id,
             'manufacturers',
             **data
         )
 
-    def update_manufacturer(self, mfr_id, data, user_identifier=None):
+    def update_manufacturer(
+            self,
+            mfr_id,
+            data,
+            user_identifier=None,
+            manufacturer_id=None
+    ):
         return self._put(
             user_identifier,
+            manufacturer_id,
             'manufacturers',
             mfr_id,
             **data
@@ -390,99 +524,140 @@ class AmberClient(object):
 
     # USER:
 
-    def get_roles(self, user_identifier=None):
+    def get_roles(self, user_identifier=None, manufacturer_id=None):
         return self._get(
             user_identifier,
+            manufacturer_id,
             'role'
         )
 
-    def get_user(self, user_id, user_identifier=None):
+    def get_user(self, user_id, user_identifier=None, manufacturer_id=None):
         return self._get(
             user_identifier,
+            manufacturer_id,
             'users',
             user_id
         )
 
-    def get_users(self, user_identifier=None):
+    def get_users(self, user_identifier=None, manufacturer_id=None):
         return self._get(
             user_identifier,
+            manufacturer_id,
             'users'
         )
 
-    def add_user(self, data, user_identifier=None):
+    def add_user(self, data, user_identifier=None, manufacturer_id=None):
         return self._post(
             user_identifier,
+            manufacturer_id,
             'users',
             **data
         )
 
-    def update_user(self, user_id, data, user_identifier=None):
+    def update_user(
+            self,
+            user_id,
+            data,
+            user_identifier=None,
+            manufacturer_id=None
+    ):
         return self._put(
             user_identifier,
+            manufacturer_id,
             'users',
             user_id,
             **data
         )
 
-    def delete_user(self, user_id, user_identifier=None):
+    def delete_user(self, user_id, user_identifier=None, manufacturer_id=None):
         return self._delete(
             user_identifier,
+            manufacturer_id,
             'users',
             user_id
         )
 
     # COLLECTIONS:
 
-    def get_product_lines(self, user_identifier=None):
+    def get_product_lines(self, user_identifier=None, manufacturer_id=None):
         return self._get(
             user_identifier,
+            manufacturer_id,
             'product_lines'
         )
 
     # GROUPS:
 
-    def add_group(self, data, user_identifier=None):
+    def add_group(self, data, user_identifier=None, manufacturer_id=None):
         return self._post(
             user_identifier,
+            manufacturer_id,
             'groups',
             **data
         )
 
-    def get_group(self, group_id, user_identifier=None):
+    def get_group(self, group_id, user_identifier=None, manufacturer_id=None):
         return self._get(
             user_identifier,
+            manufacturer_id,
             'groups',
             group_id
         )
 
-    def get_groups(self, mfr_id, data, user_identifier=None):
+    def get_groups(
+            self,
+            mfr_id,
+            data,
+            user_identifier=None,
+            manufacturer_id=None
+    ):
         return self._get(
             user_identifier,
+            manufacturer_id,
             'manufacturers',
             mfr_id,
             'groups',
             **data
         )
 
-    def update_group(self, group_id, data, user_identifier=None):
+    def update_group(
+            self,
+            group_id,
+            data,
+            user_identifier=None,
+            manufacturer_id=None
+    ):
         return self._put(
             user_identifier,
+            manufacturer_id,
             'groups',
             group_id,
             **data
         )
 
-    def delete_group(self, group_id, user_identifier=None):
+    def delete_group(
+            self,
+            group_id,
+            user_identifier=None,
+            manufacturer_id=None
+    ):
         return self._delete(
             user_identifier,
+            manufacturer_id,
             'groups',
             group_id
         )
 
     def add_product_to_group(
-            self, group_id, products_ids, user_identifier=None):
+            self,
+            group_id,
+            products_ids,
+            user_identifier=None,
+            manufacturer_id=None
+    ):
         return self._post_list(
             user_identifier,
+            manufacturer_id,
             products_ids,
             'groups',
             group_id,
@@ -490,9 +665,15 @@ class AmberClient(object):
         )
 
     def delete_product_from_group(
-            self, group_id, prod_id, user_identifier=None):
+            self,
+            group_id,
+            prod_id,
+            user_identifier=None,
+            manufacturer_id=None
+    ):
         return self._delete(
             user_identifier,
+            manufacturer_id,
             'groups',
             group_id,
             'products',
@@ -501,9 +682,10 @@ class AmberClient(object):
 
     # LOGS:
 
-    def get_logss(self, user_id, user_identifier=None):
+    def get_logs(self, user_id, user_identifier=None, manufacturer_id=None):
         return self._get(
             user_identifier,
+            manufacturer_id,
             'logs',
             user_id=user_id
         )
