@@ -93,7 +93,7 @@ class AmberClient(object):
     def _url(self, *path):
         return self.api_url + "/api/v1/" + "/".join([str(x) for x in path])
 
-    def _get(self, user_identifier, *path, **data):
+    def _get(self, user_identifier, manufacturer_id, *path, **data):
         url = self._url(*path)
         headers = {'Content-Type': 'application/json'}
         args = {
@@ -104,6 +104,7 @@ class AmberClient(object):
             'data': json.dumps(data, cls=ObjectEncoder),
             'headers': headers,
             'user_identifier': user_identifier,
+            'manufacturer_id': manufacturer_id
         }
         return _send_request(**args)
 
@@ -187,9 +188,10 @@ class AmberClient(object):
 
     # PRODUCT:
 
-    def get_product(self, prod_id, user_identifier=None):
+    def get_product(self, prod_id, user_identifier=None, manufacturer_id=None):
         return self._get(
             user_identifier,
+            manufacturer_id,
             'products',
             prod_id
         )
