@@ -689,3 +689,16 @@ class AmberClient(object):
             'logs',
             user_id=user_id
         )
+
+    # Components:
+
+    def get_components(
+            self,
+            user_identifier=None,
+            manufacturer_id=None
+    ):
+        return self._get(
+            user_identifier,
+            manufacturer_id,
+            'components'
+        )
