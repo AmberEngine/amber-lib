@@ -8,6 +8,7 @@ import decimal
 
 
 class ObjectEncoder(json.JSONEncoder):
+
     def default(self, obj):
         if isinstance(obj, decimal.Decimal):
             return str(obj)
@@ -18,6 +19,7 @@ class ObjectEncoder(json.JSONEncoder):
 
 
 class AmberError(Exception):
+
     def __init__(self, status_code, body):
         self.body = body
         self.status_code = status_code
@@ -27,7 +29,7 @@ class AmberError(Exception):
 def _send_request(
     url,
     public_key,
-    private_key, 
+    private_key,
     method='GET',
     data=None,
     headers=None,
@@ -94,6 +96,7 @@ def _send_request(
 
 
 class AmberClient(object):
+
     def init(self, api_url, pub_key, pri_key):
         self.api_url = api_url
         self.pub_key = pub_key
@@ -579,11 +582,58 @@ class AmberClient(object):
 
     # COLLECTIONS:
 
-    def get_product_lines(self, user_identifier=None, manufacturer_id=None):
+    def get_collections(self, user_identifier=None, manufacturer_id=None):
         return self._get(
             user_identifier,
             manufacturer_id,
-            'product_lines'
+            'collections'
+        )
+
+    def add_collection(self, data, user_identifier=None, manufacturer_id=None):
+        return self._post(
+            user_identifier,
+            manufacturer_id,
+            'collections',
+            **data
+        )
+
+    def get_collection(
+            self,
+            collection_id,
+            user_identifier=None,
+            manufacturer_id=None
+    ):
+        return self._get(
+            user_identifier,
+            manufacturer_id,
+            'collections',
+            collection_id
+        )
+
+    def update_collection(
+            self,
+            collection_id,
+            user_identifier=None,
+            manufacturer_id=None
+    ):
+        return self._put(
+            user_identifier,
+            manufacturer_id,
+            'collections',
+            collection_id
+        )
+
+    def delete_collection(
+            self,
+            collection_id,
+            user_identifier=None,
+            manufacturer_id=None
+    ):
+        return self._delete(
+            user_identifier,
+            manufacturer_id,
+            'collections',
+            collection_id
         )
 
     # GROUPS:
