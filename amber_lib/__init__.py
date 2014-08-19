@@ -697,6 +697,21 @@ class AmberClient(object):
             collection_id
         )
 
+    def add_products_to_collection(
+            self,
+            collection_id,
+            data,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._post(
+            user_identifier,
+            user_manufacturer_id,
+            'collections',
+            collection_id,
+            **data
+        )
+
     # GROUPS:
 
     def add_group(self, data, user_identifier=None, user_manufacturer_id=None):
