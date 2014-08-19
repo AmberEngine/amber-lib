@@ -613,6 +613,7 @@ class AmberClient(object):
     def update_collection(
             self,
             collection_id,
+            data,
             user_identifier=None,
             manufacturer_id=None
     ):
@@ -620,7 +621,8 @@ class AmberClient(object):
             user_identifier,
             manufacturer_id,
             'collections',
-            collection_id
+            collection_id,
+            **data
         )
 
     def delete_collection(
