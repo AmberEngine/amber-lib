@@ -821,3 +821,44 @@ class AmberClient(object):
             user_manufacturer_id,
             'components'
         )
+
+    # Categories:
+
+    def get_categories(
+            self,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._get(
+            user_identifier,
+            user_manufacturer_id,
+            'categories'
+        )
+
+    def get_primary_sub_categories(
+            self,
+            category_name,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._get(
+            user_identifier,
+            user_manufacturer_id,
+            'categories',
+            category_name
+        )
+
+    def get_secondary_sub_categories(
+            self,
+            category_name,
+            primary_sub_category_name,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._get(
+            user_identifier,
+            user_manufacturer_id,
+            'categories',
+            category_name,
+            primary_sub_category_name
+        )
