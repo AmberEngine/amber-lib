@@ -297,6 +297,34 @@ class AmberClient(object):
             prod_id
         )
 
+    def add_products_to_collection(
+            self,
+            data,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._post(
+            user_identifier,
+            user_manufacturer_id,
+            'collections',
+            'add_collection',
+            **data
+        )
+
+    def remove_products_from_collection(
+            self,
+            data,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._post(
+            user_identifier,
+            user_manufacturer_id,
+            'collections',
+            'remove_collection',
+            **data
+        )
+
     # IMAGES:
 
     def get_images(
@@ -695,21 +723,6 @@ class AmberClient(object):
             user_manufacturer_id,
             'collections',
             collection_id
-        )
-
-    def add_products_to_collection(
-            self,
-            collection_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
-    ):
-        return self._post(
-            user_identifier,
-            user_manufacturer_id,
-            'collections',
-            collection_id,
-            **data
         )
 
     # GROUPS:
