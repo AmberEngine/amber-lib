@@ -306,7 +306,7 @@ class AmberClient(object):
         return self._post(
             user_identifier,
             user_manufacturer_id,
-            'collections',
+            'products',
             'add_collection',
             **data
         )
@@ -320,7 +320,7 @@ class AmberClient(object):
         return self._post(
             user_identifier,
             user_manufacturer_id,
-            'collections',
+            'products',
             'remove_collection',
             **data
         )
