@@ -303,7 +303,7 @@ class AmberClient(object):
             user_identifier=None,
             user_manufacturer_id=None
     ):
-        return self._post(
+        return self._put(
             user_identifier,
             user_manufacturer_id,
             'products',
@@ -317,7 +317,7 @@ class AmberClient(object):
             user_identifier=None,
             user_manufacturer_id=None
     ):
-        return self._post(
+        return self._put(
             user_identifier,
             user_manufacturer_id,
             'products',
