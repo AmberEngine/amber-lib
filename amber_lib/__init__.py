@@ -850,7 +850,7 @@ class AmberClient(object):
             user_identifier,
             user_manufacturer_id,
             'components'
-        )assemblages
+        )
 
     # Assemblages:
 
