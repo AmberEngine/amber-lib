@@ -850,6 +850,19 @@ class AmberClient(object):
             user_identifier,
             user_manufacturer_id,
             'components'
+        )assemblages
+
+    # Assemblages:
+
+    def get_assemblages(
+            self,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._get(
+            user_identifier,
+            user_manufacturer_id,
+            'assemblages'
         )
 
     # Categories:
