@@ -602,37 +602,37 @@ class AmberClient(object):
             'role'
         )
 
-    def get_user(
+    def get_api_key(
             self,
-            user_id,
+            api_key_id,
             user_identifier=None,
             user_manufacturer_id=None
     ):
         return self._get(
             user_identifier,
             user_manufacturer_id,
-            'users',
-            user_id
+            'api_keys',
+            api_key_id
         )
 
-    def get_users(self, user_identifier=None, user_manufacturer_id=None):
+    def get_api_keys(self, user_identifier=None, user_manufacturer_id=None):
         return self._get(
             user_identifier,
             user_manufacturer_id,
-            'users'
+            'api_keys'
         )
 
-    def add_user(self, data, user_identifier=None, user_manufacturer_id=None):
+    def add_api_key(self, data, user_identifier=None, user_manufacturer_id=None):
         return self._post(
             user_identifier,
             user_manufacturer_id,
-            'users',
+            'api_keys',
             **data
         )
 
-    def update_user(
+    def update_api_key(
             self,
-            user_id,
+            api_key_id,
             data,
             user_identifier=None,
             user_manufacturer_id=None
@@ -640,22 +640,89 @@ class AmberClient(object):
         return self._put(
             user_identifier,
             user_manufacturer_id,
-            'users',
-            user_id,
+            'api_keys',
+            api_key_id,
             **data
         )
 
-    def delete_user(
+    def delete_api_key(
             self,
-            user_id,
+            api_key_id,
             user_identifier=None,
             user_manufacturer_id=None
     ):
         return self._delete(
             user_identifier,
             user_manufacturer_id,
-            'users',
-            user_id
+            'api_keys',
+            api_key_id
+        )
+
+    # SALES CHANNELS:
+
+    def get_sales_channels(
+            self,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._get(
+            user_identifier,
+            user_manufacturer_id,
+            'sales_channels'
+        )
+
+    def get_sales_channel(
+            self,
+            sc_id,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._get(
+            user_identifier,
+            user_manufacturer_id,
+            'sales_channels',
+            sc_id
+        )
+
+    def add_sales_channel(
+            self,
+            data,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._post(
+            user_identifier,
+            user_manufacturer_id
+            'sales_channels',
+            **data
+        )
+
+    def update_sales_channel(
+            self,
+            sc_id,
+            data,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._put(
+            user_identifier,
+            user_manufacturer_id,
+            'sales_channels',
+            sc_id,
+            **data
+        )
+
+    def delete_sales_channel(
+            self,
+            sc_id,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._delete(
+            user_identifier,
+            user_manufacturer_id,
+            'sales_channels',
+            sc_id
         )
 
     # COLLECTIONS:
