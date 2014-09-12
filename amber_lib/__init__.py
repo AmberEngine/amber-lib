@@ -692,7 +692,7 @@ class AmberClient(object):
     ):
         return self._post(
             user_identifier,
-            user_manufacturer_id
+            user_manufacturer_id,
             'sales_channels',
             **data
         )
