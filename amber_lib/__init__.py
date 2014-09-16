@@ -593,7 +593,7 @@ class AmberClient(object):
             **data
         )
 
-    # USER:
+    # API KEY:
 
     def get_roles(self, user_identifier=None, user_manufacturer_id=None):
         return self._get(
@@ -656,6 +656,64 @@ class AmberClient(object):
             user_manufacturer_id,
             'api_keys',
             api_key_id
+        )
+
+    # USER (deprecated):
+
+    def get_user(
+            self,
+            user_id,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._get(
+            user_identifier,
+            user_manufacturer_id,
+            'users',
+            user_id
+        )
+
+    def get_users(self, user_identifier=None, user_manufacturer_id=None):
+        return self._get(
+            user_identifier,
+            user_manufacturer_id,
+            'users'
+        )
+
+    def add_user(self, data, user_identifier=None, user_manufacturer_id=None):
+        return self._post(
+            user_identifier,
+            user_manufacturer_id,
+            'users',
+            **data
+        )
+
+    def update_user(
+            self,
+            user_id,
+            data,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._put(
+            user_identifier,
+            user_manufacturer_id,
+            'users',
+            user_id,
+            **data
+        )
+
+    def delete_user(
+            self,
+            user_id,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._delete(
+            user_identifier,
+            user_manufacturer_id,
+            'users',
+            user_id
         )
 
     # SALES CHANNELS:
