@@ -865,22 +865,10 @@ class AmberClient(object):
             sc_id
         )
 
-    # SALES CHANNELS:
-
-    def get_sales_channels(
-            self,
-            user_identifier=None,
-            user_manufacturer_id=None
-    ):
-        return self._get(
-            user_identifier,
-            user_manufacturer_id,
-            'sales_channels'
-        )
-
-    def get_sales_channel(
+    def sales_channel_get_product(
             self,
             sc_id,
+            mfr_id,
             user_identifier=None,
             user_manufacturer_id=None
     ):
@@ -888,48 +876,9 @@ class AmberClient(object):
             user_identifier,
             user_manufacturer_id,
             'sales_channels',
-            sc_id
-        )
-
-    def add_sales_channel(
-            self,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
-    ):
-        return self._post(
-            user_identifier,
-            user_manufacturer_id,
-            'sales_channels',
-            **data
-        )
-
-    def update_sales_channel(
-            self,
             sc_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
-    ):
-        return self._put(
-            user_identifier,
-            user_manufacturer_id,
-            'sales_channels',
-            sc_id,
-            **data
-        )
-
-    def delete_sales_channel(
-            self,
-            sc_id,
-            user_identifier=None,
-            user_manufacturer_id=None
-    ):
-        return self._delete(
-            user_identifier,
-            user_manufacturer_id,
-            'sales_channels',
-            sc_id
+            'manufacturer',
+            mfr_id
         )
 
     def sales_channel_add_product(
