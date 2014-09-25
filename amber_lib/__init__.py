@@ -359,7 +359,6 @@ class AmberClient(object):
 
     def get_image(
             self,
-            prod_id,
             img_id,
             user_identifier=None,
             user_manufacturer_id=None
@@ -367,15 +366,12 @@ class AmberClient(object):
         return self._get(
             user_identifier,
             user_manufacturer_id,
-            'products',
-            prod_id,
-            'images',
+            'image',
             img_id
         )
 
     def edit_image(
             self,
-            prod_id,
             img_id,
             data,
             user_identifier=None,
@@ -384,16 +380,13 @@ class AmberClient(object):
         return self._put(
             user_identifier,
             user_manufacturer_id,
-            'products',
-            prod_id,
-            'images',
+            'image',
             img_id,
             **data
         )
 
     def delete_image(
             self,
-            prod_id,
             img_id,
             user_identifier=None,
             user_manufacturer_id=None
@@ -401,9 +394,7 @@ class AmberClient(object):
         return self._delete(
             user_identifier,
             user_manufacturer_id,
-            'products',
-            prod_id,
-            'images',
+            'image',
             img_id
         )
 
