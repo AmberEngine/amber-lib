@@ -304,6 +304,7 @@ class AmberClient(object):
             self,
             prod_id,
             component_name,
+            data,
             user_identifier=None,
             user_manufacturer_id=None
     ):
@@ -313,7 +314,8 @@ class AmberClient(object):
             'products',
             prod_id,
             'component',
-            component_name
+            component_name,
+            **data
         )
 
     def delete_product(
