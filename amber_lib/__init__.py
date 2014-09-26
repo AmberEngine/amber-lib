@@ -229,6 +229,22 @@ class AmberClient(object):
             prod_id
         )
 
+    def get_product_component(
+            self,
+            prod_id,
+            component_name,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._get(
+            user_identifier,
+            user_manufacturer_id,
+            'products',
+            prod_id,
+            'component',
+            component_name
+        )
+
     def get_products(
             self,
             params,
@@ -282,6 +298,22 @@ class AmberClient(object):
             'products',
             prod_id,
             **data
+        )
+
+    def update_product_component(
+            self,
+            prod_id,
+            component_name,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._put(
+            user_identifier,
+            user_manufacturer_id,
+            'products',
+            prod_id,
+            'component',
+            component_name
         )
 
     def delete_product(
