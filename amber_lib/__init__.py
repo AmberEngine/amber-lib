@@ -902,7 +902,7 @@ class AmberClient(object):
             user_manufacturer_id,
             'sales_channels',
             sc_id,
-            'manufacturer',
+            'manufacturers',
             mfr_id
         )
 
