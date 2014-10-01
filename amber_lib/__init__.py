@@ -938,6 +938,38 @@ class AmberClient(object):
             **data
         )
 
+    def sales_channel_add_manufacturer(
+            self,
+            sc_id,
+            mfr_id,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._put(
+            user_identifier,
+            user_manufacturer_id,
+            'sales_channels',
+            sc_id,
+            'add_manufacturer',
+            mfr_id
+        )
+
+    def sales_channel_remove_manufacturer(
+            self,
+            sc_id,
+            mfr_id,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._put(
+            user_identifier,
+            user_manufacturer_id,
+            'sales_channels',
+            sc_id,
+            'remove_manufacturer',
+            mfr_id
+        )
+
     # COLLECTIONS:
 
     def get_collections(
