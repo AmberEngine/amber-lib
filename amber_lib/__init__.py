@@ -318,6 +318,26 @@ class AmberClient(object):
             **data
         )
 
+    def get_product_sub_component(
+            self,
+            prod_id,
+            component_name,
+            sub_component_data_id,
+            data,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._get(
+            user_identifier,
+            user_manufacturer_id,
+            'products',
+            prod_id,
+            'sub_component',
+            component_name,
+            sub_component_data_id,
+            **data
+        )
+
     def add_product_sub_component(
             self,
             prod_id,
@@ -336,6 +356,26 @@ class AmberClient(object):
             **data
         )
 
+    def update_product_sub_component(
+            self,
+            prod_id,
+            component_name,
+            sub_component_data_id,
+            data,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._put(
+            user_identifier,
+            user_manufacturer_id,
+            'products',
+            prod_id,
+            'sub_component',
+            component_name,
+            sub_component_data_id,
+            **data
+        )
+
     def delete_product_sub_component(
             self,
             prod_id,
@@ -349,6 +389,7 @@ class AmberClient(object):
             user_manufacturer_id,
             'products',
             prod_id,
+            'component',
             component_name,
             'sub_component',
             sub_component_data_id
