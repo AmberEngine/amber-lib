@@ -318,6 +318,24 @@ class AmberClient(object):
             **data
         )
 
+    def add_product_sub_component(
+            self,
+            prod_id,
+            component_name,
+            data,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._post(
+            user_identifier,
+            user_manufacturer_id,
+            'products',
+            prod_id,
+            'sub_component',
+            component_name,
+            **data
+        )
+
     def delete_product(
             self,
             prod_id,
