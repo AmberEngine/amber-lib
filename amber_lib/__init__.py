@@ -336,6 +336,24 @@ class AmberClient(object):
             **data
         )
 
+    def delete_product_sub_component(
+            self,
+            prod_id,
+            component_name,
+            sub_component_data_id,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._delete(
+            user_identifier,
+            user_manufacturer_id,
+            'products',
+            prod_id,
+            component_name,
+            'sub_component',
+            sub_component_data_id
+        )
+
     def delete_product(
             self,
             prod_id,
