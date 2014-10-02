@@ -173,7 +173,7 @@ class AmberClient(object):
         }
         return _send_request(**args)
 
-    def _delete(self, user_identifier, user_manufacturer_id, *path):
+    def _delete(self, user_identifier, user_manufacturer_id, *path, **data):
         url = self._url(*path)
         headers = {'Content-Type': 'application/json'}
         args = {
@@ -181,7 +181,7 @@ class AmberClient(object):
             'public_key': self.pub_key,
             'private_key': self.pri_key,
             'method': 'DELETE',
-            'data': json.dumps(None),
+            'data': json.dumps(data, cls=ObjectEncoder),
             'headers': headers,
             'user_identifier': user_identifier,
             'user_manufacturer_id': user_manufacturer_id,
