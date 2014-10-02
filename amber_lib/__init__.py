@@ -389,9 +389,8 @@ class AmberClient(object):
             user_manufacturer_id,
             'products',
             prod_id,
-            'component',
-            component_name,
             'sub_component',
+            component_name,
             sub_component_data_id
         )
 
