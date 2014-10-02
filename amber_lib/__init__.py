@@ -323,7 +323,6 @@ class AmberClient(object):
             prod_id,
             component_name,
             sub_component_data_id,
-            data,
             user_identifier=None,
             user_manufacturer_id=None
     ):
@@ -335,7 +334,6 @@ class AmberClient(object):
             'sub_component',
             component_name,
             sub_component_data_id,
-            **data
         )
 
     def add_product_sub_component(
