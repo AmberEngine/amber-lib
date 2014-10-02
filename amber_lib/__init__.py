@@ -349,6 +349,19 @@ class AmberClient(object):
             prod_id
         )
 
+    def delete_products(
+            self,
+            data,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._delete(
+            user_identifier,
+            user_manufacturer_id,
+            'products',
+            **data
+        )
+
     def add_products_to_collection(
             self,
             data,
