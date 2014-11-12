@@ -601,25 +601,24 @@ class AmberClient(object):
             mfr_img_id
         )
 
-    # OPTIONS:
+    # OPTION SETS:
 
-    def get_options(
+    def get_option_sets(
             self,
-            prod_id,
+            manufacturer_id,
             user_identifier=None,
             user_manufacturer_id=None
     ):
         return self._get(
             user_identifier,
             user_manufacturer_id,
-            'products',
-            prod_id,
-            'options'
+            'option_sets',
+            manufacturer_id
         )
 
-    def add_option(
+    def add_option_set(
             self,
-            prod_id,
+            manufacturer_id,
             data,
             user_identifier=None,
             user_manufacturer_id=None
@@ -627,32 +626,27 @@ class AmberClient(object):
         return self._post(
             user_identifier,
             user_manufacturer_id,
-            'products',
-            prod_id,
-            'options',
+            'option_sets',
+            manufacturer_id,
             **data
         )
 
-    def get_option(
+    def get_option_set(
             self,
-            prod_id,
-            opt_id,
+            option_set_id,
             user_identifier=None,
             user_manufacturer_id=None
     ):
         return self._get(
             user_identifier,
             user_manufacturer_id,
-            'products',
-            prod_id,
-            'options',
-            opt_id
+            'option_set',
+            option_set_id
         )
 
-    def edit_option(
+    def edit_option_set(
             self,
-            prod_id,
-            opt_id,
+            option_set_id,
             data,
             user_identifier=None,
             user_manufacturer_id=None
@@ -660,27 +654,95 @@ class AmberClient(object):
         return self._put(
             user_identifier,
             user_manufacturer_id,
-            'products',
-            prod_id,
-            'options',
-            opt_id,
+            'option_set',
+            option_set_id,
             **data
         )
 
-    def delete_option(
+    def delete_option_set(
             self,
-            prod_id,
-            opt_id,
+            option_set_id,
             user_identifier=None,
             user_manufacturer_id=None
     ):
         return self._delete(
             user_identifier,
             user_manufacturer_id,
-            'products',
-            prod_id,
+            'option_set',
+            option_set_id
+        )
+
+    # OPTIONS:
+
+    def get_options(
+            self,
+            option_set_id,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._get(
+            user_identifier,
+            user_manufacturer_id,
+            'option_set',
+            option_set_id,
+            'options'
+        )
+
+    def add_option(
+            self,
+            option_set_id,
+            data,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._post(
+            user_identifier,
+            user_manufacturer_id,
+            'option_set',
+            option_set_id,
             'options',
-            opt_id
+            **data
+        )
+
+    def get_option(
+            self,
+            option_id,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._get(
+            user_identifier,
+            user_manufacturer_id,
+            'option',
+            option_id
+        )
+
+    def edit_option(
+            self,
+            option_id,
+            data,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._put(
+            user_identifier,
+            user_manufacturer_id,
+            'option',
+            option_id,
+            **data
+        )
+
+    def delete_option(
+            self,
+            option_id,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._delete(
+            user_identifier,
+            user_manufacturer_id,
+            'option',
+            option_id
         )
 
     # TAGS:
