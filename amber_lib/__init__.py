@@ -1085,12 +1085,15 @@ class AmberClient(object):
 
     def get_sales_channel_images(
             self,
+            sc_id,
             user_identifier=None,
             user_manufacturer_id=None
     ):
         return self._get(
             user_identifier,
             user_manufacturer_id,
+            'sales_channels',
+            sc_id,
             'images'
         )
 
