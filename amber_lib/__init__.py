@@ -336,6 +336,40 @@ class AmberClient(object):
             sub_component_data_id,
         )
 
+    def add_product_option_set(
+            self,
+            prod_id,
+            data,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._post(
+            user_identifier,
+            user_manufacturer_id,
+            'products',
+            prod_id,
+            'options',
+            **data
+        )
+
+    def remove_product_option_set(
+            self,
+            prod_id,
+            option_set_id,
+            data,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._delete(
+            user_identifier,
+            user_manufacturer_id,
+            'products',
+            prod_id,
+            'options',
+            option_set_id,
+            **data
+        )
+
     def add_product_sub_component(
             self,
             prod_id,
