@@ -223,6 +223,8 @@ class AmberClient(object):
             user_identifier=None,
             user_manufacturer_id=None
     ):
+        if not data:
+            data = {}
         return self._get(
             user_identifier,
             user_manufacturer_id,
