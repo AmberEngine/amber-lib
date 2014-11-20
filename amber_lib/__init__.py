@@ -219,6 +219,7 @@ class AmberClient(object):
     def get_product(
             self,
             prod_id,
+            data=None,
             user_identifier=None,
             user_manufacturer_id=None
     ):
@@ -226,7 +227,8 @@ class AmberClient(object):
             user_identifier,
             user_manufacturer_id,
             'products',
-            prod_id
+            prod_id,
+            **data
         )
 
     def get_product_component(
