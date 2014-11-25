@@ -637,6 +637,20 @@ class AmberClient(object):
             mfr_img_id
         )
 
+    def search_manufacturers(
+            self,
+            params,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._search(
+            user_identifier,
+            user_manufacturer_id,
+            'manufacturer',
+            'search',
+            **params
+        )
+
     # OPTION SETS:
 
     def get_option_sets(
