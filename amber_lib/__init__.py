@@ -646,7 +646,7 @@ class AmberClient(object):
         return self._search(
             user_identifier,
             user_manufacturer_id,
-            'manufacturer',
+            'manufacturers',
             'search',
             **params
         )
