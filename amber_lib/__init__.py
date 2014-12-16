@@ -988,13 +988,15 @@ class AmberClient(object):
 
     def get_sales_channels(
             self,
+            data,
             user_identifier=None,
             user_manufacturer_id=None
     ):
         return self._get(
             user_identifier,
             user_manufacturer_id,
-            'sales_channels'
+            'sales_channels',
+            **data
         )
 
     def get_sales_channel(
