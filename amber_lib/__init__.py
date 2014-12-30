@@ -88,6 +88,7 @@ def _send_request(
         if r and r.status_code == 200:
             response = json.loads(r.text)
             response.pop('_documentation', None)
+            return response
         else:
             retries -= 1
     try:
