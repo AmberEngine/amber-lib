@@ -1120,6 +1120,7 @@ class AmberClient(object):
             self,
             sc_id,
             mfr_id,
+            data,
             user_identifier=None,
             user_manufacturer_id=None
     ):
@@ -1129,7 +1130,8 @@ class AmberClient(object):
             'sales_channels',
             sc_id,
             'add_manufacturer',
-            mfr_id
+            mfr_id,
+            **data
         )
 
     def sales_channel_remove_manufacturer(
