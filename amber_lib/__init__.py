@@ -997,6 +997,22 @@ class AmberClient(object):
 
     # SALES CHANNELS:
 
+    def get_sales_channel_preference(
+            self,
+            mfr_id,
+            sc_id,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._get(
+            user_identifier,
+            user_manufacturer_id,
+            'manufacturers',
+            mfr_id,
+            'preferences',
+            sc_id
+        )
+
     def get_sales_channels(
             self,
             data=None,
