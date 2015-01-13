@@ -997,6 +997,58 @@ class AmberClient(object):
 
     # SALES CHANNELS:
 
+    def get_sales_channel_preference(
+            self,
+            mfr_id,
+            sc_id,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._get(
+            user_identifier,
+            user_manufacturer_id,
+            'manufacturers',
+            mfr_id,
+            'preferences',
+            sc_id
+        )
+
+    def add_sales_channel_preference(
+            self,
+            mfr_id,
+            sc_id,
+            data,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._post(
+            user_identifier,
+            user_manufacturer_id,
+            'manufacturers',
+            mfr_id,
+            'preferences',
+            sc_id,
+            **data
+        )
+
+    def update_sales_channel_preference(
+            self,
+            mfr_id,
+            sc_id,
+            data,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._put(
+            user_identifier,
+            user_manufacturer_id,
+            'manufacturers',
+            mfr_id,
+            'preferences',
+            sc_id,
+            **data
+        )
+
     def get_sales_channels(
             self,
             data=None,
@@ -1120,6 +1172,7 @@ class AmberClient(object):
             self,
             sc_id,
             mfr_id,
+            data,
             user_identifier=None,
             user_manufacturer_id=None
     ):
@@ -1129,7 +1182,8 @@ class AmberClient(object):
             'sales_channels',
             sc_id,
             'add_manufacturer',
-            mfr_id
+            mfr_id,
+            **data
         )
 
     def sales_channel_remove_manufacturer(
