@@ -1013,6 +1013,42 @@ class AmberClient(object):
             sc_id
         )
 
+    def add_sales_channel_preference(
+            self,
+            mfr_id,
+            sc_id,
+            data,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._post(
+            user_identifier,
+            user_manufacturer_id,
+            'manufacturers',
+            mfr_id,
+            'preferences',
+            sc_id,
+            **data
+        )
+
+    def update_sales_channel_preference(
+            self,
+            mfr_id,
+            sc_id,
+            data,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._put(
+            user_identifier,
+            user_manufacturer_id,
+            'manufacturers',
+            mfr_id,
+            'preferences',
+            sc_id,
+            **data
+        )
+
     def get_sales_channels(
             self,
             data=None,
