@@ -42,7 +42,7 @@ def _send_request(
         if not data:
             data = {}
         if not headers:
-            headers = {'Content-Type': 'application/json'}
+            headers = {'Content-Type': 'application/amber+json'}
         timestamp = datetime.isoformat(datetime.utcnow())
         request_data = {
             'url': url,
@@ -86,7 +86,9 @@ def _send_request(
                 headers=headers
             )
         if r and r.status_code == 200:
-            return json.loads(r.text)
+            response = json.loads(r.text)
+            response.pop('_documentation', None)
+            return response
         else:
             retries -= 1
     try:
@@ -490,13 +492,14 @@ class AmberClient(object):
             user_identifier=None,
             user_manufacturer_id=None
     ):
-        return self._get(
+        response = self._get(
             user_identifier,
             user_manufacturer_id,
             'products',
             prod_id,
             'images'
         )
+        return response.get('images', [])
 
     def add_image(
             self,
@@ -563,13 +566,14 @@ class AmberClient(object):
             user_identifier=None,
             user_manufacturer_id=None
     ):
-        return self._get(
+        response = self._get(
             user_identifier,
             user_manufacturer_id,
             'manufacturers',
             mfr_id,
             'manufacturer_images'
         )
+        return response.get('manufacturer_images', [])
 
     def add_manufacturer_image(
             self,
@@ -643,13 +647,14 @@ class AmberClient(object):
             user_identifier=None,
             user_manufacturer_id=None
     ):
-        return self._search(
+        response = self._search(
             user_identifier,
             user_manufacturer_id,
             'manufacturers',
             'search',
             **params
         )
+        return response.get('manufacturers', [])
 
     # OPTION SETS:
 
@@ -659,12 +664,13 @@ class AmberClient(object):
             user_identifier=None,
             user_manufacturer_id=None
     ):
-        return self._get(
+        response = self._get(
             user_identifier,
             user_manufacturer_id,
             'option_sets',
             manufacturer_id
         )
+        return response.get('option_sets', [])
 
     def add_option_set(
             self,
@@ -730,13 +736,14 @@ class AmberClient(object):
             user_identifier=None,
             user_manufacturer_id=None
     ):
-        return self._get(
+        response = self._get(
             user_identifier,
             user_manufacturer_id,
             'option_set',
             option_set_id,
             'options'
         )
+        return response.get('options', [])
 
     def add_option(
             self,
@@ -803,13 +810,14 @@ class AmberClient(object):
             user_identifier=None,
             user_manufacturer_id=None
     ):
-        return self._get(
+        response = self._get(
             user_identifier,
             user_manufacturer_id,
             'products',
             prod_id,
             'tags'
         )
+        return response.get('tags', [])
 
     def delete_tag(
             self,
@@ -864,12 +872,13 @@ class AmberClient(object):
             user_identifier=None,
             user_manufacturer_id=None
     ):
-        return self._get(
+        response = self._get(
             user_identifier,
             user_manufacturer_id,
             'manufacturers',
             **data
         )
+        return response.get('manufacturers', [])
 
     def add_manufacturer(
             self,
@@ -902,11 +911,12 @@ class AmberClient(object):
     # API KEY:
 
     def get_roles(self, user_identifier=None, user_manufacturer_id=None):
-        return self._get(
+        response = self._get(
             user_identifier,
             user_manufacturer_id,
             'role'
         )
+        return response.get('roles', [])
 
     def get_api_key(
             self,
@@ -922,11 +932,12 @@ class AmberClient(object):
         )
 
     def get_api_keys(self, user_identifier=None, user_manufacturer_id=None):
-        return self._get(
+        response = self._get(
             user_identifier,
             user_manufacturer_id,
             'api_keys'
         )
+        return response.get('api_keys', [])
 
     def add_api_key(
             self,
@@ -986,6 +997,58 @@ class AmberClient(object):
 
     # SALES CHANNELS:
 
+    def get_sales_channel_preference(
+            self,
+            mfr_id,
+            sc_id,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._get(
+            user_identifier,
+            user_manufacturer_id,
+            'manufacturers',
+            mfr_id,
+            'preferences',
+            sc_id
+        )
+
+    def add_sales_channel_preference(
+            self,
+            mfr_id,
+            sc_id,
+            data,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._post(
+            user_identifier,
+            user_manufacturer_id,
+            'manufacturers',
+            mfr_id,
+            'preferences',
+            sc_id,
+            **data
+        )
+
+    def update_sales_channel_preference(
+            self,
+            mfr_id,
+            sc_id,
+            data,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._put(
+            user_identifier,
+            user_manufacturer_id,
+            'manufacturers',
+            mfr_id,
+            'preferences',
+            sc_id,
+            **data
+        )
+
     def get_sales_channels(
             self,
             data=None,
@@ -994,12 +1057,13 @@ class AmberClient(object):
     ):
         if not data:
             data = {}
-        return self._get(
+        response = self._get(
             user_identifier,
             user_manufacturer_id,
             'sales_channels',
             **data
         )
+        return response.get('sales_channels', [])
 
     def get_sales_channel(
             self,
@@ -1062,7 +1126,7 @@ class AmberClient(object):
             user_identifier=None,
             user_manufacturer_id=None
     ):
-        return self._get(
+        response = self._get(
             user_identifier,
             user_manufacturer_id,
             'sales_channels',
@@ -1070,6 +1134,7 @@ class AmberClient(object):
             'manufacturers',
             mfr_id
         )
+        return response.get('sales_channel_products', [])
 
     def sales_channel_add_product(
             self,
@@ -1107,6 +1172,7 @@ class AmberClient(object):
             self,
             sc_id,
             mfr_id,
+            data,
             user_identifier=None,
             user_manufacturer_id=None
     ):
@@ -1116,7 +1182,8 @@ class AmberClient(object):
             'sales_channels',
             sc_id,
             'add_manufacturer',
-            mfr_id
+            mfr_id,
+            **data
         )
 
     def sales_channel_remove_manufacturer(
@@ -1143,13 +1210,14 @@ class AmberClient(object):
             user_identifier=None,
             user_manufacturer_id=None
     ):
-        return self._get(
+        response = self._get(
             user_identifier,
             user_manufacturer_id,
             'sales_channels',
             sc_id,
             'images'
         )
+        return response.get('sales_channel_images', [])
 
     def get_sales_channel_image(
             self,
@@ -1224,11 +1292,12 @@ class AmberClient(object):
             user_identifier=None,
             user_manufacturer_id=None
     ):
-        return self._get(
+        response = self._get(
             user_identifier,
             user_manufacturer_id,
             'collections'
         )
+        return response.get('collections', [])
 
     def add_collection(
             self,
@@ -1391,12 +1460,13 @@ class AmberClient(object):
             user_identifier=None,
             user_manufacturer_id=None
     ):
-        return self._get(
+        response = self._get(
             user_identifier,
             user_manufacturer_id,
             'logs',
             user_id=user_id
         )
+        return response.get('logs', [])
 
     # Components:
 
@@ -1405,11 +1475,12 @@ class AmberClient(object):
             user_identifier=None,
             user_manufacturer_id=None
     ):
-        return self._get(
+        response = self._get(
             user_identifier,
             user_manufacturer_id,
             'components'
         )
+        return response.get('components', [])
 
     # Assemblages:
 
@@ -1418,11 +1489,12 @@ class AmberClient(object):
             user_identifier=None,
             user_manufacturer_id=None
     ):
-        return self._get(
+        response = self._get(
             user_identifier,
             user_manufacturer_id,
             'assemblages'
         )
+        return response.get('assemblages', [])
 
     # Categories:
 
@@ -1431,11 +1503,12 @@ class AmberClient(object):
             user_identifier=None,
             user_manufacturer_id=None
     ):
-        return self._get(
+        response = self._get(
             user_identifier,
             user_manufacturer_id,
             'categories'
         )
+        return response.get('categories', [])
 
     def get_primary_sub_categories(
             self,
@@ -1443,12 +1516,13 @@ class AmberClient(object):
             user_identifier=None,
             user_manufacturer_id=None
     ):
-        return self._get(
+        response = self._get(
             user_identifier,
             user_manufacturer_id,
             'categories',
             category_name
         )
+        return response.get('categories', [])
 
     def get_secondary_sub_categories(
             self,
@@ -1457,10 +1531,11 @@ class AmberClient(object):
             user_identifier=None,
             user_manufacturer_id=None
     ):
-        return self._get(
+        response = self._get(
             user_identifier,
             user_manufacturer_id,
             'categories',
             category_name,
             primary_sub_category_name
         )
+        return response.get('categories', [])
