@@ -456,20 +456,6 @@ class AmberClient(object):
             **data
         )
 
-    def add_products_to_collection(
-            self,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
-    ):
-        return self._put(
-            user_identifier,
-            user_manufacturer_id,
-            'products',
-            'add_collection',
-            **data
-        )
-
     def remove_products_from_collection(
             self,
             data,
@@ -1351,6 +1337,21 @@ class AmberClient(object):
             user_manufacturer_id,
             'collections',
             collection_id
+        )
+
+    def add_products_to_collection(
+            self,
+            collection_id,
+            data,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._put(
+            user_identifier,
+            user_manufacturer_id,
+            'collections',
+            collection_id,
+            **data
         )
 
     # GROUPS:
