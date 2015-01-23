@@ -1104,7 +1104,8 @@ class AmberClient(object):
             'sales_channels',
             sc_id,
             'manufacturers',
-            mfr_id
+            mfr_id,
+            'products'
         )
         return response.get('sales_channel_products', [])
 
