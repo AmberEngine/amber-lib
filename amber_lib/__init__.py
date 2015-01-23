@@ -639,8 +639,9 @@ class AmberClient(object):
         response = self._get(
             user_identifier,
             user_manufacturer_id,
-            'option_sets',
-            manufacturer_id
+            'manufacturers',
+            manufacturer_id,
+            'option_sets'
         )
         return response.get('option_sets', [])
 
