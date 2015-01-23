@@ -1334,7 +1334,7 @@ class AmberClient(object):
             user_identifier=None,
             user_manufacturer_id=None
     ):
-        return self._put(
+        return self._post(
             user_identifier,
             user_manufacturer_id,
             'collections',
@@ -1354,6 +1354,7 @@ class AmberClient(object):
             user_manufacturer_id,
             'collections',
             collection_id,
+            'products',
             **data
         )
 
