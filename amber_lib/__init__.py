@@ -247,7 +247,7 @@ class AmberClient(object):
             user_manufacturer_id,
             'products',
             prod_id,
-            'component',
+            'components',
             component_name
         )
 
@@ -319,7 +319,7 @@ class AmberClient(object):
             user_manufacturer_id,
             'products',
             prod_id,
-            'component',
+            'components',
             component_name,
             **data
         )
@@ -337,7 +337,7 @@ class AmberClient(object):
             user_manufacturer_id,
             'products',
             prod_id,
-            'sub_component',
+            'sub_components',
             component_name,
             sub_component_data_id,
         )
@@ -387,7 +387,7 @@ class AmberClient(object):
             user_manufacturer_id,
             'products',
             prod_id,
-            'sub_component',
+            'sub_components',
             component_name,
             **data
         )
@@ -406,7 +406,7 @@ class AmberClient(object):
             user_manufacturer_id,
             'products',
             prod_id,
-            'sub_component',
+            'sub_components',
             component_name,
             sub_component_data_id,
             **data
@@ -425,7 +425,7 @@ class AmberClient(object):
             user_manufacturer_id,
             'products',
             prod_id,
-            'sub_component',
+            'sub_components',
             component_name,
             sub_component_data_id
         )
@@ -453,34 +453,6 @@ class AmberClient(object):
             user_identifier,
             user_manufacturer_id,
             'products',
-            **data
-        )
-
-    def add_products_to_collection(
-            self,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
-    ):
-        return self._put(
-            user_identifier,
-            user_manufacturer_id,
-            'products',
-            'add_collection',
-            **data
-        )
-
-    def remove_products_from_collection(
-            self,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
-    ):
-        return self._put(
-            user_identifier,
-            user_manufacturer_id,
-            'products',
-            'remove_collection',
             **data
         )
 
@@ -526,7 +498,7 @@ class AmberClient(object):
         return self._get(
             user_identifier,
             user_manufacturer_id,
-            'image',
+            'images',
             img_id
         )
 
@@ -540,7 +512,7 @@ class AmberClient(object):
         return self._put(
             user_identifier,
             user_manufacturer_id,
-            'image',
+            'images',
             img_id,
             **data
         )
@@ -554,7 +526,7 @@ class AmberClient(object):
         return self._delete(
             user_identifier,
             user_manufacturer_id,
-            'image',
+            'images',
             img_id
         )
 
@@ -667,8 +639,9 @@ class AmberClient(object):
         response = self._get(
             user_identifier,
             user_manufacturer_id,
-            'option_sets',
-            manufacturer_id
+            'manufacturers',
+            manufacturer_id,
+            'option_sets'
         )
         return response.get('option_sets', [])
 
@@ -696,7 +669,7 @@ class AmberClient(object):
         return self._get(
             user_identifier,
             user_manufacturer_id,
-            'option_set',
+            'option_sets',
             option_set_id
         )
 
@@ -710,7 +683,7 @@ class AmberClient(object):
         return self._put(
             user_identifier,
             user_manufacturer_id,
-            'option_set',
+            'option_sets',
             option_set_id,
             **data
         )
@@ -724,7 +697,7 @@ class AmberClient(object):
         return self._delete(
             user_identifier,
             user_manufacturer_id,
-            'option_set',
+            'option_sets',
             option_set_id
         )
 
@@ -739,7 +712,7 @@ class AmberClient(object):
         response = self._get(
             user_identifier,
             user_manufacturer_id,
-            'option_set',
+            'option_sets',
             option_set_id,
             'options'
         )
@@ -755,7 +728,7 @@ class AmberClient(object):
         return self._post(
             user_identifier,
             user_manufacturer_id,
-            'option_set',
+            'option_sets',
             option_set_id,
             'options',
             **data
@@ -770,7 +743,7 @@ class AmberClient(object):
         return self._get(
             user_identifier,
             user_manufacturer_id,
-            'option',
+            'options',
             option_id
         )
 
@@ -784,7 +757,7 @@ class AmberClient(object):
         return self._put(
             user_identifier,
             user_manufacturer_id,
-            'option',
+            'options',
             option_id,
             **data
         )
@@ -798,7 +771,7 @@ class AmberClient(object):
         return self._delete(
             user_identifier,
             user_manufacturer_id,
-            'option',
+            'options',
             option_id
         )
 
@@ -914,7 +887,7 @@ class AmberClient(object):
         response = self._get(
             user_identifier,
             user_manufacturer_id,
-            'role'
+            'roles'
         )
         return response.get('roles', [])
 
@@ -1132,7 +1105,8 @@ class AmberClient(object):
             'sales_channels',
             sc_id,
             'manufacturers',
-            mfr_id
+            mfr_id,
+            'products'
         )
         return response.get('sales_channel_products', [])
 
@@ -1143,12 +1117,12 @@ class AmberClient(object):
             user_identifier=None,
             user_manufacturer_id=None
     ):
-        return self._put(
+        return self._post(
             user_identifier,
             user_manufacturer_id,
             'sales_channels',
             sc_id,
-            'add_product',
+            'products',
             **data
         )
 
@@ -1159,12 +1133,12 @@ class AmberClient(object):
             user_identifier=None,
             user_manufacturer_id=None
     ):
-        return self._put(
+        return self._delete(
             user_identifier,
             user_manufacturer_id,
             'sales_channels',
             sc_id,
-            'remove_product',
+            'products',
             **data
         )
 
@@ -1176,12 +1150,12 @@ class AmberClient(object):
             user_identifier=None,
             user_manufacturer_id=None
     ):
-        return self._put(
+        return self._post(
             user_identifier,
             user_manufacturer_id,
             'sales_channels',
             sc_id,
-            'add_manufacturer',
+            'manufacturers',
             mfr_id,
             **data
         )
@@ -1193,12 +1167,12 @@ class AmberClient(object):
             user_identifier=None,
             user_manufacturer_id=None
     ):
-        return self._put(
+        return self._delete(
             user_identifier,
             user_manufacturer_id,
             'sales_channels',
             sc_id,
-            'remove_manufacturer',
+            'manufacturers',
             mfr_id
         )
 
@@ -1351,6 +1325,36 @@ class AmberClient(object):
             user_manufacturer_id,
             'collections',
             collection_id
+        )
+
+    def add_products_to_collection(
+            self,
+            collection_id,
+            data,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._put(
+            user_identifier,
+            user_manufacturer_id,
+            'collections',
+            collection_id,
+            **data
+        )
+
+    def remove_products_from_collection(
+            self,
+            collection_id,
+            data,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._delete(
+            user_identifier,
+            user_manufacturer_id,
+            'collections',
+            collection_id,
+            **data
         )
 
     # GROUPS:
