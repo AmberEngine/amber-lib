@@ -49,7 +49,7 @@ def _send_request(
             'data': data,
             'headers': headers,
             'timestamp': timestamp,
-            'api_key': public_key,
+            'site_key': public_key,
             'user_identifier': user_identifier,
             'user_manufacturer_id': user_manufacturer_id
         }
@@ -891,28 +891,28 @@ class AmberClient(object):
         )
         return response.get('roles', [])
 
-    def get_api_key(
+    def get_site_key(
             self,
-            api_key_id,
+            site_key_id,
             user_identifier=None,
             user_manufacturer_id=None
     ):
         return self._get(
             user_identifier,
             user_manufacturer_id,
-            'api_keys',
-            api_key_id
+            'site_keys',
+            site_key_id
         )
 
-    def get_api_keys(self, user_identifier=None, user_manufacturer_id=None):
+    def get_site_keys(self, user_identifier=None, user_manufacturer_id=None):
         response = self._get(
             user_identifier,
             user_manufacturer_id,
-            'api_keys'
+            'site_keys'
         )
-        return response.get('api_keys', [])
+        return response.get('site_keys', [])
 
-    def add_api_key(
+    def add_site_key(
             self,
             data,
             user_identifier=None,
@@ -921,13 +921,13 @@ class AmberClient(object):
         return self._post(
             user_identifier,
             user_manufacturer_id,
-            'api_keys',
+            'site_keys',
             **data
         )
 
-    def update_api_key(
+    def update_site_key(
             self,
-            api_key_id,
+            site_key_id,
             data,
             user_identifier=None,
             user_manufacturer_id=None
@@ -935,37 +935,37 @@ class AmberClient(object):
         return self._put(
             user_identifier,
             user_manufacturer_id,
-            'api_keys',
-            api_key_id,
+            'site_keys',
+            site_key_id,
             **data
         )
 
-    def delete_api_key(
+    def delete_site_key(
             self,
-            api_key_id,
+            site_key_id,
             user_identifier=None,
             user_manufacturer_id=None
     ):
         return self._delete(
             user_identifier,
             user_manufacturer_id,
-            'api_keys',
-            api_key_id
+            'site_keys',
+            site_key_id
         )
 
     # USER (deprecated):
 
     def get_user(
             self,
-            api_key_id,
+            site_key_id,
             user_identifier=None,
             user_manufacturer_id=None
     ):
         return self._get(
             user_identifier,
             user_manufacturer_id,
-            'api_keys',
-            api_key_id
+            'site_keys',
+            site_key_id
         )
 
     # SALES CHANNELS:
