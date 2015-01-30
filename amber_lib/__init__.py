@@ -881,7 +881,7 @@ class AmberClient(object):
             **data
         )
 
-    # API KEY:
+    # SITE KEY:
 
     def get_roles(self, user_identifier=None, user_manufacturer_id=None):
         response = self._get(
@@ -951,6 +951,70 @@ class AmberClient(object):
             user_manufacturer_id,
             'site_keys',
             site_key_id
+        )
+
+    # USER KEY:
+
+    def get_user_key(
+            self,
+            user_key_id,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._get(
+            user_identifier,
+            user_manufacturer_id,
+            'user_keys',
+            user_key_id
+        )
+
+    def get_user_keys(self, user_identifier=None, user_manufacturer_id=None):
+        response = self._get(
+            user_identifier,
+            user_manufacturer_id,
+            'user_keys'
+        )
+        return response.get('user_keys', [])
+
+    def add_user_key(
+            self,
+            data,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._post(
+            user_identifier,
+            user_manufacturer_id,
+            'user_keys',
+            **data
+        )
+
+    def update_user_key(
+            self,
+            user_key_id,
+            data,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._put(
+            user_identifier,
+            user_manufacturer_id,
+            'user_keys',
+            user_key_id,
+            **data
+        )
+
+    def delete_user_key(
+            self,
+            user_key_id,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._delete(
+            user_identifier,
+            user_manufacturer_id,
+            'user_keys',
+            user_key_id
         )
 
     # USER (deprecated):
