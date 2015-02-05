@@ -49,7 +49,7 @@ def _send_request(
             'data': data,
             'headers': headers,
             'timestamp': timestamp,
-            'site_key': public_key,
+            'api_key': public_key,
             'user_identifier': user_identifier,
             'user_manufacturer_id': user_manufacturer_id
         }
@@ -881,7 +881,7 @@ class AmberClient(object):
             **data
         )
 
-    # SITE KEY:
+    # API KEY
 
     def get_roles(self, user_identifier=None, user_manufacturer_id=None):
         response = self._get(
@@ -891,28 +891,28 @@ class AmberClient(object):
         )
         return response.get('roles', [])
 
-    def get_site_key(
+    def get_api_key(
             self,
-            site_key_id,
+            api_key_id,
             user_identifier=None,
             user_manufacturer_id=None
     ):
         return self._get(
             user_identifier,
             user_manufacturer_id,
-            'site_keys',
-            site_key_id
+            'api_keys',
+            api_key_id
         )
 
-    def get_site_keys(self, user_identifier=None, user_manufacturer_id=None):
+    def get_api_keys(self, user_identifier=None, user_manufacturer_id=None):
         response = self._get(
             user_identifier,
             user_manufacturer_id,
-            'site_keys'
+            'api_keys'
         )
-        return response.get('site_keys', [])
+        return response.get('api_keys', [])
 
-    def add_site_key(
+    def add_api_key(
             self,
             data,
             user_identifier=None,
@@ -921,13 +921,13 @@ class AmberClient(object):
         return self._post(
             user_identifier,
             user_manufacturer_id,
-            'site_keys',
+            'api_keys',
             **data
         )
 
-    def update_site_key(
+    def update_api_key(
             self,
-            site_key_id,
+            api_key_id,
             data,
             user_identifier=None,
             user_manufacturer_id=None
@@ -935,22 +935,86 @@ class AmberClient(object):
         return self._put(
             user_identifier,
             user_manufacturer_id,
-            'site_keys',
-            site_key_id,
+            'api_keys',
+            api_key_id,
             **data
         )
 
-    def delete_site_key(
+    def delete_api_key(
             self,
-            site_key_id,
+            api_key_id,
             user_identifier=None,
             user_manufacturer_id=None
     ):
         return self._delete(
             user_identifier,
             user_manufacturer_id,
-            'site_keys',
-            site_key_id
+            'api_keys',
+            api_key_id
+        )
+
+    # CLIENT KEY
+
+    def get_client_key(
+            self,
+            client_key_id,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._get(
+            user_identifier,
+            user_manufacturer_id,
+            'client_keys',
+            client_key_id
+        )
+
+    def get_client_keys(self, user_identifier=None, user_manufacturer_id=None):
+        response = self._get(
+            user_identifier,
+            user_manufacturer_id,
+            'client_keys'
+        )
+        return response.get('client_keys', [])
+
+    def add_client_key(
+            self,
+            data,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._post(
+            user_identifier,
+            user_manufacturer_id,
+            'client_keys',
+            **data
+        )
+
+    def update_client_key(
+            self,
+            client_key_id,
+            data,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._put(
+            user_identifier,
+            user_manufacturer_id,
+            'client_keys',
+            client_key_id,
+            **data
+        )
+
+    def delete_client_key(
+            self,
+            client_key_id,
+            user_identifier=None,
+            user_manufacturer_id=None
+    ):
+        return self._delete(
+            user_identifier,
+            user_manufacturer_id,
+            'client_keys',
+            client_key_id
         )
 
     # USER KEY:
@@ -1021,15 +1085,15 @@ class AmberClient(object):
 
     def get_user(
             self,
-            site_key_id,
+            api_key_id,
             user_identifier=None,
             user_manufacturer_id=None
     ):
         return self._get(
             user_identifier,
             user_manufacturer_id,
-            'site_keys',
-            site_key_id
+            'api_keys',
+            api_key_id
         )
 
     # SALES CHANNELS:
