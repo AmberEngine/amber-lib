@@ -49,7 +49,7 @@ def _send_request(
             'data': data,
             'headers': headers,
             'timestamp': timestamp,
-            'api_key': public_key,
+            'public_key': public_key,
             'user_identifier': user_identifier,
             'user_manufacturer_id': user_manufacturer_id
         }
