@@ -98,8 +98,7 @@ def _send_request(
 
 
 class AmberClient(object):
-
-    def init(self, api_url, pub_key, pri_key):
+    def __init__(self, api_url, pub_key, pri_key):
         self.api_url = api_url
         self.pub_key = pub_key
         self.pri_key = pri_key
