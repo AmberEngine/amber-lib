@@ -32,9 +32,7 @@ def _send_request(
     private_key,
     method='GET',
     data=None,
-    headers=None,
-    user_identifier=None,
-    user_manufacturer_id=None
+    headers=None
 ):
     retries = 3
     r = False
@@ -49,9 +47,7 @@ def _send_request(
             'data': data,
             'headers': headers,
             'timestamp': timestamp,
-            'public_key': public_key,
-            'user_identifier': user_identifier,
-            'user_manufacturer_id': user_manufacturer_id
+            'public_key': public_key
         }
         request_string = json.dumps(
             request_data,
@@ -106,7 +102,7 @@ class AmberClient(object):
     def _url(self, *path):
         return self.api_url + "/api/v1/" + "/".join([str(x) for x in path])
 
-    def _get(self, user_identifier, user_manufacturer_id, *path, **data):
+    def _get(self, *path, **data):
         url = self._url(*path)
         headers = {'Content-Type': 'application/json'}
         args = {
@@ -115,13 +111,11 @@ class AmberClient(object):
             'private_key': self.pri_key,
             'method': 'GET',
             'data': json.dumps(data, cls=ObjectEncoder),
-            'headers': headers,
-            'user_identifier': user_identifier,
-            'user_manufacturer_id': user_manufacturer_id,
+            'headers': headers
         }
         return _send_request(**args)
 
-    def _post(self, user_identifier, user_manufacturer_id, *path, **data):
+    def _post(self, *path, **data):
         url = self._url(*path)
         headers = {'Content-Type': 'application/json'}
         if 'data_list' in data:
@@ -132,16 +126,12 @@ class AmberClient(object):
             'private_key': self.pri_key,
             'method': 'POST',
             'data': json.dumps(data, cls=ObjectEncoder),
-            'headers': headers,
-            'user_identifier': user_identifier,
-            'user_manufacturer_id': user_manufacturer_id,
+            'headers': headers
         }
         return _send_request(**args)
 
     def _post_list(
             self,
-            user_identifier,
-            user_manufacturer_id,
             data_list,
             *path
     ):
@@ -153,13 +143,11 @@ class AmberClient(object):
             'private_key': self.pri_key,
             'method': 'POST',
             'data': json.dumps(data_list, cls=ObjectEncoder),
-            'headers': headers,
-            'user_identifier': user_identifier,
-            'user_manufacturer_id': user_manufacturer_id,
+            'headers': headers
         }
         return _send_request(**args)
 
-    def _put(self, user_identifier, user_manufacturer_id, *path, **data):
+    def _put(self, *path, **data):
         url = self._url(*path)
         headers = {'Content-Type': 'application/json'}
         args = {
@@ -168,13 +156,11 @@ class AmberClient(object):
             'private_key': self.pri_key,
             'method': 'PUT',
             'data': json.dumps(data, cls=ObjectEncoder),
-            'headers': headers,
-            'user_identifier': user_identifier,
-            'user_manufacturer_id': user_manufacturer_id,
+            'headers': headers
         }
         return _send_request(**args)
 
-    def _delete(self, user_identifier, user_manufacturer_id, *path, **data):
+    def _delete(self, *path, **data):
         url = self._url(*path)
         headers = {'Content-Type': 'application/json'}
         args = {
@@ -183,13 +169,11 @@ class AmberClient(object):
             'private_key': self.pri_key,
             'method': 'DELETE',
             'data': json.dumps(data, cls=ObjectEncoder),
-            'headers': headers,
-            'user_identifier': user_identifier,
-            'user_manufacturer_id': user_manufacturer_id,
+            'headers': headers
         }
         return _send_request(**args)
 
-    def _search(self, user_identifier, user_manufacturer_id, *path, **data):
+    def _search(self, *path, **data):
         url = self._url(*path)
         headers = {'Content-Type': 'application/json'}
         args = {
@@ -198,21 +182,13 @@ class AmberClient(object):
             'private_key': self.pri_key,
             'method': 'POST',
             'data': json.dumps(data, cls=ObjectEncoder),
-            'headers': headers,
-            'user_identifier': user_identifier,
-            'user_manufacturer_id': user_manufacturer_id,
+            'headers': headers
         }
         return _send_request(**args)
 
-    def update_ngram_index(
-            self,
-            user_identifier=None,
-            user_manufacturer_id=None
-    ):
+    def update_ngram_index(self):
         return self._get(
-            'update_ngram_index',
-            user_identifier,
-            user_manufacturer_id
+            'update_ngram_index'
         )
 
     # PRODUCT:
@@ -220,15 +196,11 @@ class AmberClient(object):
     def get_product(
             self,
             prod_id,
-            data=None,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data=None
     ):
         if not data:
             data = {}
         return self._get(
-            user_identifier,
-            user_manufacturer_id,
             'products',
             prod_id,
             **data
@@ -237,13 +209,9 @@ class AmberClient(object):
     def get_product_component(
             self,
             prod_id,
-            component_name,
-            user_identifier=None,
-            user_manufacturer_id=None
+            component_name
     ):
         return self._get(
-            user_identifier,
-            user_manufacturer_id,
             'products',
             prod_id,
             'components',
@@ -252,26 +220,18 @@ class AmberClient(object):
 
     def get_products(
             self,
-            params,
-            user_identifier=None,
-            user_manufacturer_id=None
+            params
     ):
         return self._get(
-            user_identifier,
-            user_manufacturer_id,
             'products',
             **params
         )
 
     def search_products(
             self,
-            params,
-            user_identifier=None,
-            user_manufacturer_id=None
+            params
     ):
         return self._search(
-            user_identifier,
-            user_manufacturer_id,
             'products',
             'search',
             **params
@@ -279,13 +239,9 @@ class AmberClient(object):
 
     def add_product(
             self,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._post(
-            user_identifier,
-            user_manufacturer_id,
             'products',
             **data
         )
@@ -293,13 +249,9 @@ class AmberClient(object):
     def update_product(
             self,
             prod_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._put(
-            user_identifier,
-            user_manufacturer_id,
             'products',
             prod_id,
             **data
@@ -309,13 +261,9 @@ class AmberClient(object):
             self,
             prod_id,
             component_name,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._put(
-            user_identifier,
-            user_manufacturer_id,
             'products',
             prod_id,
             'components',
@@ -327,13 +275,9 @@ class AmberClient(object):
             self,
             prod_id,
             component_name,
-            sub_component_data_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            sub_component_data_id
     ):
         return self._get(
-            user_identifier,
-            user_manufacturer_id,
             'products',
             prod_id,
             'sub_components',
@@ -344,13 +288,9 @@ class AmberClient(object):
     def add_product_option_set(
             self,
             prod_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._post(
-            user_identifier,
-            user_manufacturer_id,
             'products',
             prod_id,
             'options',
@@ -360,13 +300,9 @@ class AmberClient(object):
     def remove_product_option_set(
             self,
             prod_id,
-            option_set_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            option_set_id
     ):
         return self._delete(
-            user_identifier,
-            user_manufacturer_id,
             'products',
             prod_id,
             'options',
@@ -377,13 +313,9 @@ class AmberClient(object):
             self,
             prod_id,
             component_name,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._post(
-            user_identifier,
-            user_manufacturer_id,
             'products',
             prod_id,
             'sub_components',
@@ -396,13 +328,9 @@ class AmberClient(object):
             prod_id,
             component_name,
             sub_component_data_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._put(
-            user_identifier,
-            user_manufacturer_id,
             'products',
             prod_id,
             'sub_components',
@@ -415,13 +343,9 @@ class AmberClient(object):
             self,
             prod_id,
             component_name,
-            sub_component_data_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            sub_component_data_id
     ):
         return self._delete(
-            user_identifier,
-            user_manufacturer_id,
             'products',
             prod_id,
             'sub_components',
@@ -431,26 +355,18 @@ class AmberClient(object):
 
     def delete_product(
             self,
-            prod_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            prod_id
     ):
         return self._delete(
-            user_identifier,
-            user_manufacturer_id,
             'products',
             prod_id
         )
 
     def delete_products(
             self,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._delete(
-            user_identifier,
-            user_manufacturer_id,
             'products',
             **data
         )
@@ -459,13 +375,9 @@ class AmberClient(object):
 
     def get_images(
             self,
-            prod_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            prod_id
     ):
         response = self._get(
-            user_identifier,
-            user_manufacturer_id,
             'products',
             prod_id,
             'images'
@@ -475,13 +387,9 @@ class AmberClient(object):
     def add_image(
             self,
             prod_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._post(
-            user_identifier,
-            user_manufacturer_id,
             'products',
             prod_id,
             'images',
@@ -490,13 +398,9 @@ class AmberClient(object):
 
     def get_image(
             self,
-            img_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            img_id
     ):
         return self._get(
-            user_identifier,
-            user_manufacturer_id,
             'images',
             img_id
         )
@@ -504,13 +408,9 @@ class AmberClient(object):
     def edit_image(
             self,
             img_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._put(
-            user_identifier,
-            user_manufacturer_id,
             'images',
             img_id,
             **data
@@ -518,13 +418,9 @@ class AmberClient(object):
 
     def delete_image(
             self,
-            img_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            img_id
     ):
         return self._delete(
-            user_identifier,
-            user_manufacturer_id,
             'images',
             img_id
         )
@@ -533,13 +429,9 @@ class AmberClient(object):
 
     def get_manufacturer_images(
             self,
-            mfr_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            mfr_id
     ):
         response = self._get(
-            user_identifier,
-            user_manufacturer_id,
             'manufacturers',
             mfr_id,
             'manufacturer_images'
@@ -549,13 +441,9 @@ class AmberClient(object):
     def add_manufacturer_image(
             self,
             mfr_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._post(
-            user_identifier,
-            user_manufacturer_id,
             'manufacturers',
             mfr_id,
             'manufacturer_images',
@@ -565,13 +453,9 @@ class AmberClient(object):
     def get_manufacturer_image(
             self,
             mfr_id,
-            mfr_img_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            mfr_img_id
     ):
         return self._get(
-            user_identifier,
-            user_manufacturer_id,
             'manufacturers',
             mfr_id,
             'manufacturer_images',
@@ -582,13 +466,9 @@ class AmberClient(object):
             self,
             mfr_id,
             mfr_img_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._put(
-            user_identifier,
-            user_manufacturer_id,
             'manufacturers',
             mfr_id,
             'manufacturer_images',
@@ -599,13 +479,9 @@ class AmberClient(object):
     def delete_manufacturer_image(
             self,
             mfr_id,
-            mfr_img_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            mfr_img_id
     ):
         return self._delete(
-            user_identifier,
-            user_manufacturer_id,
             'manufacturers',
             mfr_id,
             'manufacturer_images',
@@ -614,13 +490,9 @@ class AmberClient(object):
 
     def search_manufacturers(
             self,
-            params,
-            user_identifier=None,
-            user_manufacturer_id=None
+            params
     ):
         response = self._search(
-            user_identifier,
-            user_manufacturer_id,
             'manufacturers',
             'search',
             **params
@@ -631,13 +503,9 @@ class AmberClient(object):
 
     def get_option_sets(
             self,
-            manufacturer_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            manufacturer_id
     ):
         response = self._get(
-            user_identifier,
-            user_manufacturer_id,
             'manufacturers',
             manufacturer_id,
             'option_sets'
@@ -647,13 +515,9 @@ class AmberClient(object):
     def add_option_set(
             self,
             manufacturer_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._post(
-            user_identifier,
-            user_manufacturer_id,
             'option_sets',
             manufacturer_id,
             **data
@@ -661,13 +525,9 @@ class AmberClient(object):
 
     def get_option_set(
             self,
-            option_set_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            option_set_id
     ):
         return self._get(
-            user_identifier,
-            user_manufacturer_id,
             'option_sets',
             option_set_id
         )
@@ -675,13 +535,9 @@ class AmberClient(object):
     def edit_option_set(
             self,
             option_set_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._put(
-            user_identifier,
-            user_manufacturer_id,
             'option_sets',
             option_set_id,
             **data
@@ -689,13 +545,9 @@ class AmberClient(object):
 
     def delete_option_set(
             self,
-            option_set_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            option_set_id
     ):
         return self._delete(
-            user_identifier,
-            user_manufacturer_id,
             'option_sets',
             option_set_id
         )
@@ -704,13 +556,9 @@ class AmberClient(object):
 
     def get_options(
             self,
-            option_set_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            option_set_id
     ):
         response = self._get(
-            user_identifier,
-            user_manufacturer_id,
             'option_sets',
             option_set_id,
             'options'
@@ -720,13 +568,9 @@ class AmberClient(object):
     def add_option(
             self,
             option_set_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._post(
-            user_identifier,
-            user_manufacturer_id,
             'option_sets',
             option_set_id,
             'options',
@@ -735,13 +579,9 @@ class AmberClient(object):
 
     def get_option(
             self,
-            option_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            option_id
     ):
         return self._get(
-            user_identifier,
-            user_manufacturer_id,
             'options',
             option_id
         )
@@ -749,13 +589,9 @@ class AmberClient(object):
     def edit_option(
             self,
             option_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._put(
-            user_identifier,
-            user_manufacturer_id,
             'options',
             option_id,
             **data
@@ -763,13 +599,9 @@ class AmberClient(object):
 
     def delete_option(
             self,
-            option_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            option_id
     ):
         return self._delete(
-            user_identifier,
-            user_manufacturer_id,
             'options',
             option_id
         )
@@ -778,13 +610,9 @@ class AmberClient(object):
 
     def get_tags(
             self,
-            prod_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            prod_id
     ):
         response = self._get(
-            user_identifier,
-            user_manufacturer_id,
             'products',
             prod_id,
             'tags'
@@ -794,13 +622,9 @@ class AmberClient(object):
     def delete_tag(
             self,
             prod_id,
-            tag_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            tag_id
     ):
         return self._delete(
-            user_identifier,
-            user_manufacturer_id,
             'products',
             prod_id,
             'tags',
@@ -810,13 +634,9 @@ class AmberClient(object):
     def add_tags(
             self,
             prod_id,
-            new_tags,
-            user_identifier=None,
-            user_manufacturer_id=None
+            new_tags
     ):
         return self._post_list(
-            user_identifier,
-            user_manufacturer_id,
             new_tags,
             'products',
             prod_id,
@@ -827,26 +647,18 @@ class AmberClient(object):
 
     def get_manufacturer(
             self,
-            mfr_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            mfr_id
     ):
         return self._get(
-            user_identifier,
-            user_manufacturer_id,
             'manufacturers',
             mfr_id
         )
 
     def get_manufacturers(
             self,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         response = self._get(
-            user_identifier,
-            user_manufacturer_id,
             'manufacturers',
             **data
         )
@@ -854,13 +666,9 @@ class AmberClient(object):
 
     def add_manufacturer(
             self,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._post(
-            user_identifier,
-            user_manufacturer_id,
             'manufacturers',
             **data
         )
@@ -868,13 +676,9 @@ class AmberClient(object):
     def update_manufacturer(
             self,
             mfr_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._put(
-            user_identifier,
-            user_manufacturer_id,
             'manufacturers',
             mfr_id,
             **data
@@ -882,31 +686,23 @@ class AmberClient(object):
 
     # API KEY
 
-    def get_roles(self, user_identifier=None, user_manufacturer_id=None):
+    def get_roles(self):
         response = self._get(
-            user_identifier,
-            user_manufacturer_id,
             'roles'
         )
         return response.get('roles', [])
 
     def get_api_key(
             self,
-            api_key_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            api_key_id
     ):
         return self._get(
-            user_identifier,
-            user_manufacturer_id,
             'api_keys',
             api_key_id
         )
 
-    def get_api_keys(self, user_identifier=None, user_manufacturer_id=None):
+    def get_api_keys(self):
         response = self._get(
-            user_identifier,
-            user_manufacturer_id,
             'api_keys'
         )
         return response.get('api_keys', [])
@@ -914,12 +710,8 @@ class AmberClient(object):
     def add_api_key(
             self,
             data,
-            user_identifier=None,
-            user_manufacturer_id=None
     ):
         return self._post(
-            user_identifier,
-            user_manufacturer_id,
             'api_keys',
             **data
         )
@@ -927,13 +719,9 @@ class AmberClient(object):
     def update_api_key(
             self,
             api_key_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._put(
-            user_identifier,
-            user_manufacturer_id,
             'api_keys',
             api_key_id,
             **data
@@ -941,13 +729,9 @@ class AmberClient(object):
 
     def delete_api_key(
             self,
-            api_key_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            api_key_id
     ):
         return self._delete(
-            user_identifier,
-            user_manufacturer_id,
             'api_keys',
             api_key_id
         )
@@ -956,34 +740,24 @@ class AmberClient(object):
 
     def get_client_key(
             self,
-            client_key_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            client_key_id
     ):
         return self._get(
-            user_identifier,
-            user_manufacturer_id,
             'client_keys',
             client_key_id
         )
 
-    def get_client_keys(self, user_identifier=None, user_manufacturer_id=None):
+    def get_client_keys(self):
         response = self._get(
-            user_identifier,
-            user_manufacturer_id,
             'client_keys'
         )
         return response.get('client_keys', [])
 
     def add_client_key(
             self,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._post(
-            user_identifier,
-            user_manufacturer_id,
             'client_keys',
             **data
         )
@@ -991,13 +765,9 @@ class AmberClient(object):
     def update_client_key(
             self,
             client_key_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._put(
-            user_identifier,
-            user_manufacturer_id,
             'client_keys',
             client_key_id,
             **data
@@ -1005,13 +775,9 @@ class AmberClient(object):
 
     def delete_client_key(
             self,
-            client_key_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            client_key_id
     ):
         return self._delete(
-            user_identifier,
-            user_manufacturer_id,
             'client_keys',
             client_key_id
         )
@@ -1020,34 +786,24 @@ class AmberClient(object):
 
     def get_user_key(
             self,
-            user_key_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            user_key_id
     ):
         return self._get(
-            user_identifier,
-            user_manufacturer_id,
             'user_keys',
             user_key_id
         )
 
-    def get_user_keys(self, user_identifier=None, user_manufacturer_id=None):
+    def get_user_keys(self):
         response = self._get(
-            user_identifier,
-            user_manufacturer_id,
             'user_keys'
         )
         return response.get('user_keys', [])
 
     def add_user_key(
             self,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._post(
-            user_identifier,
-            user_manufacturer_id,
             'user_keys',
             **data
         )
@@ -1055,13 +811,9 @@ class AmberClient(object):
     def update_user_key(
             self,
             user_key_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._put(
-            user_identifier,
-            user_manufacturer_id,
             'user_keys',
             user_key_id,
             **data
@@ -1069,13 +821,9 @@ class AmberClient(object):
 
     def delete_user_key(
             self,
-            user_key_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            user_key_id
     ):
         return self._delete(
-            user_identifier,
-            user_manufacturer_id,
             'user_keys',
             user_key_id
         )
@@ -1084,13 +832,9 @@ class AmberClient(object):
 
     def get_user(
             self,
-            api_key_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            api_key_id
     ):
         return self._get(
-            user_identifier,
-            user_manufacturer_id,
             'api_keys',
             api_key_id
         )
@@ -1100,13 +844,9 @@ class AmberClient(object):
     def get_sales_channel_preference(
             self,
             mfr_id,
-            sc_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            sc_id
     ):
         return self._get(
-            user_identifier,
-            user_manufacturer_id,
             'manufacturers',
             mfr_id,
             'preferences',
@@ -1117,13 +857,9 @@ class AmberClient(object):
             self,
             mfr_id,
             sc_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._post(
-            user_identifier,
-            user_manufacturer_id,
             'manufacturers',
             mfr_id,
             'preferences',
@@ -1135,13 +871,9 @@ class AmberClient(object):
             self,
             mfr_id,
             sc_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._put(
-            user_identifier,
-            user_manufacturer_id,
             'manufacturers',
             mfr_id,
             'preferences',
@@ -1151,15 +883,11 @@ class AmberClient(object):
 
     def get_sales_channels(
             self,
-            data=None,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data=None
     ):
         if not data:
             data = {}
         response = self._get(
-            user_identifier,
-            user_manufacturer_id,
             'sales_channels',
             **data
         )
@@ -1167,26 +895,18 @@ class AmberClient(object):
 
     def get_sales_channel(
             self,
-            sc_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            sc_id
     ):
         return self._get(
-            user_identifier,
-            user_manufacturer_id,
             'sales_channels',
             sc_id
         )
 
     def add_sales_channel(
             self,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._post(
-            user_identifier,
-            user_manufacturer_id,
             'sales_channels',
             **data
         )
@@ -1194,13 +914,9 @@ class AmberClient(object):
     def update_sales_channel(
             self,
             sc_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._put(
-            user_identifier,
-            user_manufacturer_id,
             'sales_channels',
             sc_id,
             **data
@@ -1208,13 +924,9 @@ class AmberClient(object):
 
     def delete_sales_channel(
             self,
-            sc_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            sc_id
     ):
         return self._delete(
-            user_identifier,
-            user_manufacturer_id,
             'sales_channels',
             sc_id
         )
@@ -1222,13 +934,9 @@ class AmberClient(object):
     def sales_channel_get_product(
             self,
             sc_id,
-            mfr_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            mfr_id
     ):
         response = self._get(
-            user_identifier,
-            user_manufacturer_id,
             'sales_channels',
             sc_id,
             'manufacturers',
@@ -1240,13 +948,9 @@ class AmberClient(object):
     def sales_channel_add_product(
             self,
             sc_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._post(
-            user_identifier,
-            user_manufacturer_id,
             'sales_channels',
             sc_id,
             'products',
@@ -1256,13 +960,9 @@ class AmberClient(object):
     def sales_channel_remove_product(
             self,
             sc_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._delete(
-            user_identifier,
-            user_manufacturer_id,
             'sales_channels',
             sc_id,
             'products',
@@ -1273,13 +973,9 @@ class AmberClient(object):
             self,
             sc_id,
             mfr_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._post(
-            user_identifier,
-            user_manufacturer_id,
             'sales_channels',
             sc_id,
             'manufacturers',
@@ -1290,13 +986,9 @@ class AmberClient(object):
     def sales_channel_remove_manufacturer(
             self,
             sc_id,
-            mfr_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            mfr_id
     ):
         return self._delete(
-            user_identifier,
-            user_manufacturer_id,
             'sales_channels',
             sc_id,
             'manufacturers',
@@ -1307,13 +999,9 @@ class AmberClient(object):
 
     def get_sales_channel_images(
             self,
-            sc_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            sc_id
     ):
         response = self._get(
-            user_identifier,
-            user_manufacturer_id,
             'sales_channels',
             sc_id,
             'images'
@@ -1323,13 +1011,9 @@ class AmberClient(object):
     def get_sales_channel_image(
             self,
             sc_id,
-            img_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            img_id
     ):
         return self._get(
-            user_identifier,
-            user_manufacturer_id,
             'sales_channels',
             sc_id,
             'images',
@@ -1339,13 +1023,9 @@ class AmberClient(object):
     def add_sales_channel_image(
             self,
             sc_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._post(
-            user_identifier,
-            user_manufacturer_id,
             'sales_channels',
             sc_id,
             'images',
@@ -1356,13 +1036,9 @@ class AmberClient(object):
             self,
             sc_id,
             img_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._put(
-            user_identifier,
-            user_manufacturer_id,
             'sales_channels',
             sc_id,
             'images',
@@ -1373,13 +1049,9 @@ class AmberClient(object):
     def delete_sales_channel_image(
             self,
             sc_id,
-            img_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            img_id
     ):
         return self._delete(
-            user_identifier,
-            user_manufacturer_id,
             'sales_channels',
             sc_id,
             'images',
@@ -1389,39 +1061,27 @@ class AmberClient(object):
     # COLLECTIONS:
 
     def get_collections(
-            self,
-            user_identifier=None,
-            user_manufacturer_id=None
+            self
     ):
         response = self._get(
-            user_identifier,
-            user_manufacturer_id,
             'collections'
         )
         return response.get('collections', [])
 
     def add_collection(
             self,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._post(
-            user_identifier,
-            user_manufacturer_id,
             'collections',
             **data
         )
 
     def get_collection(
             self,
-            collection_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            collection_id
     ):
         return self._get(
-            user_identifier,
-            user_manufacturer_id,
             'collections',
             collection_id
         )
@@ -1429,13 +1089,9 @@ class AmberClient(object):
     def update_collection(
             self,
             collection_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._put(
-            user_identifier,
-            user_manufacturer_id,
             'collections',
             collection_id,
             **data
@@ -1443,13 +1099,9 @@ class AmberClient(object):
 
     def delete_collection(
             self,
-            collection_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            collection_id
     ):
         return self._delete(
-            user_identifier,
-            user_manufacturer_id,
             'collections',
             collection_id
         )
@@ -1457,13 +1109,9 @@ class AmberClient(object):
     def add_products_to_collection(
             self,
             collection_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._post(
-            user_identifier,
-            user_manufacturer_id,
             'collections',
             collection_id,
             **data
@@ -1472,13 +1120,9 @@ class AmberClient(object):
     def remove_products_from_collection(
             self,
             collection_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._delete(
-            user_identifier,
-            user_manufacturer_id,
             'collections',
             collection_id,
             'products',
@@ -1487,23 +1131,17 @@ class AmberClient(object):
 
     # GROUPS:
 
-    def add_group(self, data, user_identifier=None, user_manufacturer_id=None):
+    def add_group(self, data):
         return self._post(
-            user_identifier,
-            user_manufacturer_id,
             'groups',
             **data
         )
 
     def get_group(
             self,
-            group_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            group_id
     ):
         return self._get(
-            user_identifier,
-            user_manufacturer_id,
             'groups',
             group_id
         )
@@ -1511,13 +1149,9 @@ class AmberClient(object):
     def get_groups(
             self,
             mfr_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._get(
-            user_identifier,
-            user_manufacturer_id,
             'manufacturers',
             mfr_id,
             'groups',
@@ -1527,13 +1161,9 @@ class AmberClient(object):
     def update_group(
             self,
             group_id,
-            data,
-            user_identifier=None,
-            user_manufacturer_id=None
+            data
     ):
         return self._put(
-            user_identifier,
-            user_manufacturer_id,
             'groups',
             group_id,
             **data
@@ -1541,13 +1171,9 @@ class AmberClient(object):
 
     def delete_group(
             self,
-            group_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            group_id
     ):
         return self._delete(
-            user_identifier,
-            user_manufacturer_id,
             'groups',
             group_id
         )
@@ -1555,13 +1181,9 @@ class AmberClient(object):
     def add_product_to_group(
             self,
             group_id,
-            products_ids,
-            user_identifier=None,
-            user_manufacturer_id=None
+            products_ids
     ):
         return self._post_list(
-            user_identifier,
-            user_manufacturer_id,
             products_ids,
             'groups',
             group_id,
@@ -1571,13 +1193,9 @@ class AmberClient(object):
     def delete_product_from_group(
             self,
             group_id,
-            prod_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            prod_id
     ):
         return self._delete(
-            user_identifier,
-            user_manufacturer_id,
             'groups',
             group_id,
             'products',
@@ -1588,13 +1206,9 @@ class AmberClient(object):
 
     def get_logs(
             self,
-            user_id,
-            user_identifier=None,
-            user_manufacturer_id=None
+            user_id
     ):
         response = self._get(
-            user_identifier,
-            user_manufacturer_id,
             'logs',
             user_id=user_id
         )
@@ -1603,13 +1217,9 @@ class AmberClient(object):
     # Components:
 
     def get_components(
-            self,
-            user_identifier=None,
-            user_manufacturer_id=None
+            self
     ):
         response = self._get(
-            user_identifier,
-            user_manufacturer_id,
             'components'
         )
         return response.get('components', [])
@@ -1617,13 +1227,9 @@ class AmberClient(object):
     # Assemblages:
 
     def get_assemblages(
-            self,
-            user_identifier=None,
-            user_manufacturer_id=None
+            self
     ):
         response = self._get(
-            user_identifier,
-            user_manufacturer_id,
             'assemblages'
         )
         return response.get('assemblages', [])
@@ -1631,26 +1237,18 @@ class AmberClient(object):
     # Categories:
 
     def get_categories(
-            self,
-            user_identifier=None,
-            user_manufacturer_id=None
+            self
     ):
         response = self._get(
-            user_identifier,
-            user_manufacturer_id,
             'categories'
         )
         return response.get('categories', [])
 
     def get_primary_sub_categories(
             self,
-            category_name,
-            user_identifier=None,
-            user_manufacturer_id=None
+            category_name
     ):
         response = self._get(
-            user_identifier,
-            user_manufacturer_id,
             'categories',
             category_name
         )
@@ -1660,12 +1258,8 @@ class AmberClient(object):
             self,
             category_name,
             primary_sub_category_name,
-            user_identifier=None,
-            user_manufacturer_id=None
     ):
         response = self._get(
-            user_identifier,
-            user_manufacturer_id,
             'categories',
             category_name,
             primary_sub_category_name
