@@ -793,6 +793,15 @@ class AmberClient(object):
             user_key_id
         )
 
+    def get_user_key_by_public_key(
+            self,
+            public_key
+    ):
+        return self._get(
+            'user_keys',
+            public_key
+        )
+
     def get_user_keys(self):
         response = self._get(
             'user_keys'
