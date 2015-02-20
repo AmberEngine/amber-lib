@@ -1219,7 +1219,7 @@ class AmberClient(object):
     ):
         response = self._get(
             'logs',
-            public_key=public_key
+            public_key
         )
         return response.get('logs', [])
 
