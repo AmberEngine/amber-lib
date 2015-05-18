@@ -371,6 +371,15 @@ class AmberClient(object):
             **data
         )
 
+    def get_product_listing(
+            self,
+            params
+    ):
+        return self._get(
+            'product_listing',
+            **params
+        )
+
     # IMAGES:
 
     def get_images(
