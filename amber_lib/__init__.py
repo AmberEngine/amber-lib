@@ -920,6 +920,16 @@ class AmberClient(object):
             sc_id
         )
 
+    def get_sales_channel_by_name(
+            self,
+            params
+    ):
+        return self._search(
+            'sales_channels',
+            'search',
+            **params
+        )
+
     def add_sales_channel(
             self,
             data
