@@ -922,12 +922,12 @@ class AmberClient(object):
 
     def get_sales_channel_by_name(
             self,
-            params
+            sc_name
     ):
         return self._search(
             'sales_channels',
             'search',
-            **params
+            name=sc_name
         )
 
     def add_sales_channel(
