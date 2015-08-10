@@ -380,6 +380,17 @@ class AmberClient(object):
             **params
         )
 
+    # PRODUCT IMPORT:
+
+    def add_product_import(
+            self,
+            data
+    ):
+        return self._post(
+            'product_import',
+            **data
+        )
+
     # IMAGES:
 
     def get_images(
