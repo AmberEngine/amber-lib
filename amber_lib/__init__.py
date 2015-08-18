@@ -630,7 +630,7 @@ class AmberClient(object):
     ):
         return self._delete(
             'options',
-            option_id
+            option_id,
             'option_sets',
             option_set_id
         )
