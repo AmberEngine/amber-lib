@@ -604,7 +604,7 @@ class AmberClient(object):
     ):
         return self._get(
             'options',
-            option_set_type
+            option_set_type,
             option_id
         )
 
