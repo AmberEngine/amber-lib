@@ -604,9 +604,8 @@ class AmberClient(object):
     ):
         return self._get(
             'options',
-            option_id,
-            'option_sets',
             option_set_type
+            option_id
         )
 
     def edit_option(
@@ -617,9 +616,8 @@ class AmberClient(object):
     ):
         return self._put(
             'options',
-            option_id,
-            'option_sets',
             option_set_type,
+            option_id,
             **data
         )
 
@@ -630,9 +628,8 @@ class AmberClient(object):
     ):
         return self._delete(
             'options',
-            option_id,
-            'option_sets',
-            option_set_type
+            option_set_type,
+            option_id
         )
 
     # TAGS:
