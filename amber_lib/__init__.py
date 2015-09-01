@@ -599,30 +599,36 @@ class AmberClient(object):
 
     def get_option(
             self,
-            option_id
+            option_id,
+            option_set_type
     ):
         return self._get(
             'options',
+            option_set_type,
             option_id
         )
 
     def edit_option(
             self,
             option_id,
+            option_set_type,
             data
     ):
         return self._put(
             'options',
+            option_set_type,
             option_id,
             **data
         )
 
     def delete_option(
             self,
-            option_id
+            option_id,
+            option_set_type
     ):
         return self._delete(
             'options',
+            option_set_type,
             option_id
         )
 
