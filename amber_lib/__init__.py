@@ -218,15 +218,6 @@ class AmberClient(object):
             component_name
         )
 
-    def get_products(
-            self,
-            params
-    ):
-        return self._get(
-            'products',
-            **params
-        )
-
     def search_products(
             self,
             params
