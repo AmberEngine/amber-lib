@@ -701,6 +701,15 @@ class AmberClient(object):
             **data
         )
 
+    def delete_manufacturer(
+            self,
+            mfr_id
+    ):
+        return self._delete(
+            'manufacturers',
+            mfr_id
+        )
+
     # API KEY
 
     def get_roles(self):
