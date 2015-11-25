@@ -7,6 +7,101 @@ import base64
 import decimal
 
 
+/<class>/<id>
+/componetns/>component name>/<id>
+
+
+
+class Error(object):
+    status = ""
+    code = ""
+    title = ""
+    message = ""
+
+
+    # Can I haz error retries?
+    # How will we do this?
+    # Retry on timeouts? Just let the user handle shit? Wut?
+    # There should be an application-side timeout (in case the server timeout is effin big)
+
+    def __unmarshal_json(self):
+        pass
+
+
+class Product(ResourceBase):
+    # save, update, create, delete
+    name = ""
+    type =""
+    date_added = ""
+
+
+class Collection:
+    def __len__(self):
+        pass
+
+    def __getitem__(self):
+        pass
+
+    def __iter__(self):
+        pass
+
+    def next():
+        pass
+
+    def pres():
+        pass
+
+    def first():
+        pass
+
+    def last():
+        pass
+
+    def all():
+        pass
+
+    def relate():
+        pass
+
+    def unrelate():
+        pass
+
+    def delete():
+        pass
+
+
+
+    ctx = lib.Context(host, port, p, p)
+    ctx.products().create(shit)
+
+
+
+    (ctx.products)()
+
+
+class Context(object):
+    def __init__(self, host, port, public, private):
+        self.host = host
+        self.port = port
+        self.public = public
+        self.private = private
+
+    def ping(self):
+        # do shit
+
+    def __getattr__(self, modelName):
+        import models
+        found = false
+        for attr in models:
+            if modelName == attr:
+                return attr(self)
+        raise error
+
+
+
+
+
+
 class ObjectEncoder(json.JSONEncoder):
 
     def default(self, obj):
