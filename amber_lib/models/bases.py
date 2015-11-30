@@ -133,20 +133,36 @@ class Model(object):
 
 
 class Property:
-    def __init__(self, kind):
+    def __init__(self, kind, is_list=False):
         self.kind = kind
+        self.is_list = is_list
         self.value = None
 
     def get(self):
         return self.value
 
     def set(self, value):
-        if isinstance(value, [self.kind]):
+        if self.is_list is True:
+            if not isinstance(value, list):
+                raise Exception("Expecting a list!")
+            for val in value:
+                self.set(val)
+        elif isinstance(value, self.kind):
             self.value = value
         else:
-            raise Exception('can set that!')
+            raise Exception('wrong type!')
 
 
 class Component(Model):
+    attributes = {}
+
+    def __init__(self, *args, **kwargs):
+        self.attributes["component_data_id"] = Property(int)
+        self.attributes["product_id"] = Property(int)
+        self.attributes["parent_component_id"] = Property(int)
+        self.attributes["parent_table_name"] = Property(str)
+
+        Model.__init__(self, *args, **kwargs)
+
     def save(self, data=None):
         pass

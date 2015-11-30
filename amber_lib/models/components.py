@@ -2,67 +2,182 @@ import amberlib.models.base as base
 
 
 class Audit(base.Component):
-    pass
+    attributes = {
+        "date_added": Property(str),
+        "date_updated": Property(str),
+        "updated_by_api_key": Property(str)
+    }
 
 
 class Arm(base.Component):
-    pass
+    attributes = {
+        "height": Property(float),
+        "style": Property(str)
+    }
+
+
+class Assemblage(base.Component):
+    attributes = {
+        "id": Property(int),
+        "name": Property(str),
+        "description": Property(str),
+        "table_name": Property(str),
+        "class_name": Property(str),
+        "parent_name": Property(str),
+        "child_component": Property(models.components.Assemblage)
+    }
 
 
 class Category(base.Component):
-    pass
+    attributes = {
+        "primary": Property(str),
+        "secondary": Property(str),
+        "tertiary": Property(str)
+    }
+
 
 class Collection(base.Component):
-    pass
+    attributes = {
+        "collection_id": Property(int),
+        "collection": Property(models.primaries.Collection)
+    }
+
 
 class ConstructionInformation(base.Component):
-    pass
+    attributes = {
+        "material": Property(str),
+        "joinery_type": Property(str)
+    }
 
 
 class Description(base.Component):
-    pass
+    attributes = {
+        "primary": Property(str),
+        "retail": Property(str),
+        "designer": Property(str),
+        "alterate": Property(str),
+        "features": Property(str)
+    }
+
+
+class Footboard(base.Component):
+    attributes = {
+        "height": Property(float),
+        "width": Property(float),
+        "depth": Property(float),
+        "floor_clearance": Property(float)
+    }
 
 
 class Footrest(base.Component):
-
+    attributes = {
+        "height": Property(float)
+    }
 
 class Identity(base.Component):
-    pass
+    attributes = {
+        "name": Property(str),
+        "manufacturer_sku": Property(str),
+        "source_url": Property(str),
+        "alternate_name": Property(str)
+    }
+
 
 class Instructions(base.Component):
-    pass
+    attributes = {
+        "cleaning_directions": Property(str),
+        "installation_directions": Property(str)
+    }
+
 
 class Image(base.Component):
-    pass
+    attributes = {
+        "images": Property(models.components.Images) # TODO: fix this!
+    }
+
 
 class Manufacturer(base.Component):
-    pass
+    attributes = {
+        "manufacturer_id": Property(int),
+        "manufacturer": Property(models.primaries.Manufacturer)
+    }
 
 class Pricing(base.Component):
-    pass
+    # TODO: These are INTs because we are working in cents, yes?
+    attributes = {
+        "wholesale": Property(int),
+        "trade_price": Property(int),
+        "minimum_internet_price": Property(int),
+        "msrp": Property(int),
+        "dealer_price": Property(int)
+    }
+
 
 class PromotionalTags(base.Component):
-    pass
+    "new_product": Property(bool),
+    "best_seller": Property(bool),
+    "limited_stock": Property(bool),
+    "discontinued": Property(bool)
+
 
 class Option(base.Component):
-    pass
+    # TODO: Is this even close to being right?
+    attributes = {
+        "option_sets": Property([models.components.Options])
+    }
+
 
 class OrderingInformation(base.Component):
-    pass
+    attributes = {
+        "unit": Property(str),
+        "discontinued": Property(bool),
+        "lead_time": Property(str),
+        "quick_ship": Property(bool),
+        "minimum_quanitity": Property(int),
+        "stock": Property(float)
+    }
+
 
 class OverallDimensions(base.Component):
-    pass
+    attributes = {
+        "width": Property(float),
+        "height": Property(float),
+        "depth": Property(float),
+        "diameter": Property(float)
+    }
+
 
 class Seat(base.Component):
-    pass
+    attributes = {
+        "height": Property(float),
+        "depth": Property(float),
+        "width": Property(float),
+        "construction": Property(str)
+    }
+
 
 class ShippingInformation(base.Component):
-    pass
+    attributes = {
+        "ships_from": Property(str),
+        "volume": Property(float),
+        "standard": Property(bool),
+        "freight": Property(bool),
+        "white_glove": Property(bool),
+        "drop_ship": Property(bool),
+        "notes": Property(bool),
+        "boxes": Property(models.components.Box, true)
+    }
+
 
 class Weight(base.Component):
-    pass
+    attributes = {
+        "weight": Property(float)
+    }
 
 
 class Visibility(base.Component):
-    pass
+    attributes = {
+        "active": Property(bool),
+        "meets_posting_requirements": Property(bool)
+    }
 
