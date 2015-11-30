@@ -10,6 +10,27 @@ class Model(object):
         """
         self._ctx = context
 
+
+    def __getattr__(self, attr):
+        """ If the desired attribute exists, return the current value that it
+        is storing internally.
+        """
+        if attr in self.attributes:
+            return self.attributes[attr].get()
+        else:
+            raise Exception('NOPE NOPE NOPE!')
+
+
+    def __setattr__(self, attr, val):
+        """ If the desired attribute exists, set its internal value using
+        the set method to that of the specified value.
+        """
+        if attr in self.attributes:
+            self.attributes[attr].set(val)
+        else:
+            raise Exception('nope!')
+
+
     def all(self, limit=500, offset=0):
         """ Retrieve a collection of instances of the model, using the
         URI params from the keyword arguments.
