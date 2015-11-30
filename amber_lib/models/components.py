@@ -94,7 +94,6 @@ class Door(base.Component):
     }
 
 
-
 class Durability(base.Component):
     attributes = {
         "martindale": Property(str),
@@ -199,7 +198,7 @@ class InteriorDimension(base.Component):
 
 class Image(base.Component):
     attributes = {
-        "images": Property(models.components.Images) # TODO: fix this!
+        "images": Property(models.components.Images)  # TODO: fix this!
     }
 
 
@@ -253,10 +252,12 @@ class Pricing(base.Component):
 
 
 class PromotionalTags(base.Component):
-    "new_product": Property(bool),
-    "best_seller": Property(bool),
-    "limited_stock": Property(bool),
-    "discontinued": Property(bool)
+    attributes = {
+        "new_product": Property(bool),
+        "best_seller": Property(bool),
+        "limited_stock": Property(bool),
+        "discontinued": Property(bool)
+    }
 
 
 class Option(base.Component):
@@ -388,4 +389,3 @@ class Visibility(base.Component):
         "active": Property(bool),
         "meets_posting_requirements": Property(bool)
     }
-

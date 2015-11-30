@@ -1,6 +1,7 @@
 import amberlib.models.bases.Model as Model
 import amberlib.models.base.Property as Property
 
+
 class APIKey(Model):
     attributes = {
         'id': Property(int),
