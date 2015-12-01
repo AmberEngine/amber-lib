@@ -1,5 +1,7 @@
 import json
 
+from amber_lib import client
+
 
 class Model(object):
     _ctx = None
@@ -22,10 +24,29 @@ class Model(object):
         """ Retrieve a collection of instances of the model, using the
         URI params from the keyword arguments.
         """
-        payload = amberlib.Get(self.ctx, self.toDict(), limit=500, offset=0)
-        collection = amberlib.Collection(json.loads(payload))
+        payload = client.send(
+            client.GET,
+            self.ctx,
+            self.endpoint(),
+            None,
+            limit=500,
+            offset=0
+        )
+
+        collection = client.Collection(
+            json.loads(payload),
+            self.__class__,
+            self._ctx,
+        )
 
         return collection
+
+    def endpoint(self):
+        loc = self.__class__.__name__
+
+        if hasattr(self, "id"):
+            loc += "/%d" % self.id
+        return loc
 
     def fromDict(self, dict_):
         """ Update the internal dictionary for the instance using the
@@ -65,17 +86,16 @@ class Model(object):
         if data is not None:
             self.update(data)
 
-        if isinstance(self.id, int) and self.id > 0:
+        if hasattr(self, "id") and self.id > 0:
             returnedDict = amberlib.Put(
                 self.ctx,
-                self.__class__,
-                self.toDict(),
-                id=self.id
+                self.endpoint(),
+                self.toDict()
             )
         else:
             returnedDict = amberlib.Post(
                 self.ctx,
-                self.__class__,
+                self.endpoint(),
                 self.toDict()
             )
 
@@ -119,7 +139,7 @@ class Model(object):
         specified ID, and udpate the current instance using the retrieved
         data.
         """
-        payload = amberlib.Get(self.ctx, self.__class__, self.toDict(), id=id_)
+        payload = amberlib.Get(self.ctx, self.endpoint(), self.toDict(), id=id_)
         self.fromJSON(payload)
 
         return self

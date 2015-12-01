@@ -5,6 +5,87 @@ from datetime import datetime
 
 import requests
 
+GET = "get"
+POST = "post"
+PUT = "put"
+DELETE = "delete"
+
+Collection.listing = []
+
+apiKeys = requests.api_key.all(limit=500)
+
+for key in apiKeys:
+    do shit
+
+
+
+class Collection(object):
+    def __init__(self, dict_, class_, ctx):
+        self.ctx = ctx
+        self.listing = {}
+        self.kind = class_.__name__
+
+        json_extract = json.loads(dict_)
+
+        self.hal = json_extract['hal']
+        self.total json_extract['total']
+
+        self.count = json_extract.get('count', self.total)
+        self.listing = json_extract['_embedded'][self.kind]
+
+
+    def __len__(self):
+        return self.total
+
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            start = slice.start
+            end = slice.end if slice.end <= self.total else self.total
+            step = slice.step if slice.step else 1
+
+            list_ = []
+            for index in range(start, end, step):
+                list_.append(self.get(index))
+            return list_
+        else:
+            return self.get(key)
+
+    def __iter__(self):
+        pass
+
+    def get(self, index):
+        if index in self.listing:
+            return self.listing[index]
+        else:
+            raise IndexError()
+
+    def next():
+        moar_data = send(GET, self.ctx, self.hal.next.href, None)
+        self.list.append(moar_data["_embedded"][self.kind])
+
+    def previous():
+        moar_data = send(GET, self.ctx, self.hal.prev.href, None)
+        self.list.append(moar_data["_embedded"][self.kind])
+
+    def first():
+        moar_data = send(GET, self.ctx, self.hal.first.href, None)
+        self.
+
+    def last():
+        pass
+
+    def all():
+        pass
+
+    def relate():
+        pass
+
+    def unrelate():
+        pass
+
+    def delete():
+        pass
+
 
 def create_payload(context, url, data):
     payload = {
