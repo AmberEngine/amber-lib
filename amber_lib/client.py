@@ -10,14 +10,6 @@ POST = "post"
 PUT = "put"
 DELETE = "delete"
 
-Collection.listing = []
-
-apiKeys = requests.api_key.all(limit=500)
-
-for key in apiKeys:
-    do shit
-
-
 
 class Collection(object):
     def __init__(self, dict_, class_, ctx):
