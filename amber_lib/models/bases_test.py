@@ -5,7 +5,8 @@ import sys
 
 import mock
 
-import bases
+from . import bases
+
 
 class Context(object):
     public = 'mwyclv6bac2lqn9artt1o88laq4muk88483opkp9dnv8289f8olqrxlx7b2s7q8'

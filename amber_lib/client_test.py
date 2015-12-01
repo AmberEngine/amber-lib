@@ -7,7 +7,7 @@ import sys
 
 import mock
 
-from . import api
+from . import client
 
 
 class Context(object):
@@ -31,7 +31,7 @@ class CreatePayload(unittest.TestCase):
         url = "%s:%s/fake_resource" % (ctx.host, ctx.port)
         data = {"foo": "bar"}
 
-        payload = api.create_payload(ctx, url, data)
+        payload = client.create_payload(ctx, url, data)
 
         self.assertIsNotNone(payload)
         self.assertGreater(len(json.loads(payload)), 0)
@@ -51,7 +51,7 @@ class CreateURL(unittest.TestCase):
         uri = {}
 
         self.assertEqual(
-            api.create_url(ctx, endpoint, **uri),
+            client.create_url(ctx, endpoint, **uri),
             self.generate(ctx, endpoint, uri)
         )
 
@@ -62,7 +62,7 @@ class CreateURL(unittest.TestCase):
 
         uri = {"limit": 500, "offset": 3}
         self.assertEqual(
-            api.create_url(ctx, endpoint, **uri),
+            client.create_url(ctx, endpoint, **uri),
             self.generate(ctx, endpoint, uri)
         )
 
@@ -70,41 +70,40 @@ class CreateURL(unittest.TestCase):
 class Send(unittest.TestCase):
     def using_invalid_method_test(self):
         method = "fubar"
-        self.assertRaises(AttributeError, api.send, *[method, None, "", {}])
+        self.assertRaises(AttributeError, client.send, *[method, None, "", {}])
 
-    @mock.patch('amber_lib.api.requests')
-    @mock.patch('amber_lib.api.create_payload')
-    @mock.patch('amber_lib.api.create_url')
+    @mock.patch('amber_lib.client.requests')
+    @mock.patch('amber_lib.client.create_payload')
+    @mock.patch('amber_lib.client.create_url')
     def using_valid_method_test(self, mock_url, mock_payload, mock_requests):
         methods = ["get", "post", "put", "delete", "dElEte"]
-        get_return = mock.Mock()
-        get_return.text = '{"code": "bar", "title": "fubar", "message": "nope"}'
-        get_return.status_code = 200
+        return_mock = mock.Mock()
+        return_mock.text = '{"code": "bar", "title": "fubar", "message": "nope"}'
+        return_mock.status_code = 200
 
-        mock_requests.get = mock.Mock()
-        mock_requests.get.return_value = get_return
 
         for method in methods:
-            api.send(method, None, "", {"foo": "bar"})
+            m = mock.Mock()
+            m.return_value = return_mock
+            setattr(mock_requests, method, m)
 
-    """
-    @mock.patch('amber_lib.requests.requests')
-    @mock.patch('amber_lib.requests.create_payload')
-    @mock.patch('amber_lib.requests.create_url')
-    def _test(self, mock_url, mock_payload, mock_requests):
-        methods = "fubar"
+            client.send(method, None, "", {"foo": "bar"})
 
-        url = "http://example.com/products?limit=5&offset=100"
-        payload = {"signature": "dfAD923jFA3jFA", "data": {}, "url": url}
 
-        mock_url.return_value = url
-        mock_payload.return_value = json.dumps(
-            payload,
-            sort_keys=True,
-            separators=(',', ':')
-        )
-    """
+    @mock.patch('amber_lib.client.requests')
+    @mock.patch('amber_lib.client.create_payload')
+    @mock.patch('amber_lib.client.create_url')
+    def not_200_status_test(self, mock_url, mock_payload, mock_requests):
+        method = "get"
+        return_mock = mock.Mock()
+        return_mock.text = '{"code": "bar", "title": "fubar", "message": "nope"}'
+        return_mock.status_code = 418
 
+        m = mock.Mock()
+        m.return_value = return_mock
+        setattr(mock_requests, method, m)
+
+        self.assertRaises(Exception, client.send, *[method, None, "", {}])
 
 
 if __name__ == "__main__":
