@@ -1,4 +1,10 @@
-# imports
+import base64
+import json
+import hashlib
+from datetime import datetime
+
+import requests
+
 
 def create_payload(context, url, data):
     payload = {
@@ -9,8 +15,7 @@ def create_payload(context, url, data):
         "data": data
     }
 
-
-    jdump = json.dumps(payload, sort_keys=True, seperators=(',', ':'))
+    jdump = json.dumps(payload, sort_keys=True, separators=(',', ':'))
 
     sig = base64.b64encode(
         hashlib.sha256(jdump + context.private).hexdigest()
@@ -25,7 +30,7 @@ def create_url(context, endpoint, **uri_args):
     """ Create a full URL using the context settings, the desired endpoint,
     and any option URI (keyword) arguments.
     """
-    url = "%s:%s%s" % (context.host, context.port, endpoint)
+    url = "%s:%s/%s" % (context.host, context.port, endpoint)
 
     if len(uri_args) > 0:
         url += "?"
@@ -36,7 +41,6 @@ def create_url(context, endpoint, **uri_args):
         url += "&".join(query_params)
 
     return url
-
 
 
 def get(context, endpoint, json_data, **uri_args):
@@ -50,6 +54,7 @@ def get(context, endpoint, json_data, **uri_args):
 
     return json.loads(r.text)
 
+
 def post(context, endpoint, json_data, **uri_args):
     url = create_url(context, endpoint, uri_params)
     payload = create_payload(context, url, json_data)
@@ -60,6 +65,7 @@ def post(context, endpoint, json_data, **uri_args):
         raise Exception(error["code"], error["title"], error["message"])
 
     return json.loads(r.text)
+
 
 def put(context, endpoint, json_data, **uri_args):
     url = create_url(context, endpoint, uri_params)
@@ -83,5 +89,3 @@ def delete(context, endpoint, json_data, **uri_args):
         raise Exception(error["code"], error["title"], error["message"])
 
     return json.loads(r.text)
-
-

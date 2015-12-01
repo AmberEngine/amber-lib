@@ -7,11 +7,7 @@ import base64
 import decimal
 
 
-/<class>/<id>
-/componetns/>component name>/<id>
-
-
-
+"""
 class Error(object):
     status = ""
     code = ""
@@ -99,7 +95,7 @@ class Context(object):
 
 
 
-
+"""
 
 
 class ObjectEncoder(json.JSONEncoder):

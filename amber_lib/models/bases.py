@@ -3,7 +3,6 @@ import json
 
 class Model(object):
     _ctx = None
-    attributes = {}
 
     def __init__(self, context):
         """ Initialize a new instance of the Model, saving the current context
@@ -12,22 +11,12 @@ class Model(object):
         self._ctx = context
 
     def __getattr__(self, attr):
-        """ If the desired attribute exists, return the current value that it
-        is storing internally.
-        """
-        if attr in self.attributes:
-            return self.attributes[attr].get()
-        else:
-            raise Exception('NOPE NOPE NOPE!')
+        raise AttributeError('NOPE NOPE NOPE!')
 
     def __setattr__(self, attr, val):
-        """ If the desired attribute exists, set its internal value using
-        the set method to that of the specified value.
-        """
-        if attr in self.attributes:
-            self.attributes[attr].set(val)
-        else:
-            raise Exception('nope!')
+        """ If the attribute exists, set it. Otherwise raise an exception."""
+        getattr(self, attr)
+        self.__dict__[attr] = val
 
     def all(self, limit=500, offset=0):
         """ Retrieve a collection of instances of the model, using the
@@ -44,16 +33,20 @@ class Model(object):
         """
         def explodeDict(obj, dict_):
             for key, val in dict_.items():
-                if key not in obj.attributes:
+                if key not in obj.__class__.__dict__:
                     raise Exception("yo! That dont work!")
 
+                # Are we working with a dict?
                 if isinstance(val, [dict]):
-                    dict_ = val
-                    inst = getattr(amberlib.models.components, key)(self._ctx)
+                    # Capitailize the Key.
+                    # Create new instance with current context.
+                    inst = getattr(self, key.title()).kind(self._ctx)
+                    val = explodeDict(inst, val)
+                elif isinstance(val, [list]):
+                    pass
 
-                obj.attributes[key].set(val)
+                setattr(obj, key, val)
             return obj
-
         return explodeDict(self, dict_)
 
     def fromJSON(self, json):
@@ -154,15 +147,28 @@ class Property:
 
 
 class Component(Model):
-    attributes = {}
-
-    def __init__(self, *args, **kwargs):
-        self.attributes["component_data_id"] = Property(int)
-        self.attributes["product_id"] = Property(int)
-        self.attributes["parent_component_id"] = Property(int)
-        self.attributes["parent_table_name"] = Property(str)
-
-        Model.__init__(self, *args, **kwargs)
+    component_data_id = Property(int)
+    product_id = Property(int)
+    parent_component_id = Property(int)
+    parent_table_name = Property(str)
 
     def save(self, data=None):
-        pass
+        if data is not None:
+            self.update(data)
+
+        if isinstance(self.component_data_id, int) and self.component_data_id > 0:
+            returnedDict = amberlib.Put(
+                self.ctx,
+                self.__class__,
+                self.toDict(),
+                id=self.component_data_id
+            )
+        else:
+            returnedDict = amberlib.Post(
+                self.ctx,
+                self.__class__,
+                self.toDict()
+            )
+
+        self.update(returned)
+        return self
