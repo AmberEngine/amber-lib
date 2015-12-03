@@ -5,6 +5,7 @@ from amber_lib import client
 
 class Model(object):
     _ctx = None
+    _links = {}
 
     def __init__(self, context):
         """ Initialize a new instance of the Model, saving the current context
@@ -13,7 +14,7 @@ class Model(object):
         self._ctx = context
 
     def __getattr__(self, attr):
-        raise AttributeError('NOPE NOPE NOPE!')
+        raise AttributeError('"%s" does not have: %s' % (self.__class__.__name__, attr))
 
     def __setattr__(self, attr, val):
         """ If the attribute exists, set it. Otherwise raise an exception."""
@@ -54,16 +55,14 @@ class Model(object):
         """
         def explode_dict(obj, dict_):
             for key, val in dict_.items():
-                if key not in obj.__class__.__dict__:
-                    raise Exception("yo! That dont work!")
-
                 # Are we working with a dict?
                 if isinstance(val, dict):
                     # Capitailize the Key.
                     # Create new instance with current context.
-                    #inst = getattr(self, key.title()).kind(self._ctx)
-                    inst = getattr(self, key).kind(self._ctx)
-                    val = explode_dict(inst, val)
+                    attr = getattr(self, key)
+                    if not isinstance(attr, dict):
+                        inst = getattr(self, key).kind(self._ctx)
+                        val = explode_dict(inst, val)
                 elif isinstance(val, list):
                     pass
 

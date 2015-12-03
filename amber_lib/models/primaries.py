@@ -12,6 +12,27 @@ class APIKey(Model):
     sales_channel_id = Property(int)
 
 
+class AssemblageElement(Model):
+    table_name = Property(str)
+    class_name = Property(str)
+    parent_name = Property(str)
+    name = Property(str)
+    id = Property(int)
+    description = Property(str)
+
+    def __init__(self, *args, **kwargs):
+        AssemblageElement.child_component = Property(AssemblageElement)
+        super(AssemblageElement, self).__init__(*args, **kwargs)
+
+
+class Assemblage(Model):
+    id = Property(int)
+    name = Property(str)
+    description = Property(str)
+    assemblage_element_list = Property(AssemblageElement, True)
+
+
+
 class Collection(Model):
     id = Property(int)
     manufacturer_id = Property(int)
@@ -63,42 +84,6 @@ class OptionSet(Model):
     manufacturer_id = Property(int)
     name = Property(str)
     type = Property(str)
-
-
-class Product(Model):
-    from amber_lib.models import components
-    id = Property(int)
-    assemblage = Property(components.Assemblage)
-    arm = Property(components.Arm)
-    audit = Property(components.Audit)
-    category = Property(components.Category)
-    collection = Property(components.Collection)
-    construction_information = Property(components.ConstructionInformation)
-    cushion = Property(components.Cushion)
-    description = Property(components.Description)
-    door = Property(components.Door)
-    drawer = Property(components.Drawer)
-    durability = Property(components.Durability)
-    footrest = Property(components.Footrest)
-    identity = Property(components.Identity)
-    image = Property(components.Image)
-    instructions = Property(components.Instructions)
-    manufacturer = Property(components.Manufacturer)
-    option = Property(components.OptionSet)
-    ordering_information = Property(components.OrderingInformation)
-    pattern = Property(components.Pattern)
-    pricing = Property(components.Pricing)
-    pedestal = Property(components.Pedestal)
-    pillow = Property(components.Pillow)
-    promotional_tags = Property(components.PromotionalTags)
-    overall_dimensions = Property(components.OverallDimensions)
-    seat = Property(components.Seat)
-    shelf = Property(components.Shelf)
-    shipping_information = Property(components.ShippingInformation)
-    table_leaf = Property(components.TableLeaf)
-    textile = Property(components.Textile)
-    visibility = Property(components.Visibility)
-    weight = Property(components.Weight)
 
 
 class SalesChannel(Model):

@@ -18,19 +18,6 @@ class Arm(bases.Component):
     style = Property(str)
 
 
-class Assemblage(bases.Component):
-    id = Property(int)
-    name = Property(str)
-    description = Property(str)
-    table_name = Property(str)
-    class_name = Property(str)
-    parent_name = Property(str)
-
-    def __init__(self, *args, **kwargs):
-        self.child_component = Property(Assemblage)
-        super(Assemblage, self).__init__(*args, **kwargs)
-
-
 class Base(bases.Component):
     height = Property(float)
     diameter = Property(float)

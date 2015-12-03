@@ -11,20 +11,6 @@ PUT = "put"
 DELETE = "delete"
 
 
-class HAL_link(object):
-    def __init__(self, href):
-        self.href = href
-
-
-class HAL(object):
-    def __init__(self, hal):
-        self.self = HAL_link(hal.get('self', {}).get('href'))
-        self.next = HAL_link(hal.get('next', {}).get('href'))
-        self.previous = HAL_link(hal.get('previous', {}).get('href'))
-        self.first = HAL_link(hal.get('first', {}).get('href'))
-        self.last = HAL_link(hal.get('last', {}).get('href'))
-
-
 class Collection(object):
     def __init__(self, dict_, class_, ctx):
         self.ctx = ctx
@@ -34,7 +20,7 @@ class Collection(object):
 
         #json_extract = json.loads(dict_)
 
-        self.hal = HAL(dict_.get('_links', {}))
+        self.hal = dict_.get('_links', {})
         self.total = dict_.get('total')
 
         self.count = dict_.get('count', self.total)
@@ -88,16 +74,16 @@ class Collection(object):
             pass
 
     def next(self):
-        moar_data = send(GET, self.ctx, self.hal.next.href, None)
-        self.hal = HAL(moar_data.get('_links', {}))
+        moar_data = send(GET, self.ctx, self.hal['next']['href'], None)
+        self.hal = moar_data.get('_links', {})
         self.append(moar_data.get("_embedded", {}).get(self.kind + 's', []))
 
     def previous(self):
-        moar_data = send(GET, self.ctx, self.hal.prev.href, None)
+        moar_data = send(GET, self.ctx, self.hal['prev']['href'], None)
         self.prepend(moar_data.get("_embedded", {}).get(self.kind + 's', []))
 
     def first(self):
-        moar_data = send(GET, self.ctx, self.hal.first.href, None)
+        moar_data = send(GET, self.ctx, self.hal['first']['href'], None)
 
     def last(self):
         pass
