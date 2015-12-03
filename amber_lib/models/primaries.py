@@ -53,7 +53,7 @@ class Export:
     pass
 
 
-class Manufacturer:
+class Manufacturer(Model):
     id = Property(int)
     name = Property(str)
     bio = Property(str)
@@ -62,14 +62,26 @@ class Manufacturer:
     date_added = Property(str)
     date_updated = Property(str)
     date_profile_complete = Property(str)
-    update_by_api_key = Property(str)
+    updated_by_api_key = Property(str)
     active = Property(bool)
+    street_address_1 = Property(str)
+    street_address_2 = Property(str)
     city = Property(str)
+    state = Property(str)
+    zipcode = Property(str)
     email = Property(str)
+    phone = Property(str)
+    phone_extension = Property(str)
+    linkedin_url = Property(str)
     facebook_url = Property(str)
     google_plus_url = Property(str)
+    twitter_url = Property(str)
+    pinterest_url = Property(str)
     legal = Property(str)
-
+    featured = Property(bool)
+    restock_fee = Property(int)
+    returnable = Property(bool)
+    return_period = Property(str)
 
 class ManufacturerImage(Model):
     id = Property(int)

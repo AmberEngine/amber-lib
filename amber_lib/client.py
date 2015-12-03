@@ -5,6 +5,7 @@ from datetime import datetime
 
 import requests
 
+
 GET = "get"
 POST = "post"
 PUT = "put"
@@ -12,25 +13,56 @@ DELETE = "delete"
 
 
 class Collection(object):
-    def __init__(self, dict_, class_, ctx):
+    """ Collection is a lazy-loaded list of API resources. Elements can be accessed
+    using either an index subscript or a python slice subscript.
+    """
+
+    def __init__(self, dict_, class_, ctx, offset=0):
+        """ Initialize a new instance of Collection, specifying a JSON-HAL
+        dictionary, the class the data represents, and a context.
+        """
         self.ctx = ctx
         self.values = {}
         self.class_ = class_
         self.kind = class_.__name__.lower()
 
-        #json_extract = json.loads(dict_)
+        self.offset = offset
 
         self.hal = dict_.get('_links', {})
         self.total = dict_.get('total')
 
         self.count = dict_.get('count', self.total)
-        for index, value in enumerate(dict_.get('_embedded', {}).get(self.kind + 's', [])):
+
+        embedded = dict_.get('_embedded', {}).get(self.kind + 's', [])
+        for index, value in enumerate(embedded):
             self.values[index] = class_(ctx).from_dict(value)
 
     def __len__(self):
+        """ Return the total number of accessible database entries.
+        """
         return self.total
 
     def __getitem__(self, key):
+        """ Elements can be retrieved from the Collection by specifying either
+        an integer index or a slice instance.
+
+        For example, using an integer index:
+
+            collection = magically_get_a_collection(...)
+
+            first = collection[0]
+            last = collection[-1]
+            print(collection[5]])
+
+        A Collection's elements can also be accessed using slice objects:
+
+            collection = magically_get_a_collection(...)
+            collection[1:7]
+            collection[:]
+            collection[-5:]
+            collection[1:100:5]
+
+        """
         if isinstance(key, slice):
             start = key.start if key.start else 0
             end = self.total
@@ -40,6 +72,7 @@ class Collection(object):
 
             list_ = []
             for index in range(start, end, step):
+                # Get next batch of entries.
                 list_.append(self.get(index))
             return list_
         else:
@@ -49,11 +82,17 @@ class Collection(object):
         pass
 
     def get(self, index):
+        if index < 0:
+            if abs(index) > self.total:
+                raise IndexError()
+            index = index + self.total
+
         if index in self.values:
             return self.values[index]
         else:
             if index < self.total:
-                self.next()
+                while self.offset + self.count < index:
+                    self.next()
                 return self.values[index]
             else:
                 raise IndexError()
@@ -74,9 +113,13 @@ class Collection(object):
             pass
 
     def next(self):
+        self.offset += self.count
+
         moar_data = send(GET, self.ctx, self.hal['next']['href'], None)
         self.hal = moar_data.get('_links', {})
-        self.append(moar_data.get("_embedded", {}).get(self.kind + 's', []))
+        embedded = moar_data.get("_embedded", {}).get(self.kind + 's', [])
+
+        self.append(embedded)
 
     def previous(self):
         moar_data = send(GET, self.ctx, self.hal['prev']['href'], None)
@@ -149,7 +192,6 @@ def send(method, ctx, endpoint, json_data, **uri_params):
 
     r = getattr(requests, method)(url, data=payload)
     if r.status_code != 200:
-        error = json.loads(r.text)
+        error = r.json()
         raise Exception(error["code"], error["title"], error["message"])
-
-    return json.loads(r.text)
+    return r.json()

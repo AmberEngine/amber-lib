@@ -27,26 +27,27 @@ class Model(object):
         """
         payload = client.send(
             client.GET,
-            self.ctx,
+            self._ctx,
             self.endpoint(),
             None,
-            limit=500,
-            offset=0
+            limit=limit,
+            offset=offset
         )
 
         collection = client.Collection(
-            json.loads(payload),
+            payload,
             self.__class__,
             self._ctx,
+            offset
         )
 
         return collection
 
     def endpoint(self):
-        loc = self.__class__.__name__
+        loc = "/%ss" % self.__class__.__name__.lower()
 
-        if hasattr(self, "id"):
-            loc += "/%d" % self.id
+        if hasattr(self, "id") and self.id.value > 0:
+            loc += "/%d" % self.id.value
         return loc
 
     def from_dict(self, dict_):
@@ -57,11 +58,9 @@ class Model(object):
             for key, val in dict_.items():
                 # Are we working with a dict?
                 if isinstance(val, dict):
-                    # Capitailize the Key.
-                    # Create new instance with current context.
-                    attr = getattr(self, key)
+                    attr = getattr(obj, key)
                     if not isinstance(attr, dict):
-                        inst = getattr(self, key).kind(self._ctx)
+                        inst = getattr(obj, key).kind(obj._ctx)
                         val = explode_dict(inst, val)
                 elif isinstance(val, list):
                     pass

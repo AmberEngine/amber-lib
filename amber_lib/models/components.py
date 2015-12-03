@@ -1,9 +1,5 @@
 from amber_lib.models import bases
-from amber_lib.models.primaries import Collection
-from amber_lib.models.primaries import (
-    Manufacturer,
-    OptionSet
-)
+from amber_lib.models import primaries
 from amber_lib.models.bases import Property
 
 
@@ -47,7 +43,7 @@ class Category(bases.Component):
 
 class Collection(bases.Component):
     collection_id = Property(int)
-    collection = Property(Collection)
+    collection = Property(primaries.Collection)
 
 
 class ConstructionInformation(bases.Component):
@@ -72,7 +68,7 @@ class Description(bases.Component):
     primary = Property(str)
     retail = Property(str)
     designer = Property(str)
-    alterate = Property(str)
+    alternate = Property(str)
     features = Property(str)
 
 
@@ -84,7 +80,7 @@ class Door(bases.Component):
 
 
 class Doors(bases.Component):
-    quanitity = Property(int)
+    quantity = Property(int)
     door_list = Property(Door, True)
 
 
@@ -193,7 +189,7 @@ class Leather(bases.Component):
 
 class Manufacturer(bases.Component):
     manufacturer_id = Property(int)
-    manufacturer = Property(Manufacturer)
+    manufacturer = Property(primaries.Manufacturer)
 
 
 class Pattern(bases.Component):
@@ -229,7 +225,7 @@ class PromotionalTags(bases.Component):
 
 
 class OptionSets(bases.Component):
-    option_set_list = Property(OptionSet, True)
+    option_set_list = Property(primaries.OptionSet, True)
 
 
 class OrderingInformation(bases.Component):
@@ -237,7 +233,7 @@ class OrderingInformation(bases.Component):
     discontinued = Property(bool)
     lead_time = Property(str)
     quick_ship = Property(bool)
-    minimum_quanitity = Property(int)
+    minimum_quantity = Property(int)
     stock = Property(float)
 
 
@@ -303,7 +299,7 @@ class SideRail(bases.Component):
     floor_clearance = Property(float)
 
 
-class Suspension(bases.Component):
+class SuspensionPoint(bases.Component):
     support_type = Property(str)
     canopy_diameter = Property(float)
     canopy_depth = Property(float)
