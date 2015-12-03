@@ -17,7 +17,7 @@ class Collection(object):
     using either an index subscript or a python slice subscript.
     """
 
-    def __init__(self, dict_, class_, ctx, offset=0):
+    def __init__(self, dict_, class_, ctx, offset=0, limit=None):
         """ Initialize a new instance of Collection, specifying a JSON-HAL
         dictionary, the class the data represents, and a context.
         """
@@ -27,9 +27,13 @@ class Collection(object):
         self.kind = class_.__name__.lower()
 
         self.offset = offset
+        self.limit = limit
 
         self.hal = dict_.get('_links', {})
         self.total = dict_.get('total')
+
+        if self.total > self.limit:
+            self.total = self.limit
 
         self.count = dict_.get('count', self.total)
 
@@ -79,7 +83,8 @@ class Collection(object):
             return self.get(key)
 
     def __iter__(self):
-        pass
+        for val in range(self.total):
+            yield self[val]
 
     def get(self, index):
         if index < 0:
@@ -91,7 +96,7 @@ class Collection(object):
             return self.values[index]
         else:
             if index < self.total:
-                while self.offset + self.count < index:
+                while self.offset + self.count <= index:
                     self.next()
                 return self.values[index]
             else:
@@ -118,6 +123,10 @@ class Collection(object):
         moar_data = send(GET, self.ctx, self.hal['next']['href'], None)
         self.hal = moar_data.get('_links', {})
         embedded = moar_data.get("_embedded", {}).get(self.kind + 's', [])
+
+        next_len = len(self.values) + len(embedded)
+        if self.limit is not None and self.limit < next_len:
+            embedded = embedded[:self.limit - next_len]
 
         self.append(embedded)
 
