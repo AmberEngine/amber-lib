@@ -1,5 +1,5 @@
-import amberlib.models.bases.Model as Model
-import amberlib.models.base.Property as Property
+from amber_lib.models.bases import Model
+from amber_lib.models.bases import Property
 
 
 class APIKey(Model):
@@ -66,40 +66,39 @@ class OptionSet(Model):
 
 
 class Product(Model):
+    from amber_lib.models import components
     id = Property(int)
-    assemblage = Property(models.primaries.Assemblage)
-    arm = Property(models.components.Arm)
-    audit = Property(models.components.Audit)
-    category = Property(models.components.Category)
-    collection = Property(models.components.Collection)
-    construction_information = Property(
-        models.components.ConstructionInformation
-    )
-    cushion = Property(models.components.Cushion)
-    description = Property(models.components.Description)
-    door = Property(models.components.Door)
-    drawer = Property(models.components.Drawer)
-    durability = Property(models.components.Durability)
-    footrest = Property(models.components.Footrest)
-    identity = Property(models.components.Identity)
-    image = Property(models.components.Image)
-    instructions = Property(models.components.Instructions)
-    manufacturer = Property(models.components.Manufacturer)
-    option = Property(models.components.Option)
-    ordering_information = Property(models.components.OrderingInformation)
-    pattern = Property(models.components.Pattern)
-    pricing = Property(models.components.Pricing)
-    pedestal = Property(models.components.Pedestal)
-    pillow = Property(models.components.Pillow)
-    promotional_tags = Property(models.components.PromotionalTags)
-    overall_dimensions = Property(models.components.OverallDimensions)
-    seat = Property(models.components.Seat)
-    shelf = Property(models.components.Shelf)
-    shipping_information = Property(models.components.ShippingInformation)
-    table_leaf = Property(models.components.TableLeaf)
-    textile = Property(models.components.Textile)
-    visibility = Property(models.components.Visibility)
-    weight = Property(models.components.Weight)
+    assemblage = Property(components.Assemblage)
+    arm = Property(components.Arm)
+    audit = Property(components.Audit)
+    category = Property(components.Category)
+    collection = Property(components.Collection)
+    construction_information = Property(components.ConstructionInformation)
+    cushion = Property(components.Cushion)
+    description = Property(components.Description)
+    door = Property(components.Door)
+    drawer = Property(components.Drawer)
+    durability = Property(components.Durability)
+    footrest = Property(components.Footrest)
+    identity = Property(components.Identity)
+    image = Property(components.Image)
+    instructions = Property(components.Instructions)
+    manufacturer = Property(components.Manufacturer)
+    option = Property(components.OptionSet)
+    ordering_information = Property(components.OrderingInformation)
+    pattern = Property(components.Pattern)
+    pricing = Property(components.Pricing)
+    pedestal = Property(components.Pedestal)
+    pillow = Property(components.Pillow)
+    promotional_tags = Property(components.PromotionalTags)
+    overall_dimensions = Property(components.OverallDimensions)
+    seat = Property(components.Seat)
+    shelf = Property(components.Shelf)
+    shipping_information = Property(components.ShippingInformation)
+    table_leaf = Property(components.TableLeaf)
+    textile = Property(components.Textile)
+    visibility = Property(components.Visibility)
+    weight = Property(components.Weight)
 
 
 class SalesChannel(Model):

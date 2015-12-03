@@ -48,34 +48,35 @@ class Model(object):
             loc += "/%d" % self.id
         return loc
 
-    def fromDict(self, dict_):
+    def from_dict(self, dict_):
         """ Update the internal dictionary for the instance using the
         key-value pairs contained within the provided dictionary.
         """
-        def explodeDict(obj, dict_):
+        def explode_dict(obj, dict_):
             for key, val in dict_.items():
                 if key not in obj.__class__.__dict__:
                     raise Exception("yo! That dont work!")
 
                 # Are we working with a dict?
-                if isinstance(val, [dict]):
+                if isinstance(val, dict):
                     # Capitailize the Key.
                     # Create new instance with current context.
-                    inst = getattr(self, key.title()).kind(self._ctx)
-                    val = explodeDict(inst, val)
-                elif isinstance(val, [list]):
+                    #inst = getattr(self, key.title()).kind(self._ctx)
+                    inst = getattr(self, key).kind(self._ctx)
+                    val = explode_dict(inst, val)
+                elif isinstance(val, list):
                     pass
 
                 setattr(obj, key, val)
             return obj
-        return explodeDict(self, dict_)
+        return explode_dict(self, dict_)
 
-    def fromJSON(self, json):
+    def from_json(self, json):
         """ Update the internal dictionary for the instance using the
         key-value pairs stored within the provided JSON string.
         """
         dict_ = json.loads(json)
-        return self.fromDict(dict_)
+        return self.from_dict(dict_)
 
     def save(self, data=None):
         """ Save the current state of the model into the database, either
@@ -90,19 +91,19 @@ class Model(object):
             returnedDict = amberlib.Put(
                 self.ctx,
                 self.endpoint(),
-                self.toDict()
+                self.to_dict()
             )
         else:
             returnedDict = amberlib.Post(
                 self.ctx,
                 self.endpoint(),
-                self.toDict()
+                self.to_dict()
             )
 
         self.update(returned)
         return self
 
-    def toDict(self):
+    def to_dict(self):
         """ Retrieve a dictionary version of the model.
         """
         dictionary = {}
@@ -111,26 +112,26 @@ class Model(object):
             if key.startswith("_"):
                 continue
             if isinstance(val, Model):
-                val = val.toDict()
+                val = val.to_dict()
 
             dictionary[key] = val
 
         return dictionary
 
-    def toJSON(self):
+    def to_json(self):
         """ Retrieve the model as a JSON object string, containing
         key-value pairs for the internal class data.
         """
-        return json.dumps(self.toDict())
+        return json.dumps(self.to_dict())
 
     def update(self, data):
         """ Update the internal data of the class instance using either
         a string JSON object or a dictionary.
         """
         if isinstance(data, str):
-            return self.fromJSON(data)
+            return self.from_json(data)
         elif isinstance(data, dict):
-            return self.fromDict(data)
+            return self.from_dict(data)
         else:
             raise Exception("shit aint right")
 
@@ -139,8 +140,8 @@ class Model(object):
         specified ID, and udpate the current instance using the retrieved
         data.
         """
-        payload = amberlib.Get(self.ctx, self.endpoint(), self.toDict(), id=id_)
-        self.fromJSON(payload)
+        payload = amber_lib.Get(self.ctx, self.endpoint(), self.to_dict(), id=id_)
+        self.from_json(payload)
 
         return self
 
@@ -177,18 +178,18 @@ class Component(Model):
             self.update(data)
 
         if isinstance(self.component_data_id, int) and self.component_data_id > 0:
-            returnedDict = amberlib.Put(
+            returned_dict = amber_lib.Put(
                 self.ctx,
                 self.__class__,
-                self.toDict(),
+                self.to_dict(),
                 id=self.component_data_id
             )
         else:
-            returnedDict = amberlib.Post(
+            returned_dict = amber_lib.Post(
                 self.ctx,
                 self.__class__,
-                self.toDict()
+                self.to_dict()
             )
 
-        self.update(returned)
+        self.update(returned_dict)
         return self

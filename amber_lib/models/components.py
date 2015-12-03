@@ -1,28 +1,37 @@
-import amberlib.models.base as base
+from amber_lib.models import bases
+from amber_lib.models.primaries import Collection
+from amber_lib.models.primaries import (
+    Manufacturer,
+    OptionSet
+)
+from amber_lib.models.bases import Property
 
 
-class Audit(base.Component):
+class Audit(bases.Component):
     date_added = Property(str)
     date_updated = Property(str)
     updated_by_api_key = Property(str)
 
 
-class Arm(base.Component):
+class Arm(bases.Component):
     height = Property(float)
     style = Property(str)
 
 
-class Assemblage(base.Component):
+class Assemblage(bases.Component):
     id = Property(int)
     name = Property(str)
     description = Property(str)
     table_name = Property(str)
     class_name = Property(str)
     parent_name = Property(str)
-    child_component = Property(Assemblage)
+
+    def __init__(self, *args, **kwargs):
+        self.child_component = Property(Assemblage)
+        super(Assemblage, self).__init__(*args, **kwargs)
 
 
-class Base(base.Component):
+class Base(bases.Component):
     height = Property(float)
     diameter = Property(float)
     depth = Property(float)
@@ -36,25 +45,25 @@ class Box(bases.Component):
     depth = Property(float)
 
 
-class Bulb(base.Component):
+class Bulb(bases.Component):
     type = Property(str)
     base = Property(str)
     quantity = Property(int)
     wattage = Property(int)
 
 
-class Category(base.Component):
+class Category(bases.Component):
     primary = Property(str)
     secondary = Property(str)
     tertiary = Property(str)
 
 
-class Collection(base.Component):
+class Collection(bases.Component):
     collection_id = Property(int)
-    collection = Property(models.primaries.Collection)
+    collection = Property(Collection)
 
 
-class ConstructionInformation(base.Component):
+class ConstructionInformation(bases.Component):
     material = Property(str)
     joinery_type = Property(str)
 
@@ -67,12 +76,12 @@ class Cushion(bases.Component):
     height = Property(float)
 
 
-class Cushions(base.Component):
+class Cushions(bases.Component):
     quantity = Property(int)
-    cushion_list = Property(Cushion, true)
+    cushion_list = Property(Cushion, True)
 
 
-class Description(base.Component):
+class Description(bases.Component):
     primary = Property(str)
     retail = Property(str)
     designer = Property(str)
@@ -80,47 +89,47 @@ class Description(base.Component):
     features = Property(str)
 
 
-class Door(base.Component):
+class Door(bases.Component):
     width = Property(float)
     depth = Property(float)
     height = Property(float)
     opening = Property(float)
 
 
-class Doors(base.Component):
+class Doors(bases.Component):
     quanitity = Property(int)
-    door_list = Property(Door, true)
+    door_list = Property(Door, True)
 
 
-class Durability(base.Component):
+class Durability(bases.Component):
     martindale = Property(str)
     wyzenbeek = Property(str)
     flammability = Property(str)
 
 
-class Drawer(base.Component):
+class Drawer(bases.Component):
     width = Property(float)
     depth = Property(float)
     height = Property(float)
 
 
-class Drawers(base.Component):
+class Drawers(bases.Component):
     quantity = Property(int)
-    drawer_list = Property(Drawer, true)
+    drawer_list = Property(Drawer, True)
 
 
-class Electrical(base.Component):
+class Electrical(bases.Component):
     switch_type = Property(str)
     voltage = Property(int)
     exterior_use = Property(bool)
 
 
-class Fiber(base.Component):
+class Fiber(bases.Component):
     pile = Property(str)
     construction = Property(str)
 
 
-class Flame(base.Component):
+class Flame(bases.Component):
     fuel_type = Property(str)
     burner_capacity = Property(float)
     burning_time = Property(float)
@@ -128,46 +137,46 @@ class Flame(base.Component):
     minimum_room_size = Property(float)
 
 
-class Footboard(base.Component):
+class Footboard(bases.Component):
     height = Property(float)
     width = Property(float)
     depth = Property(float)
     floor_clearance = Property(float)
 
 
-class Footrest(base.Component):
+class Footrest(bases.Component):
     height = Property(float)
 
 
-class Frame(base.Component):
+class Frame(bases.Component):
     height = Property(float)
     back_rail_height = Property(float)
 
 
-class Glass(base.Component):
+class Glass(bases.Component):
     type = Property(str)
 
 
-class Headboard(base.Component):
+class Headboard(bases.Component):
     height = Property(float)
     width = Property(float)
     depth = Property(float)
     floor_clearance = Property(float)
 
 
-class Identity(base.Component):
+class Identity(bases.Component):
     name = Property(str)
     manufacturer_sku = Property(str)
     source_url = Property(str)
     alternate_name = Property(str)
 
 
-class Instructions(base.Component):
+class Instructions(bases.Component):
     cleaning_directions = Property(str)
     installation_directions = Property(str)
 
 
-class InteriorDimension(base.Component):
+class InteriorDimension(bases.Component):
     depth = Property(float)
     height = Property(float)
     width = Property(float)
@@ -183,11 +192,11 @@ class Image(bases.Component):
     thumbnail_size = Property(str)
 
 
-class Images(base.Component):
+class Images(bases.Component):
     image_list = Property(Image)
 
 
-class Leather(base.Component):
+class Leather(bases.Component):
     type = Property(str)
     pattern_number = Property(str)
     hide_size = Property(float)
@@ -195,12 +204,12 @@ class Leather(base.Component):
     col_requirement = Property(str)
 
 
-class Manufacturer(base.Component):
+class Manufacturer(bases.Component):
     manufacturer_id = Property(int)
-    manufacturer = Property(models.primaries.Manufacturer)
+    manufacturer = Property(Manufacturer)
 
 
-class Pattern(base.Component):
+class Pattern(bases.Component):
     pattern_number = Property(str)
     vertical_repeat = Property(float)
     horizontal_repeat = Property(float)
@@ -210,14 +219,14 @@ class Pattern(base.Component):
     design_type = Property(str)
 
 
-class Pedestal(base.Component):
+class Pedestal(bases.Component):
     height = Property(float)
     diameter = Property(float)
     depth = Property(float)
     width = Property(float)
 
 
-class Pricing(base.Component):
+class Pricing(bases.Component):
     wholesale = Property(int)
     trade_price = Property(int)
     minimum_internet_price = Property(int)
@@ -225,18 +234,18 @@ class Pricing(base.Component):
     dealer_price = Property(int)
 
 
-class PromotionalTags(base.Component):
+class PromotionalTags(bases.Component):
     new_product = Property(bool)
     best_seller = Property(bool)
     limited_stock = Property(bool)
     discontinued = Property(bool)
 
 
-class OptionSets(base.Component):
-    option_set_list = Property(models.primaries.OptionSet, true)
+class OptionSets(bases.Component):
+    option_set_list = Property(OptionSet, True)
 
 
-class OrderingInformation(base.Component):
+class OrderingInformation(bases.Component):
     unit = Property(str)
     discontinued = Property(bool)
     lead_time = Property(str)
@@ -245,7 +254,7 @@ class OrderingInformation(base.Component):
     stock = Property(float)
 
 
-class OverallDimensions(base.Component):
+class OverallDimensions(bases.Component):
     width = Property(float)
     height = Property(float)
     depth = Property(float)
@@ -258,19 +267,19 @@ class Pillow(bases.Component):
     depth = Property(float)
 
 
-class Pillows(base.Component):
+class Pillows(bases.Component):
     quantity = Property(int)
-    pillow_list = Property(Pillow, true)
+    pillow_list = Property(Pillow, True)
 
 
-class Seat(base.Component):
+class Seat(bases.Component):
     height = Property(float)
     depth = Property(float)
     width = Property(float)
     construction = Property(str)
 
 
-class Shade(base.Component):
+class Shade(bases.Component):
     type = Property(str)
     height = Property(float)
     width = Property(float)
@@ -280,18 +289,18 @@ class Shade(base.Component):
     quantity = Property(int)
 
 
-class Shelf(base.Component):
+class Shelf(bases.Component):
     width = Property(float)
     height = Property(float)
     depth = Property(float)
 
 
-class Shelves(base.Component):
+class Shelves(bases.Component):
     quantity = Property(int)
-    shelf_list = Property(Shelf, true)
+    shelf_list = Property(Shelf, True)
 
 
-class ShippingInformation(base.Component):
+class ShippingInformation(bases.Component):
     ships_from = Property(str)
     volume = Property(float)
     standard = Property(bool)
@@ -299,15 +308,15 @@ class ShippingInformation(base.Component):
     white_glove = Property(bool)
     drop_ship = Property(bool)
     notes = Property(bool)
-    box_list = Property(Box, true)
+    box_list = Property(Box, True)
 
 
-class SideRail(base.Component):
+class SideRail(bases.Component):
     length = Property(float)
     floor_clearance = Property(float)
 
 
-class Suspension(base.Component):
+class Suspension(bases.Component):
     support_type = Property(str)
     canopy_diameter = Property(float)
     canopy_depth = Property(float)
@@ -324,12 +333,12 @@ class TableLeaf(bases.Component):
     depth = Property(float)
 
 
-class TableLeaves(base.Component):
+class TableLeaves(bases.Component):
     quantity = Property(int)
-    table_leaf_list = Property(TableLeaf, true)
+    table_leaf_list = Property(TableLeaf, True)
 
 
-class Textile(base.Component):
+class Textile(bases.Component):
     content = Property(str)
     weave_type = Property(str)
     width = Property(float)
@@ -339,10 +348,10 @@ class Textile(base.Component):
     com_requirement = Property(float)
 
 
-class Weight(base.Component):
+class Weight(bases.Component):
     weight = Property(float)
 
 
-class Visibility(base.Component):
+class Visibility(bases.Component):
     active = Property(bool)
     meets_posting_requirements = Property(bool)

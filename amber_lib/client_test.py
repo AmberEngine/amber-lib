@@ -81,7 +81,6 @@ class Send(unittest.TestCase):
         return_mock.text = '{"code": "bar", "title": "fubar", "message": "nope"}'
         return_mock.status_code = 200
 
-
         for method in methods:
             m = mock.Mock()
             m.return_value = return_mock
