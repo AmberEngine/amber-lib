@@ -12,13 +12,13 @@ PUT = "put"
 DELETE = "delete"
 
 
-class Collection(object):
-    """ Collection is a lazy-loaded list of API resources. Elements can be accessed
+class Container(object):
+    """ Container is a lazy-loaded list of API resources. Elements can be accessed
     using either an index subscript or a python slice subscript.
     """
 
     def __init__(self, dict_, class_, ctx, offset=0, limit=None):
-        """ Initialize a new instance of Collection, specifying a JSON-HAL
+        """ Initialize a new instance of Container, specifying a JSON-HAL
         dictionary, the class the data represents, and a context.
         """
         self.ctx = ctx
@@ -47,7 +47,7 @@ class Collection(object):
         return self.total
 
     def __getitem__(self, key):
-        """ Elements can be retrieved from the Collection by specifying either
+        """ Elements can be retrieved from the Container by specifying either
         an integer index or a slice instance.
 
         For example, using an integer index:
@@ -58,7 +58,7 @@ class Collection(object):
             last = collection[-1]
             print(collection[5]])
 
-        A Collection's elements can also be accessed using slice objects:
+        A Container's elements can also be accessed using slice objects:
 
             collection = magically_get_a_collection(...)
             collection[1:7]

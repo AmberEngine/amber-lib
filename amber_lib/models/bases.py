@@ -38,7 +38,7 @@ class Model(object):
         )
 
 
-        collection = client.Collection(
+        collection = client.Container(
             payload,
             self.__class__,
             self._ctx,
