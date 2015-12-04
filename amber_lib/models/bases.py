@@ -21,29 +21,26 @@ class Model(object):
         getattr(self, attr)
         self.__dict__[attr] = val
 
-    def query(self, batch_size=500, offset=0, limit=None):
+    def query(self, batch_size=500, offset=0):
         """ Retrieve a collection of instances of the model, using the
         URI params from the keyword arguments.
         """
-        if batch_size > limit and limit is not None:
-            batch_size = limit
-
+        # TODO: Limit the total returned results.
         payload = client.send(
             client.GET,
             self._ctx,
             self.endpoint(),
             None,
             limit=batch_size,
-            offset=offset
+            offset=offset,
+            fields="id"
         )
-
 
         collection = client.Container(
             payload,
             self.__class__,
             self._ctx,
-            offset,
-            limit=limit
+            offset
         )
 
         return collection

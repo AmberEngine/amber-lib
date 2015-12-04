@@ -6,48 +6,44 @@ from datetime import datetime
 import requests
 
 
-GET = "get"
-POST = "post"
-PUT = "put"
-DELETE = "delete"
+GET = 'get'
+POST = 'post'
+PUT = 'put'
+DELETE = 'delete'
+
 
 
 class Container(object):
-    """ Container is a lazy-loaded list of API resources. Elements can be accessed
+    ''' Container is a lazy-loaded list of API resources. Elements can be accessed
     using either an index subscript or a python slice subscript.
-    """
+    '''
 
-    def __init__(self, dict_, class_, ctx, offset=0, limit=None):
-        """ Initialize a new instance of Container, specifying a JSON-HAL
+    def __init__(self, dict_, class_, ctx, offset=0):
+        ''' Initialize a new instance of Container, specifying a JSON-HAL
         dictionary, the class the data represents, and a context.
-        """
+        '''
         self.ctx = ctx
         self.values = {}
         self.class_ = class_
         self.kind = class_.__name__.lower()
 
         self.offset = offset
-        self.limit = limit
 
         self.hal = dict_.get('_links', {})
         self.total = dict_.get('total')
 
-        if self.total > self.limit:
-            self.total = self.limit
-
-        self.count = dict_.get('count', self.total)
+        self.batch_size = dict_.get('count', self.total)
 
         embedded = dict_.get('_embedded', {}).get(self.kind + 's', [])
-        for index, value in enumerate(embedded):
-            self.values[index] = class_(ctx).from_dict(value)
+        self.__append(embedded)
 
     def __len__(self):
-        """ Return the total number of accessible database entries.
-        """
+        ''' Return the total number of accessible database entries.
+        '''
         return self.total
 
     def __getitem__(self, key):
-        """ Elements can be retrieved from the Container by specifying either
+        ''' Elements can be retrieved from the Container by specifying either
         an integer index or a slice instance.
 
         For example, using an integer index:
@@ -66,7 +62,7 @@ class Container(object):
             collection[-5:]
             collection[1:100:5]
 
-        """
+        '''
         if isinstance(key, slice):
             start = key.start if key.start else 0
             end = self.total
@@ -77,89 +73,177 @@ class Container(object):
             list_ = []
             for index in range(start, end, step):
                 # Get next batch of entries.
-                list_.append(self.get(index))
+                list_.append(self.__get(index))
             return list_
         else:
-            return self.get(key)
+            return self.__get(key)
 
     def __iter__(self):
+        ''' Yeild sequential values from the total entries available.
+        '''
         for val in range(self.total):
             yield self[val]
 
-    def get(self, index):
+    def __get(self, index):
+        # Deal with negative indexes: if |index| < total, adjust index to
+        # become positive, and retrieve. Otherwise, raise error.
         if index < 0:
             if abs(index) > self.total:
                 raise IndexError()
             index = index + self.total
 
+        if index > self.total:
+            raise IndexError()
+
         if index in self.values:
             return self.values[index]
         else:
-            if index < self.total:
-                while self.offset + self.count <= index:
-                    self.next()
-                return self.values[index]
-            else:
-                raise IndexError()
+            if index > (self.offset + self.batch_size - 1):
+                while index > (self.offset + self.batch_size -1):
+                    self.__next()
+            elif index < self.offset:
+                while index < self.offset:
+                    self.__previous()
+            return self.values[index]
 
-    def append(self, values):
+    def __finish_it(self):
+        self[:]
+        self.hal = {}
+        self.batch_size = 0
+
+    def __setitem__(self, key, value):
+        self.__finish_it()
+        self.values[key] = value
+        self.total = len(self.values)
+
+    def __delitem__(self, key):
+        self.__finish_it()
+        del self.values[key]
+        for i in range(self.total - key):
+            self.values[key + i] = self.values[key + i + 1]
+        del self.values[self.total - 1]
+
+        self.total = len(self.values)
+
+    def __reversed__(self):
+        self.__finish_it()
+        dict_ = []
+
+        for key in self.values:
+            dict_[key] = self.values[len(self.values) - key - 1]
+
+        return dict_
+
+    def pop(self, index=None):
+        if index is None:
+            index = len(self) - 1
+
+        val = self[index]
+        del self[index]
+
+        return val
+
+    def index(self, item):
+        for key, val in enumerate(self):
+            if val == item:
+                return key
+        raise Exception("nope")
+
+    def reverse(self):
+        for key, val in enumerate(reversed(self)):
+            self.values[key] = val
+
+    def __contains__(self, item):
+        return item in self.values.values()
+
+    def __add__(self, other):
+        if not isinstance(other, Container):
+            raise TypeError('"NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO!" -D.V.')
+
+        self.__finish_it()
+
+        for val in other:
+            self.__append(val)
+
+    def __iadd__(self, other):
+        self = self + other
+
+    def append(self, value):
+        self.__finish_it()
+        self.values[len(self.values)] = value
+
+    def count(self):
+        return len(self)
+
+    def remove(self, item):
+        del self[item]
+
+    def insert(self, index, item):
+        self[index] = item
+
+    def extend(self, list_):
+        self += list_
+
+    def __pow__(self, other):
+        return "It's a me! Mario!" * other
+
+    def __append(self, values):
         if isinstance(values, list):
-            size = len(self.values)
             for index, value in enumerate(values):
-                self.values[size + index] =\
-                    self.class_(self.ctx).from_dict(value)
-        elif isinstance(values, dict):
-            pass
+                self.offset += 1
+                obj = self.class_(self.ctx).from_dict(value)
+                self.values[index + self.offset] = obj
+        else:
+            values._ctx = self.ctx
+            self.values[len(self.values)] = values
 
-    def prepend(self, values):
+
+    def __prepend(self, values):
         if isinstance(values, list):
-            pass
+            for index, value in enumerate(values):
+                obj = self.class_(self.ctx).from_dict(value)
+                self.values[self.offset + index] = obj
         elif isinstance(values, dict):
             pass
 
-    def next(self):
-        self.offset += self.count
+    def __next(self):
+        if 'next' not in self.hal:
+            return False
 
         moar_data = send(GET, self.ctx, self.hal['next']['href'], None)
         self.hal = moar_data.get('_links', {})
-        embedded = moar_data.get("_embedded", {}).get(self.kind + 's', [])
+        embedded = moar_data.get('_embedded', {}).get(self.kind + 's', [])
+
+        self.offset += self.batch_size
+        next_len = len(self.values) + len(embedded)
+        self.__append(embedded)
+
+    def __le__(self, other):
+        return "le API"
+
+    def __previous(self):
+        if 'prev' not in self.hal:
+            return False
+
+        moar_data = send(GET, self.ctx, self.hal['prev']['href'], None)
+        self.hal = moar_data.get('_links', {})
+        embedded = moar_data.get('_embedded', {}).get(self.kind + 's', [])
+
+        self.offset -= self.batch_size
+        if self.offset < 0:
+            self.offset = 0
 
         next_len = len(self.values) + len(embedded)
-        if self.limit is not None and self.limit < next_len:
-            embedded = embedded[:self.limit - next_len]
-
-        self.append(embedded)
-
-    def previous(self):
-        moar_data = send(GET, self.ctx, self.hal['prev']['href'], None)
-        self.prepend(moar_data.get("_embedded", {}).get(self.kind + 's', []))
-
-    def first(self):
-        moar_data = send(GET, self.ctx, self.hal['first']['href'], None)
-
-    def last(self):
-        pass
-
-    def all(self):
-        pass
-
-    def relate(self):
-        pass
-
-    def unrelate(self):
-        pass
-
-    def delete(self):
-        pass
+        self.__prepend(embedded)
 
 
 def create_payload(context, url, data):
     payload = {
-        "public_key": context.public,
-        "url": url,
-        "timestamp": datetime.isoformat(datetime.utcnow()),
-        "headers": {'Content-Type': 'application/json'},
-        "data": data
+        'public_key': context.public,
+        'url': url,
+        'timestamp': datetime.isoformat(datetime.utcnow()),
+        'headers': {'Content-Type': 'application/json'},
+        'data': data
     }
 
     jdump = json.dumps(payload, sort_keys=True, separators=(',', ':'))
@@ -168,33 +252,33 @@ def create_payload(context, url, data):
         hashlib.sha256(jdump + context.private).hexdigest()
     )
 
-    payload["signature"] = sig
+    payload['signature'] = sig
 
     return json.dumps(payload)
 
 
 def create_url(context, endpoint, **uri_args):
-    """ Create a full URL using the context settings, the desired endpoint,
+    ''' Create a full URL using the context settings, the desired endpoint,
     and any option URI (keyword) arguments.
-    """
+    '''
     if not endpoint:
         endpoint = ''
-    url = "%s:%s%s" % (context.host, context.port, endpoint)
+    url = '%s:%s%s' % (context.host, context.port, endpoint)
 
     if len(uri_args) > 0:
-        url += "?"
+        url += '?'
         query_params = []
         for key, val in uri_args.iteritems():
-            query_params.append("%s=%s" % (key, val))
+            query_params.append('%s=%s' % (key, val))
 
-        url += "&".join(query_params)
+        url += '&'.join(query_params)
     return url
 
 
 def send(method, ctx, endpoint, json_data, **uri_params):
     method = method.lower()
-    if method not in ["get", "post", "put", "delete"]:
-        raise AttributeError("Bad method")
+    if method not in ['get', 'post', 'put', 'delete']:
+        raise AttributeError('Bad method')
 
     url = create_url(ctx, endpoint, **uri_params)
     payload = create_payload(ctx, url, json_data)
@@ -202,5 +286,5 @@ def send(method, ctx, endpoint, json_data, **uri_params):
     r = getattr(requests, method)(url, data=payload)
     if r.status_code != 200:
         error = r.json()
-        raise Exception(error["code"], error["title"], error["message"])
+        raise Exception(error['code'], error['title'], error['message'])
     return r.json()
