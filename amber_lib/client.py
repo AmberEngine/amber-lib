@@ -2,6 +2,7 @@ import base64
 import json
 import hashlib
 from datetime import datetime
+import copy
 
 import requests
 
@@ -12,16 +13,15 @@ PUT = 'put'
 DELETE = 'delete'
 
 
-
 class Container(object):
-    ''' Container is a lazy-loaded list of API resources. Elements can be accessed
+    """ Container is a lazy-loaded list of API resources. Elements can be accessed
     using either an index subscript or a python slice subscript.
-    '''
+    """
 
     def __init__(self, dict_, class_, ctx, offset=0):
-        ''' Initialize a new instance of Container, specifying a JSON-HAL
+        """ Initialize a new instance of Container, specifying a JSON-HAL
         dictionary, the class the data represents, and a context.
-        '''
+        """
         self.ctx = ctx
         self.values = {}
         self.class_ = class_
@@ -37,13 +37,28 @@ class Container(object):
         embedded = dict_.get('_embedded', {}).get(self.kind + 's', [])
         self.__append(embedded)
 
-    def __len__(self):
-        ''' Return the total number of accessible database entries.
-        '''
-        return self.total
+    def __add__(self, other):
+        if not isinstance(other, Container):
+            raise TypeError('"NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO!" -D.V.')
+
+        self.__finish_it()
+        self_copy = copy.copy(self)
+        self_copy.values = copy.copy(self.values)
+        for val in other:
+            self_copy.__append(val)
+        return self_copy
+
+    def __contains__(self, item):
+        return item in self.values.values()
+
+    def __delitem__(self, key):
+        self.__finish_it()
+        del self.values[key]
+        for i in range(len(self) - key - 1):
+            self.values[key + i] = self.values[key + i + 1]
 
     def __getitem__(self, key):
-        ''' Elements can be retrieved from the Container by specifying either
+        """ Elements can be retrieved from the Container by specifying either
         an integer index or a slice instance.
 
         For example, using an integer index:
@@ -62,15 +77,15 @@ class Container(object):
             collection[-5:]
             collection[1:100:5]
 
-        '''
+        """
         if isinstance(key, slice):
             start = key.start if key.start else 0
-            end = self.total
-            if key.stop and key.stop <= self.total:
+            end = len(self)
+            if key.stop and key.stop <= len(self):
                 end = key.stop
             step = key.step if key.step else 1
 
-            list_ = []
+            list_ = Container({}, self.class_, self.ctx)
             for index in range(start, end, step):
                 # Get next batch of entries.
                 list_.append(self.__get(index))
@@ -79,51 +94,23 @@ class Container(object):
             return self.__get(key)
 
     def __iter__(self):
-        ''' Yeild sequential values from the total entries available.
-        '''
-        for val in range(self.total):
+        """ Yeild sequential values from the total entries available.
+        """
+        for val in range(len(self)):
             yield self[val]
 
-    def __get(self, index):
-        # Deal with negative indexes: if |index| < total, adjust index to
-        # become positive, and retrieve. Otherwise, raise error.
-        if index < 0:
-            if abs(index) > self.total:
-                raise IndexError()
-            index = index + self.total
+    def __le__(self, other):
+        return "le API > %s" % (other,)
 
-        if index > self.total:
-            raise IndexError()
+    def __len__(self):
+        """ Return the total number of accessible database entries.
+        """
+        if self.total:
+            return self.total
+        return len(self.values)
 
-        if index in self.values:
-            return self.values[index]
-        else:
-            if index > (self.offset + self.batch_size - 1):
-                while index > (self.offset + self.batch_size -1):
-                    self.__next()
-            elif index < self.offset:
-                while index < self.offset:
-                    self.__previous()
-            return self.values[index]
-
-    def __finish_it(self):
-        self[:]
-        self.hal = {}
-        self.batch_size = 0
-
-    def __setitem__(self, key, value):
-        self.__finish_it()
-        self.values[key] = value
-        self.total = len(self.values)
-
-    def __delitem__(self, key):
-        self.__finish_it()
-        del self.values[key]
-        for i in range(self.total - key):
-            self.values[key + i] = self.values[key + i + 1]
-        del self.values[self.total - 1]
-
-        self.total = len(self.values)
+    def __pow__(self, other):
+        return "It's a me! Mario!" * other
 
     def __reversed__(self):
         self.__finish_it()
@@ -134,77 +121,56 @@ class Container(object):
 
         return dict_
 
-    def pop(self, index=None):
-        if index is None:
-            index = len(self) - 1
-
-        val = self[index]
-        del self[index]
-
-        return val
-
-    def index(self, item):
-        for key, val in enumerate(self):
-            if val == item:
-                return key
-        raise Exception("nope")
-
-    def reverse(self):
-        for key, val in enumerate(reversed(self)):
-            self.values[key] = val
-
-    def __contains__(self, item):
-        return item in self.values.values()
-
-    def __add__(self, other):
-        if not isinstance(other, Container):
-            raise TypeError('"NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO!" -D.V.')
-
+    def __setitem__(self, key, value):
         self.__finish_it()
+        self.values[key] = value
 
-        for val in other:
-            self.__append(val)
-
-    def __iadd__(self, other):
-        self = self + other
-
-    def append(self, value):
-        self.__finish_it()
-        self.values[len(self.values)] = value
-
-    def count(self):
-        return len(self)
-
-    def remove(self, item):
-        del self[item]
-
-    def insert(self, index, item):
-        self[index] = item
-
-    def extend(self, list_):
-        self += list_
-
-    def __pow__(self, other):
-        return "It's a me! Mario!" * other
+    def __all(self):
+        return self[:]
 
     def __append(self, values):
         if isinstance(values, list):
+            offset = self.offset
             for index, value in enumerate(values):
                 self.offset += 1
                 obj = self.class_(self.ctx).from_dict(value)
-                self.values[index + self.offset] = obj
+                self.values[index + offset] = obj
+        elif isinstance(values, Container):
+            self.__finish_it()
+            for val in values:
+                self.__append(val)
         else:
             values._ctx = self.ctx
             self.values[len(self.values)] = values
 
+    def __finish_it(self):
+        if self.total is not None:
+            self.__all()
+        self.hal = {}
+        self.batch_size = 0
+        self.total = None
 
-    def __prepend(self, values):
-        if isinstance(values, list):
-            for index, value in enumerate(values):
-                obj = self.class_(self.ctx).from_dict(value)
-                self.values[self.offset + index] = obj
-        elif isinstance(values, dict):
-            pass
+    def __get(self, index):
+        # Deal with negative indexes: if |index| < total, adjust index to
+        # become positive, and retrieve. Otherwise, raise error.
+        if index < 0:
+            if abs(index) > len(self):
+                raise IndexError()
+            index += len(self)
+
+        if index > len(self):
+            raise IndexError()
+
+        if index in self.values:
+            return self.values[index]
+        else:
+            if index > (self.offset - 1):
+                while index > (self.offset - 1):
+                    self.__next()
+            elif index < self.offset:
+                while index < self.offset:
+                    self.__previous()
+            return self.values[index]
 
     def __next(self):
         if 'next' not in self.hal:
@@ -214,12 +180,15 @@ class Container(object):
         self.hal = moar_data.get('_links', {})
         embedded = moar_data.get('_embedded', {}).get(self.kind + 's', [])
 
-        self.offset += self.batch_size
-        next_len = len(self.values) + len(embedded)
         self.__append(embedded)
 
-    def __le__(self, other):
-        return "le API"
+    def __prepend(self, values):
+        if isinstance(values, list):
+            for index, value in enumerate(values):
+                obj = self.class_(self.ctx).from_dict(value)
+                self.values[self.offset + index] = obj
+        elif isinstance(values, dict):
+            pass
 
     def __previous(self):
         if 'prev' not in self.hal:
@@ -233,8 +202,42 @@ class Container(object):
         if self.offset < 0:
             self.offset = 0
 
-        next_len = len(self.values) + len(embedded)
         self.__prepend(embedded)
+
+    def append(self, value):
+        self.__finish_it()
+        self.values[len(self.values)] = value
+
+    def count(self):
+        return len(self)
+
+    def extend(self, list_):
+        self.__append(list_)
+
+    def index(self, item):
+        for key, val in enumerate(self):
+            if val == item:
+                return key
+        raise Exception("nope")
+
+    def insert(self, index, item):
+        self[index] = item
+
+    def pop(self, index=None):
+        if index is None:
+            index = len(self) - 1
+
+        val = self[index]
+        del self[index]
+
+        return val
+
+    def remove(self, item):
+        del self[item]
+
+    def reverse(self):
+        for key, val in enumerate(reversed(self)):
+            self.values[key] = val
 
 
 def create_payload(context, url, data):
@@ -258,9 +261,9 @@ def create_payload(context, url, data):
 
 
 def create_url(context, endpoint, **uri_args):
-    ''' Create a full URL using the context settings, the desired endpoint,
+    """ Create a full URL using the context settings, the desired endpoint,
     and any option URI (keyword) arguments.
-    '''
+    """
     if not endpoint:
         endpoint = ''
     url = '%s:%s%s' % (context.host, context.port, endpoint)

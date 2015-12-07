@@ -13,8 +13,14 @@ class Model(object):
         """
         self._ctx = context
 
+    @property
+    def ctx(self):
+        return self._ctx
+
     def __getattr__(self, attr):
-        raise AttributeError('"%s" does not have: %s' % (self.__class__.__name__, attr))
+        raise AttributeError(
+            '"%s" does not have: %s' % (self.__class__.__name__, attr)
+        )
 
     def __setattr__(self, attr, val):
         """ If the attribute exists, set it. Otherwise raise an exception."""
@@ -26,14 +32,14 @@ class Model(object):
         URI params from the keyword arguments.
         """
         # TODO: Limit the total returned results.
+        # TODO: Accept fields to pass on to client.send as a kwarg
         payload = client.send(
             client.GET,
             self._ctx,
             self.endpoint(),
             None,
             limit=batch_size,
-            offset=offset,
-            fields="id"
+            offset=offset
         )
 
         collection = client.Container(
@@ -48,21 +54,26 @@ class Model(object):
     def endpoint(self):
         loc = "/%ss" % self.__class__.__name__.lower()
 
-        if hasattr(self, "id") and self.id.value > 0:
-            loc += "/%d" % self.id.value
+        id_val = 0
+        if isinstance(self.id, int):
+            id_val = self.id
+        elif isinstance(self.id, Property):
+            id_val = self.id.value
+        if hasattr(self, "id") and id_val > 0:
+            loc += "/%d" % id_val
         return loc
 
     def from_dict(self, dict_):
         """ Update the internal dictionary for the instance using the
         key-value pairs contained within the provided dictionary.
         """
-        def explode_dict(obj, dict_):
-            for key, val in dict_.items():
+        def explode_dict(obj, exp_dict):
+            for key, val in exp_dict.items():
                 # Are we working with a dict?
                 if isinstance(val, dict):
                     attr = getattr(obj, key)
                     if not isinstance(attr, dict):
-                        inst = getattr(obj, key).kind(obj._ctx)
+                        inst = attr.kind(obj.ctx)
                         val = explode_dict(inst, val)
                 elif isinstance(val, list):
                     pass
@@ -88,19 +99,21 @@ class Model(object):
             self.update(data)
 
         if hasattr(self, "id") and self.id > 0:
-            returnedDict = amberlib.Put(
+            returned_dict = client.send(
+                client.PUT,
                 self.ctx,
                 self.endpoint(),
                 self.to_dict()
             )
         else:
-            returnedDict = amberlib.Post(
+            returned_dict = client.send(
+                client.POST,
                 self.ctx,
                 self.endpoint(),
                 self.to_dict()
             )
 
-        self.update(returned)
+        self.update(returned_dict)
         return self
 
     def to_dict(self):

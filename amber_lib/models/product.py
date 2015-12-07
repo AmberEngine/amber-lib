@@ -48,4 +48,3 @@ class Product(Model):
     textile = Property(components.Textile)
     visibility = Property(components.Visibility)
     weight = Property(components.Weight)
-
