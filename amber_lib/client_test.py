@@ -72,12 +72,11 @@ class ContainerTest(unittest.TestCase):
 
     def contains_test(self):
         ctn = client.Container(FAKE_HAL, bases.Model, Context())
-        print("wtf")
         model = ctn[0]
         self.assertIn(model, ctn)
         self.assertNotIn("foobar", ctn)
 
-    def delete_test(self):
+    def dunder_delitem_test(self):
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, Context())
 
         second = ctn[1]
@@ -88,14 +87,14 @@ class ContainerTest(unittest.TestCase):
         self.assertEqual(ctn[1]._links, "third")
         self.assertNotIn(second, ctn)
 
-    def delete_invalid_index_test(self):
+    def dunder_delitem_invalid_index_test(self):
         ctn = client.Container(FAKE_HAL, bases.Model, Context())
 
         def delete_index():
             del ctn[100]
         self.assertRaises(IndexError, delete_index)
 
-    def get_slice_test(self):
+    def dunder_getitem_slice_test(self):
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, Context())
         self.assertEqual(len(ctn[:]), 3)
         self.assertEqual(len(ctn[0:2]), 2)
@@ -104,32 +103,32 @@ class ContainerTest(unittest.TestCase):
         self.assertEqual(ctn[0:2][1]._links, "second")
 
 
-    def get_invalid_slice_test(self):
+    def dunder_getitem_invalid_slice_test(self):
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, Context())
 
         self.assertEqual(len(ctn[1:500]), 2)
         self.assertEqual(len(ctn[100:1001]), 0)
 
-    def get_index_test(self):
+    def dunder_getitem_index_test(self):
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, Context())
 
         self.assertEqual(ctn[0]._links, "first")
         self.assertEqual(ctn[1]._links, "second")
         self.assertEqual(ctn[-1]._links, "third")
 
-    def get_invalid_index_test(self):
+    def dunder_getitem_invalid_index_test(self):
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, Context())
 
         self.assertRaises(IndexError, lambda: ctn[42])
         self.assertRaises(IndexError, lambda: ctn[-99])
 
-    def get_invalid_index_type(self):
+    def dunder_getitem_invalid_index_type_test(self):
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, Context())
 
         self.assertRaises(TypeError, lambda: ctn["one"])
-        self.assertRaises(TypeError, lambda: ctn[[{"":""}]])
+        self.assertRaises(TypeError, lambda: ctn[3.14159])
 
-    def iter_test(self):
+    def dunder_iter_test(self):
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, Context())
 
         values = ctn.values
@@ -141,7 +140,7 @@ class ContainerTest(unittest.TestCase):
 
         self.assertEqual(count, len(ctn))
 
-    def iter_no_items_test(self):
+    def dunder_iter_no_items_test(self):
         ctn = client.Container({}, bases.Model, Context())
         count = 0
 
@@ -481,19 +480,61 @@ class ContainerTest(unittest.TestCase):
 
         self.assertEqual(reversed_ctn.values, ctn.values)
 
+class CreatePayload(unittest.TestCase):
+    def create_payload_test(self):
+        ctx = Context()
+        url = "http://example.com/test"
+        data = {"foo": "bar", "fizz": "buzz"}
+
+        payload = client.create_payload(ctx, url, data)
+
+        self.assertTrue('signature' in payload)
+
+class CreateURL(unittest.TestCase):
+    def create_url_test(self):
+        endpoint = "/products/42"
+
+        self.assertEqual(
+            client.create_url(Context(), endpoint),
+            "http://example.com:8080%s" % endpoint
+        )
+
+    def create_url_with_uri_test(self):
+        endpoint = "/products/24"
+
+        self.assertEqual(
+            client.create_url(Context(), endpoint, limit=50, offset=3),
+            "http://example.com:8080%s?limit=50&offset=3" % endpoint
+        )
 
 
+class Send(unittest.TestCase):
+    @mock.patch('amber_lib.client.requests')
+    def send_200_request_test(self, mock_requests):
+        method = client.GET
+        endpoint = "/products/1337"
+        json_data = {}
+
+        r = mock.Mock
+        r.status_code = 200
+        mock_requests.get.returned_value = r
+
+        client.send(method, Context(), endpoint, {})
+
+        self.assertTrue(mock_requests.get.called)
 
 
+    @mock.patch('amber_lib.client.requests')
+    def send_500_request_test(self, mock_requests):
+        method = client.GET
+        endpoint = "/products/1337"
+        json_data = {}
 
+        r = mock.Mock
+        r.status_code = 500
+        mock_requests.get.returned_value = r
 
-
-
-
-
-
-
-
+        self.assertRaises(Exception, lambda: client.send(method, Context(), endpoint, {}))
 
 
 if __name__ == "__main__":

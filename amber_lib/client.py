@@ -281,6 +281,7 @@ class Container(object):
         for key, val in enumerate(reversed(self)):
             self.values[key] = val
 
+
 def create_payload(context, url, data):
     payload = {
         'public_key': context.public,
@@ -305,8 +306,6 @@ def create_url(context, endpoint, **uri_args):
     """ Create a full URL using the context settings, the desired endpoint,
     and any option URI (keyword) arguments.
     """
-    if not endpoint:
-        endpoint = ''
     url = '%s:%s%s' % (context.host, context.port, endpoint)
 
     if len(uri_args) > 0:
