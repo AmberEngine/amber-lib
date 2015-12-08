@@ -122,15 +122,19 @@ class Container(object):
 
     def __reversed__(self):
         self.__finish_it()
-        dict_ = []
+
+        self_copy = copy.copy(self)
+        self_copy.values = copy.copy(self.values)
 
         for key in self.values:
-            dict_[key] = self.values[len(self.values) - key - 1]
+            self_copy[key] = self.values[len(self.values) - key - 1]
 
-        return dict_
+        return self_copy
 
     def __setitem__(self, key, value):
         self.__finish_it()
+        if key not in self.values:
+            raise IndexError
         self.values[key] = value
 
     def __all(self):
@@ -141,7 +145,13 @@ class Container(object):
             offset = self.offset
             for index, value in enumerate(values):
                 self.offset += 1
-                obj = self.class_(self.ctx).from_dict(value)
+                if isinstance(value, dict):
+                    instance = self.class_(self.ctx)
+                    obj = instance.from_dict(value)
+                else:
+                    self.__finish_it()
+                    obj = value
+
                 self.values[index + offset] = obj
         elif isinstance(values, Container):
             self.__finish_it()
@@ -149,26 +159,25 @@ class Container(object):
                 self.__append(val)
         else:
             values._ctx = self.ctx
+            self.__finish_it()
             self.values[len(self.values)] = values
 
     def __finish_it(self):
-        pass
-        """if self.total is not None and self.total > len(self.values):
+        if self.total is not None and self.total > len(self.values):
             self.__all()
         self.hal = {}
         self.batch_size = 0
-        """
         self.total = None
 
     def __get(self, index):
         # Deal with negative indexes: if |index| < total, adjust index to
         # become positive, and retrieve. Otherwise, raise error.
         if index < 0:
-            if abs(index) > len(self):
+            if abs(index) >= len(self):
                 raise IndexError()
             index += len(self)
 
-        if index > len(self):
+        if index >= len(self):
             raise IndexError()
 
         if index in self.values:
@@ -185,7 +194,7 @@ class Container(object):
             return self.values[index]
 
     def __next(self):
-        if 'next' not in self.hal:
+        if self.hal is None or 'next' not in self.hal:
             return False
 
         moar_data = send(GET, self.ctx, self.hal['next']['href'], None)
@@ -197,16 +206,31 @@ class Container(object):
     def __prepend(self, values):
         if isinstance(values, list):
             for index, value in enumerate(values):
-                obj = self.class_(self.ctx).from_dict(value)
-                self.values[self.offset + index] = obj
-        elif isinstance(values, dict):
-            pass
+                if isinstance(value, dict):
+                    instance = self.class_(self.ctx)
+                    obj = instance.from_dict(value)
+                else:
+                    self.__finish_it()
+                    obj = value
+
+                self.values[index + self.offset] = obj
+        elif isinstance(values, Container):
+            self.__finish_it()
+            self.values = (values + self).values
+        else:
+            values._ctx = self.ctx
+            self.__finish_it()
+
+            for index,val in enumerate(reversed(self)):
+                self.values[index + 1] = val
+
+            self[0] = values
 
     def __previous(self):
-        if 'prev' not in self.hal:
+        if self.hal is None or 'previous' not in self.hal:
             return False
 
-        moar_data = send(GET, self.ctx, self.hal['prev']['href'], None)
+        moar_data = send(GET, self.ctx, self.hal['previous']['href'], None)
         self.hal = moar_data.get('_links', {})
         embedded = moar_data.get('_embedded', {}).get(self.kind + 's', [])
 
@@ -230,10 +254,16 @@ class Container(object):
         for key, val in enumerate(self):
             if val == item:
                 return key
-        raise Exception("nope")
+        raise ValueError
 
-    def insert(self, index, item):
-        self[index] = item
+    def insert(self, insert_index, item):
+        self.__finish_it()
+        for index,val in enumerate(reversed(self)):
+            if index >= insert_index:
+                break
+            self.values[index + insert_index + 1] = val
+
+        self.values[index] = item
 
     def pop(self, index=None):
         if index is None:
@@ -245,12 +275,11 @@ class Container(object):
         return val
 
     def remove(self, item):
-        del self[item]
+        del self[self.index(item)]
 
     def reverse(self):
         for key, val in enumerate(reversed(self)):
             self.values[key] = val
-
 
 def create_payload(context, url, data):
     payload = {
