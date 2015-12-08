@@ -44,6 +44,7 @@ class Container(object):
         self.__finish_it()
         self_copy = copy.copy(self)
         self_copy.values = copy.copy(self.values)
+
         for val in other:
             self_copy.__append(val)
         return self_copy
@@ -53,9 +54,14 @@ class Container(object):
 
     def __delitem__(self, key):
         self.__finish_it()
-        del self.values[key]
-        for i in range(len(self) - key - 1):
-            self.values[key + i] = self.values[key + i + 1]
+
+        if key not in self.values:
+            raise IndexError
+
+        for index, value in enumerate(self[key + 1:len(self)]):
+            self[key + index] = self[key + index + 1]
+        del self.values[len(self) - 1]
+
 
     def __getitem__(self, key):
         """ Elements can be retrieved from the Container by specifying either
@@ -90,8 +96,10 @@ class Container(object):
                 # Get next batch of entries.
                 list_.append(self.__get(index))
             return list_
-        else:
+        elif isinstance(key, int):
             return self.__get(key)
+        else:
+            raise TypeError
 
     def __iter__(self):
         """ Yeild sequential values from the total entries available.
@@ -144,10 +152,12 @@ class Container(object):
             self.values[len(self.values)] = values
 
     def __finish_it(self):
-        if self.total is not None:
+        pass
+        """if self.total is not None and self.total > len(self.values):
             self.__all()
         self.hal = {}
         self.batch_size = 0
+        """
         self.total = None
 
     def __get(self, index):
@@ -164,12 +174,14 @@ class Container(object):
         if index in self.values:
             return self.values[index]
         else:
+            can_continue = True
             if index > (self.offset - 1):
-                while index > (self.offset - 1):
-                    self.__next()
+                while index > (self.offset - 1) and can_continue:
+                    can_continue = self.__next()
             elif index < self.offset:
-                while index < self.offset:
-                    self.__previous()
+                while index < self.offset and can_continue:
+                    can_continue = self.__previous()
+
             return self.values[index]
 
     def __next(self):
