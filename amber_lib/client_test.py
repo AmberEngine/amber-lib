@@ -43,6 +43,7 @@ FAKE_HAL_THREE = {
     "total": 3
 }
 
+
 class ContainerTest(unittest.TestCase):
     def add_test(self):
         hal = {
@@ -101,7 +102,6 @@ class ContainerTest(unittest.TestCase):
         self.assertEqual(len(ctn[0:3:2]), 2)
 
         self.assertEqual(ctn[0:2][1]._links, "second")
-
 
     def dunder_getitem_invalid_slice_test(self):
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, Context())
@@ -163,9 +163,11 @@ class ContainerTest(unittest.TestCase):
 
     def len_values_test(self):
         ctn = client.Container({}, bases.Model, Context())
+
         class Length:
             def __len__(self):
                 return 42
+
         ctn.values = Length()
         self.assertEqual(len(ctn), 42)
 
@@ -179,7 +181,7 @@ class ContainerTest(unittest.TestCase):
 
         reversed_ctn = reversed(ctn)
         for i in range(len(reversed_ctn)):
-            self.assertEqual(reversed_ctn[i], values[len(values) - i -1])
+            self.assertEqual(reversed_ctn[i], values[len(values) - i - 1])
 
     def setitem_test(self):
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, Context())
@@ -250,7 +252,10 @@ class ContainerTest(unittest.TestCase):
     def dunder_get_invalid_negative_index_test(self):
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, Context())
         too_far_under = len(ctn) * -1
-        self.assertRaises(IndexError, lambda: ctn._Container__get(too_far_under))
+        self.assertRaises(
+            IndexError,
+            lambda: ctn._Container__get(too_far_under)
+        )
 
     def dunder_get_valid_negative_index_test(self):
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, Context())
@@ -273,15 +278,15 @@ class ContainerTest(unittest.TestCase):
         mock_next.return_value = False
 
         ctn.total = 5
+
         def next_values():
             ctn.values[3] = "fourth"
             ctn.values[4] = "fifth"
+
         mock_next.side_effect = next_values
 
         self.assertEqual(ctn._Container__get(4), "fifth")
         mock_next.assert_called_with()
-
-
 
     @mock.patch('amber_lib.client.Container._Container__previous')
     def dunder_get_use_previous_test(self, mock_previous):
@@ -292,11 +297,13 @@ class ContainerTest(unittest.TestCase):
         del ctn.values[0]
         ctn.offset = 2
         ctn.total = 5
+
         def prev_values():
             ctn.values[0] = "first index"
             ctn.values[1] = "second"
             ctn.offset = 0
-        mock_previous.side_effect =  prev_values
+
+        mock_previous.side_effect = prev_values
 
         self.assertEqual(ctn._Container__get(0), "first index")
         mock_previous.assert_called_with()
@@ -417,8 +424,6 @@ class ContainerTest(unittest.TestCase):
 
         self.assertRaises(ValueError, lambda: ctn.index("foobar"))
 
-
-
     def insert_test(self):
         ctn = client.Container(FAKE_HAL, bases.Model, Context())
 
@@ -453,8 +458,6 @@ class ContainerTest(unittest.TestCase):
 
         self.assertRaises(IndexError, lambda: ctn[2])
 
-
-
     def delete_test(self):
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, Context())
 
@@ -480,6 +483,7 @@ class ContainerTest(unittest.TestCase):
 
         self.assertEqual(reversed_ctn.values, ctn.values)
 
+
 class CreatePayload(unittest.TestCase):
     def create_payload_test(self):
         ctx = Context()
@@ -489,6 +493,7 @@ class CreatePayload(unittest.TestCase):
         payload = client.create_payload(ctx, url, data)
 
         self.assertTrue('signature' in payload)
+
 
 class CreateURL(unittest.TestCase):
     def create_url_test(self):
@@ -523,7 +528,6 @@ class Send(unittest.TestCase):
 
         self.assertTrue(mock_requests.get.called)
 
-
     @mock.patch('amber_lib.client.requests')
     def send_500_request_test(self, mock_requests):
         method = client.GET
@@ -534,8 +538,10 @@ class Send(unittest.TestCase):
         r.status_code = 500
         mock_requests.get.returned_value = r
 
-        self.assertRaises(Exception, lambda: client.send(method, Context(), endpoint, {}))
-
+        self.assertRaises(
+            Exception,
+            lambda: client.send(method, Context(), endpoint, {})
+        )
 
 if __name__ == "__main__":
     unittest.main()
