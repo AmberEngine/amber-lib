@@ -62,7 +62,6 @@ class Container(object):
             self[key + index] = self[key + index + 1]
         del self.values[len(self) - 1]
 
-
     def __getitem__(self, key):
         """ Elements can be retrieved from the Container by specifying either
         an integer index or a slice instance.
@@ -221,7 +220,7 @@ class Container(object):
             values._ctx = self.ctx
             self.__finish_it()
 
-            for index,val in enumerate(reversed(self)):
+            for index, val in enumerate(reversed(self)):
                 self.values[index + 1] = val
 
             self[0] = values
@@ -258,7 +257,7 @@ class Container(object):
 
     def insert(self, insert_index, item):
         self.__finish_it()
-        for index,val in enumerate(reversed(self)):
+        for index, val in enumerate(reversed(self)):
             if index >= insert_index:
                 break
             self.values[index + insert_index + 1] = val
