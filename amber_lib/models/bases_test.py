@@ -70,6 +70,20 @@ class Model(unittest.TestCase):
             *[model, "does_not_exist", ctx2]
         )
 
+    @mock.patch('amber_lib.models.bases.client.Container')
+    @mock.patch('amber_lib.models.bases.Model.endpoint')
+    @mock.patch('amber_lib.models.bases.client.send')
+    def query_test(self, mock_send, mock_endpoint, mock_container):
+        model = bases.Model(Context())
+
+        model.query()
+
+        self.assertTrue(mock_send.called)
+        self.assertTrue(mock_endpoint.called)
+        self.assertTrue(mock_container.called)
+
+    def endpoint(self):
+        pass
 
 if __name__ == "__main__":
     unittest.main()
