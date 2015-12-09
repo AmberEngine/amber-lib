@@ -82,8 +82,8 @@ class Model(object):
         def explode_dict(obj, exp_dict):
             for key, val in exp_dict.items():
                 if key.startswith('_'):
+                    obj.__dict__[key] = val
                     continue
-
                 is_list = isinstance(val, list)
                 attr = getattr(obj, key)
 
@@ -100,8 +100,6 @@ class Model(object):
                         list_.append(el)
                     val = list_
                 setattr(obj, key, val)
-                #getattr(obj, key).set(val)
-                #setattr(obj, key, val)
             return obj
         return explode_dict(self, dict_)
 
@@ -149,6 +147,7 @@ class Model(object):
             for key, value in obj.__dict__.items():
                 if key.startswith('_'):
                     continue
+                    # self.__dict__[key] = value
                 item = value.get()
                 if isinstance(item, Model):
                     dict_[key] = collapse_dict(item)

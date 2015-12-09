@@ -20,6 +20,7 @@ class TestChild(bases.Model):
 
 
 class TestModel(bases.Model):
+    id = bases.Property(int)
     foo = bases.Property(str)
     fizz = bases.Property(int, True)
     model = bases.Property(TestChild)
@@ -100,21 +101,20 @@ class Model(unittest.TestCase):
         self.assertEqual(model.endpoint(), '/models')
 
     def endpoint_int_id_test(self):
-        model = bases.Model(Context())
+        model = TestModel(Context())
         model.id = 1
 
-        self.assertEqual(model.endpoint(), '/models/1')
+        self.assertEqual(model.endpoint(), '/testmodels/1')
 
     def endpoint_int_property_test(self):
-        model = bases.Model(Context())
-        model.id = bases.Property(int)
+        model = TestModel(Context())
         model.id.set(5)
 
-        self.assertEqual(model.endpoint(), '/models/5')
+        self.assertEqual(model.endpoint(), '/testmodels/5')
 
     def endpoint_wrong_id_type_test(self):
-        model = bases.Model(Context())
-        model.id = "foobar"
+        model = TestModel(Context())
+        model.id.value = "foobar"
 
         self.assertRaises(TypeError, model.endpoint)
 

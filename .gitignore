@@ -36,5 +36,8 @@ nosetests.xml
 .project
 .pydevproject
 
+# Ignore Coverage
+cover
+
 #PyCharm
 .idea
