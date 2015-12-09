@@ -169,14 +169,14 @@ class Image(bases.Component):
     default = Property(bool)
     category = Property(str)
     caption = Property(str)
-    fullsize = Property(str)
+    full_size = Property(str)
     large_size = Property(str)
     medium_size = Property(str)
     thumbnail_size = Property(str)
 
 
 class Images(bases.Component):
-    image_list = Property(Image)
+    image_list = Property(Image, True)
 
 
 class Leather(bases.Component):

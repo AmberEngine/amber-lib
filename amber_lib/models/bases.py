@@ -1,3 +1,4 @@
+import copy
 import json
 
 from amber_lib import client
@@ -24,8 +25,14 @@ class Model(object):
 
     def __setattr__(self, attr, val):
         """ If the attribute exists, set it. Otherwise raise an exception."""
-        getattr(self, attr)
-        self.__dict__[attr] = val
+        if attr.startswith('_'):
+            self.__dict__[attr] = val
+        else:
+            property_ = getattr(self, attr)
+            if attr not in self.__dict__:
+                self.__dict__[attr] = Property(property_.kind, property_.is_list)
+            self.__dict__[attr].set(val)
+        #getattr(self, attr).set(val)
 
     def query(self, batch_size=500, offset=0):
         """ Retrieve a collection of instances of the model, using the
@@ -55,13 +62,18 @@ class Model(object):
         loc = "/%ss" % self.__class__.__name__.lower()
 
         id_val = 0
-        if isinstance(self.id, int):
-            id_val = self.id
+        if hasattr(self, "id") is False or self.id is None:
+            return loc
+
+        if isinstance(self.id, int) and self.id > 0:
+            return loc + "/%d" % self.id
         elif isinstance(self.id, Property):
-            id_val = self.id.value
-        if hasattr(self, "id") and id_val > 0:
-            loc += "/%d" % id_val
-        return loc
+            if self.id.value > 0:
+                return loc + "/%d" % self.id.value
+            else:
+                return loc
+
+        raise TypeError
 
     def from_dict(self, dict_):
         """ Update the internal dictionary for the instance using the
@@ -69,16 +81,27 @@ class Model(object):
         """
         def explode_dict(obj, exp_dict):
             for key, val in exp_dict.items():
-                # Are we working with a dict?
+                if key.startswith('_'):
+                    continue
+
+                is_list = isinstance(val, list)
+                attr = getattr(obj, key)
+
                 if isinstance(val, dict):
-                    attr = getattr(obj, key)
                     if not isinstance(attr, dict):
                         inst = attr.kind(obj.ctx)
                         val = explode_dict(inst, val)
                 elif isinstance(val, list):
-                    pass
-
+                    list_ = []
+                    for el in val:
+                        if isinstance(el, dict):
+                            inst = attr.kind(obj.ctx)
+                            el = explode_dict(inst, el)
+                        list_.append(el)
+                    val = list_
                 setattr(obj, key, val)
+                #getattr(obj, key).set(val)
+                #setattr(obj, key, val)
             return obj
         return explode_dict(self, dict_)
 
@@ -112,24 +135,32 @@ class Model(object):
                 self.endpoint(),
                 self.to_dict()
             )
-
+        #self = self.__class__(self.ctx)
         self.update(returned_dict)
+
         return self
 
     def to_dict(self):
         """ Retrieve a dictionary version of the model.
         """
-        dictionary = {}
+        def collapse_dict(obj):
+            dict_ = {}
 
-        for key, val in self.__dict__.iteritems():
-            if key.startswith("_"):
-                continue
-            if isinstance(val, Model):
-                val = val.to_dict()
-
-            dictionary[key] = val
-
-        return dictionary
+            for key, value in obj.__dict__.items():
+                if key.startswith('_'):
+                    continue
+                item = value.get()
+                if isinstance(item, Model):
+                    dict_[key] = collapse_dict(item)
+                elif isinstance(item, list):
+                    list_ = []
+                    for el in item:
+                        list_.append(collapse_dict(el))
+                    dict_[key] = list_
+                else:
+                    dict_[key] = item
+            return dict_
+        return collapse_dict(self)
 
     def to_json(self):
         """ Retrieve the model as a JSON object string, containing
@@ -165,19 +196,39 @@ class Property:
         self.is_list = is_list
         self.value = None
 
+    def __getattr__(self, key):
+        if hasattr(self.value, key):
+            return getattr(self.value, key)
+        raise AttributeError
+
+    def __setattr__(self, attr, value):
+        if attr not in ['kind', 'is_list', 'value']:
+            setattr(self.value, attr, value)
+        else:
+            self.__dict__[attr] = value
+
     def get(self):
         return self.value
 
     def set(self, value):
-        if self.is_list is True:
+        if value is None:
+            self.value = None
+        elif self.is_list is True:
             if not isinstance(value, list):
-                raise Exception("Expecting a list!")
-            for val in value:
-                self.set(val)
+                raise TypeError('Value: \'%s\' is not a list' % value)
+            else:
+                for val in value:
+                    if isinstance(val, self.kind) is False:
+                        raise TypeError('Type: \'%s\' is not \'%s\'' % (type(val), self.kind))
+                    self.value = value
         elif isinstance(value, self.kind):
             self.value = value
+        elif isinstance(value, unicode) and self.kind == str:
+            self.value = value.encode('utf-8')
+        elif isinstance(value, int) and self.kind == float:
+            self.value = float(value)
         else:
-            raise Exception('wrong type!')
+            raise TypeError('Type: \'%s\' is not \'%s\'' % (type(value), self.kind))
 
 
 class Component(Model):

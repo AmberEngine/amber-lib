@@ -81,7 +81,7 @@ class Manufacturer(Model):
     featured = Property(bool)
     restock_fee = Property(int)
     returnable = Property(bool)
-    return_period = Property(str)
+    return_period = Property(int)
 
 class ManufacturerImage(Model):
     id = Property(int)

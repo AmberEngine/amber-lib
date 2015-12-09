@@ -298,7 +298,7 @@ def create_payload(context, url, data):
 
     payload['signature'] = sig
 
-    return json.dumps(payload)
+    return json.dumps(payload, sort_keys=True, separators=(',', ':'))
 
 
 def create_url(context, endpoint, **uri_args):

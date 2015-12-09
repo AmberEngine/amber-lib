@@ -15,11 +15,24 @@ class Context(object):
     port = "8080"
 
 
+class TestChild(bases.Model):
+    hey = bases.Property(str)
+
+
+class TestModel(bases.Model):
+    foo = bases.Property(str)
+    fizz = bases.Property(int, True)
+    model = bases.Property(TestChild)
+
+
 FAKE_DATE = datetime(2015, 11, 30, 22, 36, 52, 538755)
 FAKE_DATE_FORMAT = datetime.isoformat(FAKE_DATE)
 
 
 class Model(unittest.TestCase):
+    def setUp(self):
+        bases.Model.id = None
+
     def init_test(self):
         ctx = Context()
 
@@ -82,8 +95,68 @@ class Model(unittest.TestCase):
         self.assertTrue(mock_endpoint.called)
         self.assertTrue(mock_container.called)
 
-    def endpoint(self):
-        pass
+    def endpoint_no_id_test(self):
+        model = bases.Model(Context())
+        self.assertEqual(model.endpoint(), '/models')
+
+    def endpoint_int_id_test(self):
+        model = bases.Model(Context())
+        model.id = 1
+
+        self.assertEqual(model.endpoint(), '/models/1')
+
+    def endpoint_int_property_test(self):
+        model = bases.Model(Context())
+        model.id = bases.Property(int)
+        model.id.set(5)
+
+        self.assertEqual(model.endpoint(), '/models/5')
+
+    def endpoint_wrong_id_type_test(self):
+        model = bases.Model(Context())
+        model.id = "foobar"
+
+        self.assertRaises(TypeError, model.endpoint)
+
+    def from_dict_test(self):
+        dict_ = {
+            'foo': 'bar',
+            'fizz': [1, 2, 3],
+            'model': {
+                'hey': 'Listen!'
+            }
+        }
+
+        model = TestModel(Context())
+        model.from_dict(dict_)
+
+        self.assertEqual(model.foo, 'bar')
+        self.assertEqual(model.fizz, [1, 2, 3])
+        self.assertEqual(model.model.hey, 'Listen!')
+
+    def from_dict_bad_data_test(self):
+        dict_ = {
+            'foo': 'bar',
+            'fizz': [1, 2, 3],
+            'model': {
+                'hey': 'Listen!'
+            },
+            'i_dont_exist': 'NOPE!'
+        }
+
+        model = TestModel(Context())
+
+        self.assertRaises(AttributeError, model.from_dict, dict_)
+
+    @mock.patch('amber_lib.models.bases.Model.from_dict')
+    def from_json(self, mock_from_dict):
+        json = '{"foo": "bar", "fizz": [1, 2, 3]}'
+        model = bases.Model(Contect())
+
+        model.from_json(json)
+        self.assertTrue(mock_from_dict.called)
+
+
 
 if __name__ == "__main__":
     unittest.main()
