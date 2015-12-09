@@ -24,21 +24,24 @@ class TestModel(bases.Model):
     foo = bases.Property(str)
     fizz = bases.Property(int, True)
     model = bases.Property(TestChild)
-
+    testchild_list = bases.Property(TestChild, True)
 
 FAKE_DATE = datetime(2015, 11, 30, 22, 36, 52, 538755)
 FAKE_DATE_FORMAT = datetime.isoformat(FAKE_DATE)
 
 
 class Model(unittest.TestCase):
-    def setUp(self):
-        bases.Model.id = None
-
     def init_test(self):
         ctx = Context()
 
         model = bases.Model(ctx)
         self.assertEqual(model._ctx, ctx)
+
+    def ctx_test(self):
+        ctx = Context()
+        model = bases.Model(ctx)
+
+        self.assertEqual(model.ctx(), ctx)
 
     def get_known_attribute_test(self):
         known_attr = "_ctx"
@@ -102,19 +105,22 @@ class Model(unittest.TestCase):
 
     def endpoint_int_id_test(self):
         model = TestModel(Context())
+        model.__dict__['id'] = bases.Property(int)
         model.id = 1
 
         self.assertEqual(model.endpoint(), '/testmodels/1')
 
     def endpoint_int_property_test(self):
         model = TestModel(Context())
+        model.__dict__['id'] = bases.Property(int)
         model.id.set(5)
 
         self.assertEqual(model.endpoint(), '/testmodels/5')
 
     def endpoint_wrong_id_type_test(self):
         model = TestModel(Context())
-        model.id.value = "foobar"
+        model.__dict__['id'] = bases.Property(int)
+        model.id.value = "foobar_2"
 
         self.assertRaises(TypeError, model.endpoint)
 
@@ -124,7 +130,11 @@ class Model(unittest.TestCase):
             'fizz': [1, 2, 3],
             'model': {
                 'hey': 'Listen!'
-            }
+            },
+            'testchild_list': [
+                {'hey': 'Listen to me!'},
+                {'hey': 'Listen two me!'}
+            ]
         }
 
         model = TestModel(Context())
@@ -133,6 +143,7 @@ class Model(unittest.TestCase):
         self.assertEqual(model.foo, 'bar')
         self.assertEqual(model.fizz, [1, 2, 3])
         self.assertEqual(model.model.hey, 'Listen!')
+        self.assertEqual(len(model.testchild_list), 2)
 
     def from_dict_bad_data_test(self):
         dict_ = {
@@ -149,13 +160,137 @@ class Model(unittest.TestCase):
         self.assertRaises(AttributeError, model.from_dict, dict_)
 
     @mock.patch('amber_lib.models.bases.Model.from_dict')
-    def from_json(self, mock_from_dict):
+    def from_json_test(self, mock_from_dict):
         json = '{"foo": "bar", "fizz": [1, 2, 3]}'
-        model = bases.Model(Contect())
+        model = bases.Model(Context())
 
         model.from_json(json)
         self.assertTrue(mock_from_dict.called)
 
+
+    @mock.patch('amber_lib.models.bases.Model.update')
+    @mock.patch('amber_lib.models.bases.Model.ctx')
+    @mock.patch('amber_lib.models.bases.Model.endpoint')
+    @mock.patch('amber_lib.models.bases.Model.to_dict')
+    @mock.patch('amber_lib.client.send')
+    def save_update_test(
+        self,
+        mock_send,
+        mock_dict,
+        mock_end,
+        mock_ctx,
+        mock_update
+    ):
+        model = TestModel(Context())
+        model.__dict__['id'] = bases.Property(int)
+        model.id = 49
+        model.save()
+
+        self.assertEqual(mock_update.call_count, 1)
+
+        self.assertTrue(mock_send.called)
+        self.assertTrue(mock_dict.called)
+        self.assertTrue(mock_end.called)
+        self.assertTrue(mock_ctx.called)
+        self.assertTrue(mock_send.called)
+
+        mock_send.assert_called_with(
+            'put',
+            mock_ctx(),
+            mock_end(),
+            mock_dict()
+        )
+
+    @mock.patch('amber_lib.models.bases.Model.update')
+    @mock.patch('amber_lib.models.bases.Model.ctx')
+    @mock.patch('amber_lib.models.bases.Model.endpoint')
+    @mock.patch('amber_lib.models.bases.Model.to_dict')
+    @mock.patch('amber_lib.client.send')
+    def save_create_test(
+        self,
+        mock_send,
+        mock_dict,
+        mock_end,
+        mock_ctx,
+        mock_update
+    ):
+        model = TestModel(Context())
+
+
+        model.save('{"foo": "bar"}')
+
+        self.assertEqual(mock_update.call_count, 2)
+
+        self.assertTrue(mock_send.called)
+        self.assertTrue(mock_dict.called)
+        self.assertTrue(mock_end.called)
+        self.assertTrue(mock_ctx.called)
+        self.assertTrue(mock_send.called)
+
+        mock_send.assert_called_with(
+            'post',
+            mock_ctx(),
+            mock_end(),
+            mock_dict()
+        )
+
+
+    def to_dict_test(self):
+        model = TestModel(Context())
+
+        model.foo = 'bar'
+        model.fizz = [1, 2, 3]
+        model.testchild_list = [TestChild(Context())]
+        model.model = TestChild(Context())
+        model.model.hey = 'Listen!'
+
+        dict_ = model.to_dict()
+
+        self.assertIn('foo', dict_)
+        self.assertIn('fizz', dict_)
+        self.assertIn('model', dict_)
+        self.assertIn('id', dict_)
+        self.assertIn('hey', dict_['model'])
+
+    @mock.patch('amber_lib.models.bases.Model.to_dict')
+    @mock.patch('amber_lib.models.bases.json.dumps')
+    def to_json_test(self, mock_dumps, mock_to_dict):
+        model = TestModel(Context())
+
+        model.to_json()
+        self.assertTrue(mock_dumps.called)
+        self.assertTrue(mock_to_dict.called)
+
+    @mock.patch('amber_lib.models.bases.Model.from_dict')
+    def update_dict_test(self, mock_dict):
+        model = TestModel(Context())
+        model.update({})
+
+        self.assertTrue(mock_dict.called)
+
+    @mock.patch('amber_lib.models.bases.Model.from_json')
+    def update_json_test(self, mock_json):
+        model = TestModel(Context())
+        model.update('{}')
+
+        self.assertTrue(mock_json.called)
+
+    def update_invalid_arg_type_test(self):
+        model = TestModel(Context())
+        self.assertRaises(TypeError, lambda: model.update(3.14159))
+
+    @mock.patch('amber_lib.models.bases.Model.from_json')
+    @mock.patch('amber_lib.models.bases.Model.to_dict')
+    @mock.patch('amber_lib.models.bases.Model.endpoint')
+    @mock.patch('amber_lib.client.send')
+    def retrieve_test(self, mock_send, mock_endpoint, mock_dict, mock_json):
+        model = TestModel(Context())
+        model.retrieve(model.id)
+
+        self.assertTrue(mock_send.called)
+        self.assertTrue(mock_endpoint.called)
+        self.assertTrue(mock_dict.called)
+        self.assertTrue(mock_json.called)
 
 
 if __name__ == "__main__":

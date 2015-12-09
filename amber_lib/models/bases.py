@@ -14,7 +14,6 @@ class Model(object):
         """
         self._ctx = context
 
-    @property
     def ctx(self):
         return self._ctx
 
@@ -62,17 +61,16 @@ class Model(object):
         loc = "/%ss" % self.__class__.__name__.lower()
 
         id_val = 0
-        if hasattr(self, "id") is False or self.id is None:
+        if hasattr(self, "id") is False or self.id.get() is None:
             return loc
 
         if isinstance(self.id, int) and self.id > 0:
             return loc + "/%d" % self.id
-        elif isinstance(self.id, Property):
+        elif isinstance(self.id, Property) and isinstance(self.id.value, int):
             if self.id.value > 0:
                 return loc + "/%d" % self.id.value
             else:
                 return loc
-
         raise TypeError
 
     def from_dict(self, dict_):
@@ -89,13 +87,13 @@ class Model(object):
 
                 if isinstance(val, dict):
                     if not isinstance(attr, dict):
-                        inst = attr.kind(obj.ctx)
+                        inst = attr.kind(obj.ctx())
                         val = explode_dict(inst, val)
                 elif isinstance(val, list):
                     list_ = []
                     for el in val:
                         if isinstance(el, dict):
-                            inst = attr.kind(obj.ctx)
+                            inst = attr.kind(obj.ctx())
                             el = explode_dict(inst, el)
                         list_.append(el)
                     val = list_
@@ -103,11 +101,11 @@ class Model(object):
             return obj
         return explode_dict(self, dict_)
 
-    def from_json(self, json):
+    def from_json(self, json_):
         """ Update the internal dictionary for the instance using the
         key-value pairs stored within the provided JSON string.
         """
-        dict_ = json.loads(json)
+        dict_ = json.loads(json_)
         return self.from_dict(dict_)
 
     def save(self, data=None):
@@ -119,21 +117,21 @@ class Model(object):
         if data is not None:
             self.update(data)
 
-        if hasattr(self, "id") and self.id > 0:
+        if hasattr(self, "id") and self.id.get() > 0:
             returned_dict = client.send(
                 client.PUT,
-                self.ctx,
+                self.ctx(),
                 self.endpoint(),
                 self.to_dict()
             )
         else:
             returned_dict = client.send(
                 client.POST,
-                self.ctx,
+                self.ctx(),
                 self.endpoint(),
                 self.to_dict()
             )
-        #self = self.__class__(self.ctx)
+
         self.update(returned_dict)
 
         return self
@@ -143,18 +141,23 @@ class Model(object):
         """
         def collapse_dict(obj):
             dict_ = {}
-
-            for key, value in obj.__dict__.items():
+            for key in dir(obj):
+                value = getattr(obj, key)
                 if key.startswith('_'):
                     continue
-                    # self.__dict__[key] = value
+
+                if hasattr(value, '__call__'):
+                    continue
                 item = value.get()
                 if isinstance(item, Model):
                     dict_[key] = collapse_dict(item)
                 elif isinstance(item, list):
                     list_ = []
                     for el in item:
-                        list_.append(collapse_dict(el))
+                        if isinstance(el, Model):
+                            list_.append(collapse_dict(el))
+                        else:
+                            list_.append(el)
                     dict_[key] = list_
                 else:
                     dict_[key] = item
@@ -176,14 +179,14 @@ class Model(object):
         elif isinstance(data, dict):
             return self.from_dict(data)
         else:
-            raise Exception("shit aint right")
+            raise TypeError
 
     def retrieve(self, id_):
         """ Retrieve the data for a database entry constrained by the
         specified ID, and udpate the current instance using the retrieved
         data.
         """
-        payload = amber_lib.Get(self.ctx, self.endpoint(), self.to_dict(), id=id_)
+        payload = client.send(client.GET, self.ctx(), self.endpoint(), self.to_dict(), id=id_)
         self.from_json(payload)
 
         return self
@@ -242,14 +245,14 @@ class Component(Model):
 
         if isinstance(self.component_data_id, int) and self.component_data_id > 0:
             returned_dict = amber_lib.Put(
-                self.ctx,
+                self.ctx(),
                 self.__class__,
                 self.to_dict(),
                 id=self.component_data_id
             )
         else:
             returned_dict = amber_lib.Post(
-                self.ctx,
+                self.ctx(),
                 self.__class__,
                 self.to_dict()
             )
