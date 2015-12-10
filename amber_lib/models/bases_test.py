@@ -43,6 +43,53 @@ class Model(unittest.TestCase):
 
         self.assertEqual(model.ctx(), ctx)
 
+    def dunder_getattribute_missing_test(self):
+        model = TestModel(Context())
+        self.assertRaises(AttributeError, model.__getattribute__, 'nope')
+
+    def dunder_getattribute_underscored_test(self):
+        ctx = Context()
+        class TestModel2(TestModel):
+            _test = None
+
+        model = TestModel2(ctx)
+        self.assertEqual(model.__getattribute__('_ctx'), ctx)
+        self.assertEqual(model.__getattribute__('_test'), None)
+        self.assertNotIn('_test', model.__dict__)
+
+    def dunder_getattribute_callable_test(self):
+        ctx = Context()
+        class TestModel2(TestModel):
+            my_func = lambda x: 3
+
+        model = TestModel2(ctx)
+        self.assertEqual(model.__getattribute__('my_func')(), 3)
+
+
+    def dunder_getattribute_new_property_test(self):
+        ctx = Context()
+        model = TestModel(ctx)
+
+        self.assertNotIn('foo', model.__dict__)
+
+        prop = model.__getattribute__('foo')
+
+        self.assertTrue(isinstance(prop, bases.Property))
+        self.assertIn('foo', model.__dict__)
+
+
+    def dunder_getattribute_existing_property_test(self):
+        ctx = Context()
+        model = TestModel(ctx)
+
+        text = 'fubar'
+        model.__dict__['foo'] = text
+
+        prop = model.__getattribute__('foo')
+
+        self.assertEqual(prop, text)
+        self.assertTrue(not isinstance(prop, bases.Property))
+
     def get_known_attribute_test(self):
         known_attr = "_ctx"
 
@@ -105,21 +152,18 @@ class Model(unittest.TestCase):
 
     def endpoint_int_id_test(self):
         model = TestModel(Context())
-        model.__dict__['id'] = bases.Property(int)
         model.id = 1
 
         self.assertEqual(model.endpoint(), '/testmodels/1')
 
     def endpoint_int_property_test(self):
         model = TestModel(Context())
-        model.__dict__['id'] = bases.Property(int)
         model.id.set(5)
 
         self.assertEqual(model.endpoint(), '/testmodels/5')
 
     def endpoint_wrong_id_type_test(self):
         model = TestModel(Context())
-        model.__dict__['id'] = bases.Property(int)
         model.id.value = "foobar_2"
 
         self.assertRaises(TypeError, model.endpoint)
@@ -182,7 +226,6 @@ class Model(unittest.TestCase):
         mock_update
     ):
         model = TestModel(Context())
-        model.__dict__['id'] = bases.Property(int)
         model.id = 49
         model.save()
 

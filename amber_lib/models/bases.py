@@ -22,16 +22,25 @@ class Model(object):
             '"%s" does not have: %s' % (self.__class__.__name__, attr)
         )
 
+    def __getattribute__(self, attr):
+        obj_attr = object.__getattribute__(self, attr)
+        if attr.startswith('_') or hasattr(obj_attr, '__call__'):
+            return obj_attr
+
+        dict_ = object.__getattribute__(self, '__dict__')
+        if attr in dict_:
+            return obj_attr
+        else:
+            dict_[attr] = Property(obj_attr.kind, obj_attr.is_list)
+            return dict_[attr]
+
     def __setattr__(self, attr, val):
         """ If the attribute exists, set it. Otherwise raise an exception."""
         if attr.startswith('_'):
             self.__dict__[attr] = val
         else:
             property_ = getattr(self, attr)
-            if attr not in self.__dict__:
-                self.__dict__[attr] = Property(property_.kind, property_.is_list)
             self.__dict__[attr].set(val)
-        #getattr(self, attr).set(val)
 
     def query(self, batch_size=500, offset=0):
         """ Retrieve a collection of instances of the model, using the
@@ -83,7 +92,7 @@ class Model(object):
                     obj.__dict__[key] = val
                     continue
                 is_list = isinstance(val, list)
-                attr = getattr(obj, key)
+                attr = object.__getattribute__(obj, key)
 
                 if isinstance(val, dict):
                     if not isinstance(attr, dict):
