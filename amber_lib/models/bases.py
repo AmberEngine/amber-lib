@@ -23,6 +23,11 @@ class Model(object):
         )
 
     def __getattribute__(self, attr):
+        return super(Model, self).__getattribute__(attr)
+
+    '''
+    def __getattribute__(self, attr):
+        print('__getattribute__')
         obj_attr = object.__getattribute__(self, attr)
         if attr.startswith('_') or hasattr(obj_attr, '__call__'):
             return obj_attr
@@ -31,16 +36,53 @@ class Model(object):
         if attr in dict_:
             return obj_attr
         else:
-            dict_[attr] = Property(obj_attr.kind, obj_attr.is_list)
+            dict_[attr] = Property(obj_attr.__class__, obj_attr.is_list)
             return dict_[attr]
+    '''
 
     def __setattr__(self, attr, val):
         """ If the attribute exists, set it. Otherwise raise an exception."""
         if attr.startswith('_'):
             self.__dict__[attr] = val
+            return
+        elif attr in self.__dict__:
+            print("--")
+            super(Model, self).__setattr__(attr, val)
+            print("==")
+            return
         else:
-            property_ = getattr(self, attr)
-            self.__dict__[attr].set(val)
+            def find(obj, attr):
+                if attr in obj.__dict__:
+                    return obj.__dict__[attr]
+                if attr in obj.__class__.__dict__:
+                    prop = obj.__class__.__dict__[attr]
+                    self.__dict__[attr] = Property(prop.kind, prop.is_list)
+                    return obj.__dict__[attr]
+
+                for parent in obj.__class__.__bases__:
+                    if isinstance(parent, Model):
+                        result = find(parent, attr)
+                        if result:
+                            return result
+                return None
+
+            prop = find(self, attr)
+            if not prop:
+                raise AttributeError("[%s] %s:%s" % (self.__class__, attr, val))
+
+            #self.__dict__[attr] = 'foobar'#Property(prop.kind, prop.is_list)
+            #super(Model, self).__setattr__(attr, 'blah')#Property(prop.kind, prop.is_list))
+            self.__dict__[attr] = Property(prop.kind, prop.is_list)
+            print('attr: %s ' % self.__dict__[attr])
+
+
+            #super(Model, self).__setattr__(attr, val)
+            setattr(self, attr, val)
+            print("self %s" % self)
+
+            # property_ = self.__getattribute__(attr)
+            # property_.set(val)
+
 
     def query(self, batch_size=500, offset=0):
         """ Retrieve a collection of instances of the model, using the
@@ -195,28 +237,46 @@ class Model(object):
         specified ID, and udpate the current instance using the retrieved
         data.
         """
-        payload = client.send(client.GET, self.ctx(), self.endpoint(), self.to_dict(), id=id_)
-        self.from_json(payload)
+        self.id = id_
+        payload = client.send(
+            client.GET,
+            self.ctx(),
+            self.endpoint(),
+            None,
+        )
+        self.from_dict(payload)
 
         return self
 
 
-class Property:
+class Property(object):
     def __init__(self, kind, is_list=False):
         self.kind = kind
         self.is_list = is_list
         self.value = None
-
+    """
     def __getattr__(self, key):
         if hasattr(self.value, key):
+            print("are we? %s" % key)
             return getattr(self.value, key)
         raise AttributeError
 
     def __setattr__(self, attr, value):
+        print("%s:%s" % (attr, value))
         if attr not in ['kind', 'is_list', 'value']:
             setattr(self.value, attr, value)
         else:
             self.__dict__[attr] = value
+    """
+    """
+    def __get__(self, obj, objtype):
+        print("get self: %s" % self)
+        return self
+    """
+
+    def __set__(self, obj, value):
+        print('__set__')
+        return self.set(value)
 
     def get(self):
         return self.value
@@ -230,7 +290,12 @@ class Property:
             else:
                 for val in value:
                     if isinstance(val, self.kind) is False:
-                        raise TypeError('Type: \'%s\' is not \'%s\'' % (type(val), self.kind))
+                        raise TypeError(
+                            'Type: \'%s\' is not \'%s\'' % (
+                                type(val),
+                                self.kind
+                            )
+                        )
                     self.value = value
         elif isinstance(value, self.kind):
             self.value = value
@@ -239,7 +304,10 @@ class Property:
         elif isinstance(value, int) and self.kind == float:
             self.value = float(value)
         else:
-            raise TypeError('Type: \'%s\' is not \'%s\'' % (type(value), self.kind))
+            raise TypeError(
+                'Type: \'%s\' is not \'%s\'' % (type(value), self.kind)
+            )
+        print("val is %s" % self.value)
 
 
 class Component(Model):
@@ -252,7 +320,8 @@ class Component(Model):
         if data is not None:
             self.update(data)
 
-        if isinstance(self.component_data_id, int) and self.component_data_id > 0:
+        if isinstance(self.component_data_id, int) and \
+                self.component_data_id > 0:
             returned_dict = amber_lib.Put(
                 self.ctx(),
                 self.__class__,

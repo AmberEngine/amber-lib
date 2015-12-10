@@ -322,18 +322,22 @@ class Model(unittest.TestCase):
         model = TestModel(Context())
         self.assertRaises(TypeError, lambda: model.update(3.14159))
 
-    @mock.patch('amber_lib.models.bases.Model.from_json')
-    @mock.patch('amber_lib.models.bases.Model.to_dict')
+    @mock.patch('amber_lib.models.bases.Model.from_dict')
     @mock.patch('amber_lib.models.bases.Model.endpoint')
+    @mock.patch('amber_lib.models.bases.Model.ctx')
     @mock.patch('amber_lib.client.send')
-    def retrieve_test(self, mock_send, mock_endpoint, mock_dict, mock_json):
+    def retrieve_test(self, mock_send, mock_ctx, mock_endpoint, mock_from_dict):
         model = TestModel(Context())
+        print("&"*100)
+        model.id = 5
+        print(model.id)
         model.retrieve(model.id)
+        print("#"*100)
 
         self.assertTrue(mock_send.called)
         self.assertTrue(mock_endpoint.called)
-        self.assertTrue(mock_dict.called)
-        self.assertTrue(mock_json.called)
+        self.assertTrue(mock_from_dict.called)
+        self.assertTrue(mock_ctx.called)
 
 
 if __name__ == "__main__":
