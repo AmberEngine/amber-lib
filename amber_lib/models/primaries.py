@@ -20,9 +20,8 @@ class AssemblageElement(Model):
     id = Property(int)
     description = Property(str)
 
-    def __init__(self, *args, **kwargs):
-        AssemblageElement.child_component = Property(AssemblageElement)
-        super(AssemblageElement, self).__init__(*args, **kwargs)
+
+AssemblageElement.child_component = Property(AssemblageElement)
 
 
 class Assemblage(Model):
