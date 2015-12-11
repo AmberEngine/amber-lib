@@ -1,5 +1,6 @@
 import copy
 import json
+import sys
 
 from amber_lib import client
 
@@ -90,11 +91,6 @@ class Model(object):
 
         if isinstance(self.id, int) and self.id > 0:
             return loc + "/%d" % self.id
-        # elif isinstance(self.id, Property) and isinstance(self.id.value, int):
-        #     if self.id.value > 0:
-        #         return loc + "/%d" % self.id.value
-        #     else:
-        #         return loc
         raise TypeError
 
     def from_dict(self, dict_):
@@ -103,9 +99,6 @@ class Model(object):
         """
         def explode_dict(obj, exp_dict):
             for key, val in exp_dict.items():
-                if key.startswith('_'):
-                    obj.__dict__[key] = val
-                    continue
                 is_list = isinstance(val, list)
                 attr = object.__getattribute__(obj, key)
 
@@ -141,7 +134,7 @@ class Model(object):
         if data is not None:
             self.update(data)
 
-        if hasattr(self, "id") and self.id > 0:
+        if hasattr(self, "id") and self.id is not None and self.id > 0:
             returned_dict = client.send(
                 client.PUT,
                 self.ctx(),
@@ -169,10 +162,8 @@ class Model(object):
                 value = getattr(obj, key)
                 if key.startswith('_'):
                     continue
-
                 if hasattr(value, '__call__'):
                     continue
-                #item = value.get()
                 item = value
                 if isinstance(item, Model):
                     dict_[key] = collapse_dict(item)
@@ -247,17 +238,14 @@ class Property(object):
                     self.value = value
         elif isinstance(value, self.kind):
             self.value = value
-        elif isinstance(value, unicode) and self.kind == str:
-            self.value = value.encode('utf-8')
         elif isinstance(value, int) and self.kind == float:
             self.value = float(value)
+        elif self.kind == str and type(value).__name__ == 'unicode':
+            self.value = value.encode('utf-8')
         else:
             raise TypeError(
                 'Type: \'%s\' is not \'%s\'' % (type(value), self.kind)
             )
-
-    def get(self):
-        return self.value
 
 
 class Component(Model):
@@ -266,22 +254,48 @@ class Component(Model):
     parent_component_id = Property(int)
     parent_table_name = Property(str)
 
+    def endpoint(self):
+        loc = "/components/%s" % self.__class__.__name__.lower()
+
+        id_val = 0
+        if hasattr(self, "component_data_id") is False or \
+                self.component_data_id is None:
+            return loc
+
+        if isinstance(self.component_data_id, int) and \
+                self.component_data_id > 0:
+            return loc + "/%d" % self.component_data_id
+
+        raise TypeError
+
+    def retrieve(self, id_):
+        self.component_data_id = id_
+        payload = client.send(
+            client.GET,
+            self.ctx(),
+            self.endpoint(),
+            None,
+        )
+        self.from_dict(payload)
+        return self
+
     def save(self, data=None):
         if data is not None:
             self.update(data)
 
-        if isinstance(self.component_data_id, int) and \
-                self.component_data_id > 0:
-            returned_dict = amber_lib.Put(
+        if hasattr(self, "component_data_id") and self.component_data_id is \
+                not None and self.component_data_id > 0:
+            returned_dict = client.send(
+                client.PUT,
                 self.ctx(),
-                self.__class__,
-                self.to_dict(),
-                id=self.component_data_id
+                self.endpoint(),
+                self.to_dict()
             )
         else:
-            returned_dict = amber_lib.Post(
+            returned_dict = client.send(
+                client.POST,
                 self.ctx(),
-                self.__class__,
+                self.endpoint(),
                 self.to_dict()
             )
 

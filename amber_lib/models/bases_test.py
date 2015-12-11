@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 from datetime import datetime
 import os
 import unittest
@@ -17,6 +20,10 @@ class Context(object):
 
 class TestChild(bases.Model):
     hey = bases.Property(str)
+
+
+class TestInheritsModel(TestChild):
+    listen = bases.Property(str)
 
 
 class TestModel(bases.Model):
@@ -65,32 +72,22 @@ class Model(unittest.TestCase):
         model = TestModel2(ctx)
         self.assertEqual(model.__getattribute__('my_func')(), 3)
 
-
-    def dunder_getattribute_new_property_test(self):
-        ctx = Context()
-        model = TestModel(ctx)
-
-        self.assertNotIn('foo', model.__dict__)
-
-        prop = model.__getattribute__('foo')
-
-        self.assertTrue(isinstance(prop, bases.Property))
-        self.assertIn('foo', model.__dict__)
-
-
     def dunder_getattribute_existing_property_test(self):
         ctx = Context()
         model = TestModel(ctx)
 
+        prop = bases.Property(str)
         text = 'fubar'
-        model.__dict__['foo'] = text
+
+        prop.__set__(prop, text)
+        model.__dict__['foo'] = prop
 
         prop = model.__getattribute__('foo')
 
         self.assertEqual(prop, text)
         self.assertTrue(not isinstance(prop, bases.Property))
 
-    def get_known_attribute_test(self):
+    def dunder_getattr_known_attribute_test(self):
         known_attr = "_ctx"
 
         ctx = Context()
@@ -98,7 +95,7 @@ class Model(unittest.TestCase):
 
         self.assertEqual(getattr(model, known_attr), ctx)
 
-    def get_unknown_attribute_test(self):
+    def dunder_getattr_unknown_attribute_test(self):
         known_attr = "this_doesnt_exist"
 
         ctx = Context()
@@ -107,7 +104,7 @@ class Model(unittest.TestCase):
         self.assertRaises(AttributeError, getattr, *[model, known_attr])
 
     @mock.patch('amber_lib.models.bases.getattr')
-    def set_known_attribute_test(self, mock_getattr):
+    def dunder_setattr_known_attribute_test(self, mock_getattr):
         ctx1 = Context()
         ctx2 = Context()
         ctx2.port = "1337"
@@ -118,7 +115,7 @@ class Model(unittest.TestCase):
         self.assertEqual(model._ctx, ctx2)
 
     @mock.patch('amber_lib.models.bases.getattr')
-    def set_known_attribute_test(self, mock_getattr):
+    def dunder_setattr_known_attribute_test(self, mock_getattr):
         ctx1 = Context()
         ctx2 = Context()
         ctx2.port = "1337"
@@ -133,6 +130,26 @@ class Model(unittest.TestCase):
             setattr,
             *[model, "does_not_exist", ctx2]
         )
+
+    @mock.patch('amber_lib.models.bases.getattr')
+    def dunder_setattr_use_parent_attribute_test(self, mock_getattr):
+        class Second(bases.Model):
+            second = bases.Property(str)
+
+        class Third(Second):
+            third = bases.Property(str)
+
+        class First(bases.Model):
+            first = bases.Property(str)
+            third = bases.Property(Third)
+
+
+        f = First(Context())
+        f.third = Third(Context())
+        f.third.second = 'test'
+
+        self.assertEqual(f.third.second, 'test')
+
 
     @mock.patch('amber_lib.models.bases.client.Container')
     @mock.patch('amber_lib.models.bases.Model.endpoint')
@@ -156,15 +173,10 @@ class Model(unittest.TestCase):
 
         self.assertEqual(model.endpoint(), '/testmodels/1')
 
-    def endpoint_int_property_test(self):
-        model = TestModel(Context())
-        model.id.set(5)
-
-        self.assertEqual(model.endpoint(), '/testmodels/5')
-
     def endpoint_wrong_id_type_test(self):
         model = TestModel(Context())
-        model.id.value = "foobar_2"
+        model.id = 5  # ... because we should never be doing this shit...
+        model.__dict__['id'].value = "foobar_2"
 
         self.assertRaises(TypeError, model.endpoint)
 
@@ -328,16 +340,215 @@ class Model(unittest.TestCase):
     @mock.patch('amber_lib.client.send')
     def retrieve_test(self, mock_send, mock_ctx, mock_endpoint, mock_from_dict):
         model = TestModel(Context())
-        print("&"*100)
         model.id = 5
-        print(model.id)
         model.retrieve(model.id)
-        print("#"*100)
 
         self.assertTrue(mock_send.called)
         self.assertTrue(mock_endpoint.called)
         self.assertTrue(mock_from_dict.called)
         self.assertTrue(mock_ctx.called)
+
+
+class Property(unittest.TestCase):
+    def dunder_init_test(self):
+        kind = str
+        is_list = False
+
+        prop = bases.Property(kind, is_list)
+        self.assertEqual(prop.kind, kind)
+        self.assertEqual(prop.is_list, is_list)
+        self.assertEqual(prop.value, None)
+
+    def dunder_set_none_test(self):
+        class TestProp(object):
+            prop = bases.Property(str)
+
+        test = TestProp()
+        test.prop = 'test'
+        self.assertEqual(test.prop.value, 'test')
+
+        test.prop = None
+        self.assertEqual(test.prop.value, None)
+
+    def dunder_set_list_not_list_test(self):
+        class TestProp(object):
+            prop = bases.Property(str, True)
+
+        test = TestProp()
+        def set_it():
+            test.prop = 'not_a_list'
+        self.assertRaises(TypeError, set_it)
+        self.assertEqual(test.prop.value, None)
+
+    def dunder_set_list_invalid_element_type_test(self):
+        class TestProp(object):
+            prop = bases.Property(str, True)
+
+        test = TestProp()
+        def set_it():
+            test.prop = [1, 2, 3]
+        self.assertRaises(TypeError, set_it)
+        self.assertEqual(test.prop.value, None)
+
+    def dunder_set_list_valid_element_type_test(self):
+        class TestProp(object):
+            prop = bases.Property(str, True)
+
+        test = TestProp()
+
+        list_ = ['one', 'two', 'three', 'four']
+        test.prop = list_
+
+        self.assertEqual(test.prop.value, list_)
+
+
+    def dunder_set_valid_type_test(self):
+        class TestProp(object):
+            prop = bases.Property(int)
+
+        test = TestProp()
+
+        magic_number = 43
+        test.prop = magic_number
+
+        self.assertEqual(test.prop.value, magic_number)
+
+    def dunder_set_unicode_type_for_str_test(self):
+        class TestProp(object):
+            prop = bases.Property(str)
+
+        test = TestProp()
+
+        magic_str = u'Klüft skräms inför på fédéral électoral große'
+        test.prop = magic_str
+
+        self.assertTrue(isinstance(test.prop.value, str))
+
+        if sys.version_info.major < 3:
+            self.assertEqual(test.prop.value, magic_str.encode('utf-8'))
+        else:
+            self.assertEqual(test.prop.value, magic_str)
+
+
+
+    def dunder_set_convert_int_for_float_test(self):
+        class testprop(object):
+            prop = bases.Property(float)
+
+        test = testprop()
+
+        killed_mobs = 42
+        test.prop = killed_mobs
+
+        self.assertTrue(isinstance(test.prop.value, float))
+        self.assertEqual(test.prop.value, killed_mobs)
+
+    def dunder_set_invalid_type(self):
+        class testprop(object):
+            prop = bases.Property(bool)
+
+        test = testprop()
+        def set_it():
+            test.prop = 'i am not a bool'
+        self.assertRaises(TypeError, set_it)
+
+class Component(unittest.TestCase):
+    def endpoint_no_id_test(self):
+        model = bases.Component(Context())
+        self.assertEqual(model.endpoint(), '/components/component')
+
+    def endpoint_int_id_test(self):
+        model = bases.Component(Context())
+        model.component_data_id = 1
+
+        self.assertEqual(model.endpoint(), '/components/component/1')
+
+    def endpoint_wrong_id_type_test(self):
+        model = bases.Component(Context())
+        model.component_data_id = 5  # ... because we should never be doing this shit...
+        model.__dict__['component_data_id'].value = "foobar_2"
+
+        self.assertRaises(TypeError, model.endpoint)
+
+    @mock.patch('amber_lib.models.bases.Component.from_dict')
+    @mock.patch('amber_lib.models.bases.Component.endpoint')
+    @mock.patch('amber_lib.models.bases.Component.ctx')
+    @mock.patch('amber_lib.client.send')
+    def retrieve_test(self, mock_send, mock_ctx, mock_endpoint, mock_from_dict):
+        model = bases.Component(Context())
+        model.component_data_id = 5
+        model.retrieve(model.component_data_id)
+
+        self.assertTrue(mock_send.called)
+        self.assertTrue(mock_endpoint.called)
+        self.assertTrue(mock_from_dict.called)
+        self.assertTrue(mock_ctx.called)
+
+    @mock.patch('amber_lib.models.bases.Component.update')
+    @mock.patch('amber_lib.models.bases.Component.ctx')
+    @mock.patch('amber_lib.models.bases.Component.endpoint')
+    @mock.patch('amber_lib.models.bases.Component.to_dict')
+    @mock.patch('amber_lib.client.send')
+    def save_update_test(
+        self,
+        mock_send,
+        mock_dict,
+        mock_end,
+        mock_ctx,
+        mock_update
+    ):
+        model = bases.Component(Context())
+        model.component_data_id = 49
+        model.save()
+
+        self.assertEqual(mock_update.call_count, 1)
+
+        self.assertTrue(mock_send.called)
+        self.assertTrue(mock_dict.called)
+        self.assertTrue(mock_end.called)
+        self.assertTrue(mock_ctx.called)
+        self.assertTrue(mock_send.called)
+
+        mock_send.assert_called_with(
+            'put',
+            mock_ctx(),
+            mock_end(),
+            mock_dict()
+        )
+
+    @mock.patch('amber_lib.models.bases.Component.update')
+    @mock.patch('amber_lib.models.bases.Component.ctx')
+    @mock.patch('amber_lib.models.bases.Component.endpoint')
+    @mock.patch('amber_lib.models.bases.Component.to_dict')
+    @mock.patch('amber_lib.client.send')
+    def save_create_test(
+        self,
+        mock_send,
+        mock_dict,
+        mock_end,
+        mock_ctx,
+        mock_update
+    ):
+        model = bases.Component(Context())
+
+
+        model.save('{"foo": "bar"}')
+
+        self.assertEqual(mock_update.call_count, 2)
+
+        self.assertTrue(mock_send.called)
+        self.assertTrue(mock_dict.called)
+        self.assertTrue(mock_end.called)
+        self.assertTrue(mock_ctx.called)
+        self.assertTrue(mock_send.called)
+
+        mock_send.assert_called_with(
+            'post',
+            mock_ctx(),
+            mock_end(),
+            mock_dict()
+        )
+
 
 
 if __name__ == "__main__":

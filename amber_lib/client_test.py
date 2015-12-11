@@ -543,5 +543,18 @@ class Send(unittest.TestCase):
             lambda: client.send(method, Context(), endpoint, {})
         )
 
+    @mock.patch('amber_lib.client.requests')
+    def send_invalid_request_test(self, mock_requests):
+        method = 'leet_haxors'
+        endpoint = "/products/1337"
+        json_data = {}
+
+        self.assertRaises(
+            AttributeError,
+            lambda: client.send(method, Context(), endpoint, {})
+        )
+
+
+
 if __name__ == "__main__":
     unittest.main()

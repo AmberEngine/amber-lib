@@ -223,10 +223,11 @@ class PromotionalTags(bases.Component):
     limited_stock = Property(bool)
     discontinued = Property(bool)
 
+class OptionSet(bases.Component):
+    option_set_id = Property(int)
 
 class OptionSets(bases.Component):
-    option_set_list = Property(primaries.OptionSet, True)
-
+    option_set_list = Property(OptionSet, True)
 
 class OrderingInformation(bases.Component):
     unit = Property(str)

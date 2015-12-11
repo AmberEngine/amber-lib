@@ -205,12 +205,8 @@ class Container(object):
     def __prepend(self, values):
         if isinstance(values, list):
             for index, value in enumerate(values):
-                if isinstance(value, dict):
-                    instance = self.class_(self.ctx)
-                    obj = instance.from_dict(value)
-                else:
-                    self.__finish_it()
-                    obj = value
+                self.__finish_it()
+                obj = value
 
                 self.values[index + self.offset] = obj
         elif isinstance(values, Container):
@@ -290,13 +286,18 @@ def create_payload(context, url, data):
         'data': data
     }
 
-    jdump = json.dumps(payload, sort_keys=True, separators=(',', ':'))
+    jdump = json.dumps(payload, sort_keys=True, separators=(',', ':')).encode('utf-8')
+
+    hash_ = hashlib.sha256(jdump)
+    hash_.update(context.private.encode('utf-8'))
+    digest = hash_.hexdigest().encode('ascii')
+    print(type(digest))
 
     sig = base64.b64encode(
-        hashlib.sha256(jdump + context.private).hexdigest()
+        digest
     )
 
-    payload['signature'] = sig
+    payload['signature'] = sig.decode('ascii')
 
     return json.dumps(payload, sort_keys=True, separators=(',', ':'))
 
@@ -310,8 +311,8 @@ def create_url(context, endpoint, **uri_args):
     if len(uri_args) > 0:
         url += '?'
         query_params = []
-        for key, val in uri_args.iteritems():
-            query_params.append('%s=%s' % (key, val))
+        for key in sorted(uri_args.keys()):
+            query_params.append('%s=%s' % (key, uri_args[key]))
 
         url += '&'.join(query_params)
     return url
