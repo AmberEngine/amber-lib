@@ -6,12 +6,22 @@ import amber_lib.models.components as components
 class Connection(object):
     def __init__(self, settings):
         self.context = settings
+        self.use_components = False
 
     def __getattr__(self, attr):
-        look_in = [primaries, product, components]
-        for module in look_in:
-            if hasattr(module, attr):
-                return getattr(module, attr)(self.context)
+        if attr == 'components':
+            self.use_components = True
+            return self
+
+        if self.use_components:
+            if hasattr(components, attr):
+                self.use_components = False
+                return getattr(components, attr)(self.context)
+        else:
+            look_in = [primaries, product]
+            for module in look_in:
+                if hasattr(module, attr):
+                    return getattr(module, attr)(self.context)
         raise AttributeError
 
     def __enter__(self):

@@ -1,7 +1,7 @@
-from amber_lib.models.bases import Model
+from amber_lib.models.bases import Model, resource
 from amber_lib.models.bases import Property
 
-
+@resource('api_key')
 class APIKey(Model):
     id = Property(int)
     name = Property(str)
@@ -90,6 +90,7 @@ class ManufacturerImage(Model):
     url = Property(str)
 
 
+@resource('option_sets')
 class OptionSet(Model):
     id = Property(int)
     manufacturer_id = Property(int)

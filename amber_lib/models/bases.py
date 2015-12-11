@@ -4,8 +4,15 @@ import sys
 
 from amber_lib import client
 
+def resource(endpoint):
+    def set_resource(obj):
+        obj._resource = endpoint
+        return obj
+    return set_resource
+
 
 class Model(object):
+    _resource = 'models'
     _ctx = None
     _links = {}
 
@@ -82,8 +89,32 @@ class Model(object):
 
         return collection
 
+    def delete(self, id_=None):
+        if hasattr(self, "id") and self.id is not None and self.id > 0:
+            if id_ is not None:
+                raise ArgumentError('Cannot delete using an already instantiated model. >:(')
+            returned_dict = client.send(
+                client.DELETE,
+                self.ctx(),
+                self.endpoint(),
+                None
+            )
+        elif id_ is not None:
+            self.id = id_
+            returned_dict = client.send(
+                client.DELETE,
+                self.ctx(),
+                self.endpoint(),
+                None
+            )
+        else:
+            raise ArgumentError
+
+        self.__dict__ = {}
+        return self
+
     def endpoint(self):
-        loc = "/%ss" % self.__class__.__name__.lower()
+        loc = "/%s" % self._resource
 
         id_val = 0
         if hasattr(self, "id") is False or self.id is None:
@@ -150,7 +181,6 @@ class Model(object):
             )
 
         self.update(returned_dict)
-
         return self
 
     def to_dict(self):
@@ -249,13 +279,14 @@ class Property(object):
 
 
 class Component(Model):
+    _resource = 'component'
     component_data_id = Property(int)
     product_id = Property(int)
     parent_component_id = Property(int)
     parent_table_name = Property(str)
 
     def endpoint(self):
-        loc = "/components/%s" % self.__class__.__name__.lower()
+        loc = "/components/%s" % self._resource
 
         id_val = 0
         if hasattr(self, "component_data_id") is False or \

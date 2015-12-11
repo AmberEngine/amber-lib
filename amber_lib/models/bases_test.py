@@ -19,14 +19,17 @@ class Context(object):
 
 
 class TestChild(bases.Model):
+    _resource = "testchild"
     hey = bases.Property(str)
 
 
 class TestInheritsModel(TestChild):
+    _resource = "testinheritsmodel"
     listen = bases.Property(str)
 
 
 class TestModel(bases.Model):
+    _resource = "testmodels"
     id = bases.Property(int)
     foo = bases.Property(str)
     fizz = bases.Property(int, True)

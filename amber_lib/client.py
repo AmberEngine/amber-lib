@@ -327,7 +327,9 @@ def send(method, ctx, endpoint, json_data, **uri_params):
     payload = create_payload(ctx, url, json_data)
 
     r = getattr(requests, method)(url, data=payload)
+    print('url: %s' % url)
     if r.status_code != 200:
+        print(r.text)
         error = r.json()
         raise Exception(error['code'], error['title'], error['message'])
     return r.json()
