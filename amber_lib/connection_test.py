@@ -1,24 +1,36 @@
 import unittest
 
 import amber_lib.connection as connection
+import amber_lib.models.bases as bases
+import amber_lib.models.components as components
+import amber_lib.models.primaries as primaries
 
 
 class Connection(unittest.TestCase):
-    def dunder_init_test(self):
+    def dunder_iniit_test(self):
         dict_ = {'foo': 'bar', 'fizz': 'buzz'}
 
         conn = connection.Connection(dict_)
         self.assertEqual(conn.context, dict_)
 
     def dunder_getattr_valid_model_test(self):
-        import amber_lib.models.bases as bases
-
         conn = connection.Connection({})
         self.assertTrue(isinstance(conn.Model, bases.Model))
 
-    def dunder_getattr_invalid_model_test(self):
-        import amber_lib.models.bases as bases
+    def dunder_getattr_name_collision_primary_test(self):
+        conn = connection.Connection({})
+        self.assertTrue(isinstance(conn.Manufacturer, primaries.Manufacturer))
 
+    def dunder_getattr_name_collision_component_test(self):
+        conn = connection.Connection({})
+        self.assertTrue(
+            isinstance(
+                conn.components.Manufacturer,
+                components.Manufacturer
+            )
+        )
+
+    def dunder_getattr_invalid_model_test(self):
         conn = connection.Connection({})
         self.assertRaises(AttributeError, lambda: conn.DoesntExistModel)
 
