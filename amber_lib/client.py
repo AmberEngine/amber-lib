@@ -291,7 +291,6 @@ def create_payload(context, url, data):
     hash_ = hashlib.sha256(jdump)
     hash_.update(context.private.encode('utf-8'))
     digest = hash_.hexdigest().encode('ascii')
-    print(type(digest))
 
     sig = base64.b64encode(
         digest
@@ -327,9 +326,7 @@ def send(method, ctx, endpoint, json_data, **uri_params):
     payload = create_payload(ctx, url, json_data)
 
     r = getattr(requests, method)(url, data=payload)
-    print('url: %s' % url)
     if r.status_code != 200:
-        print(r.text)
         error = r.json()
         raise Exception(error['code'], error['title'], error['message'])
     return r.json()

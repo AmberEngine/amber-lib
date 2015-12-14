@@ -24,6 +24,7 @@ class AssemblageElement(Model):
 AssemblageElement.child_component = Property(AssemblageElement)
 
 
+@resource('assemblage')
 class Assemblage(Model):
     id = Property(int)
     name = Property(str)
@@ -31,7 +32,7 @@ class Assemblage(Model):
     assemblage_element_list = Property(AssemblageElement, True)
 
 
-
+@resource('collection')
 class Collection(Model):
     id = Property(int)
     manufacturer_id = Property(int)
@@ -39,6 +40,7 @@ class Collection(Model):
     designed_by = Property(str)
 
 
+@resource('event')
 class Event(Model):
     id = Property(int)
     name = Property(str)
@@ -48,10 +50,12 @@ class Event(Model):
     date_time = Property(str)
 
 
+@resource('export')
 class Export:
     pass
 
 
+@resource('manufacturer')
 class Manufacturer(Model):
     id = Property(int)
     name = Property(str)
@@ -82,6 +86,7 @@ class Manufacturer(Model):
     returnable = Property(bool)
     return_period = Property(int)
 
+@resource('manufacturer_image')
 class ManufacturerImage(Model):
     id = Property(int)
     manufacturer_id = Property(int)
@@ -98,6 +103,7 @@ class OptionSet(Model):
     type = Property(str)
 
 
+@resource('sales_channel')
 class SalesChannel(Model):
     id = Property(int)
     api_key_id = Property(int)
@@ -123,6 +129,7 @@ class SalesChannel(Model):
     other_image = Property(bool)
 
 
+@resource('sales_channel_preference')
 class SalesChannelPreference(Model):
     id = Property(int)
     manufacturer_id = Property(int)

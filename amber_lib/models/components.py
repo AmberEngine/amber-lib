@@ -1,57 +1,65 @@
-from amber_lib.models import bases
+from amber_lib.models.bases import Component, resource
 from amber_lib.models import primaries
 from amber_lib.models.bases import Property
 
 
-class Audit(bases.Component):
+@resource('audit')
+class Audit(Component):
     date_added = Property(str)
     date_updated = Property(str)
     updated_by_api_key = Property(str)
 
-
-class Arm(bases.Component):
+@resource('arm')
+class Arm(Component):
     height = Property(float)
     style = Property(str)
 
 
-class Base(bases.Component):
+@resource('base')
+class Base(Component):
     height = Property(float)
     diameter = Property(float)
     depth = Property(float)
     width = Property(float)
 
 
-class Box(bases.Component):
+@resource('box')
+class Box(Component):
     weight = Property(float)
     width = Property(float)
     height = Property(float)
     depth = Property(float)
 
 
-class Bulb(bases.Component):
+@resource('bulb')
+class Bulb(Component):
     type = Property(str)
     base = Property(str)
     quantity = Property(int)
     wattage = Property(int)
 
 
-class Category(bases.Component):
+@resource('category')
+class Category(Component):
     primary = Property(str)
     secondary = Property(str)
     tertiary = Property(str)
 
 
-class Collection(bases.Component):
+@resource('collection')
+class Collection(Component):
     collection_id = Property(int)
     collection = Property(primaries.Collection)
 
 
-class ConstructionInformation(bases.Component):
+@resource('construction_information')
+class ConstructionInformation(Component):
     material = Property(str)
     joinery_type = Property(str)
 
 
-class Cushion(bases.Component):
+@resource('cushion')
+class Cushion(Component):
     fill = Property(str)
     style = Property(str)
     width = Property(float)
@@ -59,12 +67,14 @@ class Cushion(bases.Component):
     height = Property(float)
 
 
-class Cushions(bases.Component):
+@resource('cushions')
+class Cushions(Component):
     quantity = Property(int)
     cushion_list = Property(Cushion, True)
 
 
-class Description(bases.Component):
+@resource('description')
+class Description(Component):
     primary = Property(str)
     retail = Property(str)
     designer = Property(str)
@@ -72,47 +82,55 @@ class Description(bases.Component):
     features = Property(str)
 
 
-class Door(bases.Component):
+@resource('door')
+class Door(Component):
     width = Property(float)
     depth = Property(float)
     height = Property(float)
     opening = Property(float)
 
 
-class Doors(bases.Component):
+@resource('doors')
+class Doors(Component):
     quantity = Property(int)
     door_list = Property(Door, True)
 
 
-class Durability(bases.Component):
+@resource('durability')
+class Durability(Component):
     martindale = Property(str)
     wyzenbeek = Property(str)
     flammability = Property(str)
 
 
-class Drawer(bases.Component):
+@resource('drawer')
+class Drawer(Component):
     width = Property(float)
     depth = Property(float)
     height = Property(float)
 
 
-class Drawers(bases.Component):
+@resource('drawers')
+class Drawers(Component):
     quantity = Property(int)
     drawer_list = Property(Drawer, True)
 
 
-class Electrical(bases.Component):
+@resource('electrical')
+class Electrical(Component):
     switch_type = Property(str)
     voltage = Property(int)
     exterior_use = Property(bool)
 
 
-class Fiber(bases.Component):
+@resource('fiber')
+class Fiber(Component):
     pile = Property(str)
     construction = Property(str)
 
 
-class Flame(bases.Component):
+@resource('flame')
+class Flame(Component):
     fuel_type = Property(str)
     burner_capacity = Property(float)
     burning_time = Property(float)
@@ -120,52 +138,61 @@ class Flame(bases.Component):
     minimum_room_size = Property(float)
 
 
-class Footboard(bases.Component):
+@resource('footboard')
+class Footboard(Component):
     height = Property(float)
     width = Property(float)
     depth = Property(float)
     floor_clearance = Property(float)
 
 
-class Footrest(bases.Component):
+@resource('footrest')
+class Footrest(Component):
     height = Property(float)
 
 
-class Frame(bases.Component):
+@resource('frame')
+class Frame(Component):
     height = Property(float)
     back_rail_height = Property(float)
 
 
-class Glass(bases.Component):
+@resource('glass')
+class Glass(Component):
     type = Property(str)
 
 
-class Headboard(bases.Component):
+@resource('headboard')
+class Headboard(Component):
     height = Property(float)
     width = Property(float)
     depth = Property(float)
     floor_clearance = Property(float)
 
 
-class Identity(bases.Component):
+@resource('identity')
+class Identity(Component):
     name = Property(str)
     manufacturer_sku = Property(str)
     source_url = Property(str)
     alternate_name = Property(str)
 
 
-class Instructions(bases.Component):
+@resource('instructions')
+class Instructions(Component):
     cleaning_directions = Property(str)
     installation_directions = Property(str)
 
 
-class InteriorDimension(bases.Component):
+@resource('interior_dimension')
+class InteriorDimension(Component):
     depth = Property(float)
     height = Property(float)
     width = Property(float)
 
 
-class Image(bases.Component):
+@resource('image')
+class Image(Component):
     default = Property(bool)
     category = Property(str)
     caption = Property(str)
@@ -175,11 +202,13 @@ class Image(bases.Component):
     thumbnail_size = Property(str)
 
 
-class Images(bases.Component):
+@resource('images')
+class Images(Component):
     image_list = Property(Image, True)
 
 
-class Leather(bases.Component):
+@resource('leather')
+class Leather(Component):
     type = Property(str)
     pattern_number = Property(str)
     hide_size = Property(float)
@@ -187,12 +216,14 @@ class Leather(bases.Component):
     col_requirement = Property(str)
 
 
-class Manufacturer(bases.Component):
+@resource('manufacturer')
+class Manufacturer(Component):
     manufacturer_id = Property(int)
     manufacturer = Property(primaries.Manufacturer)
 
 
-class Pattern(bases.Component):
+@resource('pattern')
+class Pattern(Component):
     pattern_number = Property(str)
     vertical_repeat = Property(float)
     horizontal_repeat = Property(float)
@@ -202,14 +233,16 @@ class Pattern(bases.Component):
     design_type = Property(str)
 
 
-class Pedestal(bases.Component):
+@resource('pedestal')
+class Pedestal(Component):
     height = Property(float)
     diameter = Property(float)
     depth = Property(float)
     width = Property(float)
 
 
-class Pricing(bases.Component):
+@resource('pricing')
+class Pricing(Component):
     wholesale = Property(int)
     trade_price = Property(int)
     minimum_internet_price = Property(int)
@@ -217,19 +250,26 @@ class Pricing(bases.Component):
     dealer_price = Property(int)
 
 
-class PromotionalTags(bases.Component):
+@resource('promotional_tags')
+class PromotionalTags(Component):
     new_product = Property(bool)
     best_seller = Property(bool)
     limited_stock = Property(bool)
     discontinued = Property(bool)
 
-class OptionSet(bases.Component):
+
+@resource('option_set')
+class OptionSet(Component):
     option_set_id = Property(int)
 
-class OptionSets(bases.Component):
+
+@resource('option_sets')
+class OptionSets(Component):
     option_set_list = Property(OptionSet, True)
 
-class OrderingInformation(bases.Component):
+
+@resource('ordering_information')
+class OrderingInformation(Component):
     unit = Property(str)
     discontinued = Property(bool)
     lead_time = Property(str)
@@ -238,32 +278,37 @@ class OrderingInformation(bases.Component):
     stock = Property(float)
 
 
-class OverallDimensions(bases.Component):
+@resource('overall_dimensions')
+class OverallDimensions(Component):
     width = Property(float)
     height = Property(float)
     depth = Property(float)
     diameter = Property(float)
 
 
-class Pillow(bases.Component):
+@resource('pillow')
+class Pillow(Component):
     width = Property(float)
     height = Property(float)
     depth = Property(float)
 
 
-class Pillows(bases.Component):
+@resource('pillows')
+class Pillows(Component):
     quantity = Property(int)
     pillow_list = Property(Pillow, True)
 
 
-class Seat(bases.Component):
+@resource('seat')
+class Seat(Component):
     height = Property(float)
     depth = Property(float)
     width = Property(float)
     construction = Property(str)
 
 
-class Shade(bases.Component):
+@resource('shade')
+class Shade(Component):
     type = Property(str)
     height = Property(float)
     width = Property(float)
@@ -273,18 +318,21 @@ class Shade(bases.Component):
     quantity = Property(int)
 
 
-class Shelf(bases.Component):
+@resource('shelf')
+class Shelf(Component):
     width = Property(float)
     height = Property(float)
     depth = Property(float)
 
 
-class Shelves(bases.Component):
+@resource('shelves')
+class Shelves(Component):
     quantity = Property(int)
     shelf_list = Property(Shelf, True)
 
 
-class ShippingInformation(bases.Component):
+@resource('shipping_information')
+class ShippingInformation(Component):
     ships_from = Property(str)
     volume = Property(float)
     standard = Property(bool)
@@ -295,12 +343,14 @@ class ShippingInformation(bases.Component):
     box_list = Property(Box, True)
 
 
-class SideRail(bases.Component):
+@resource('side_rail')
+class SideRail(Component):
     length = Property(float)
     floor_clearance = Property(float)
 
 
-class SuspensionPoint(bases.Component):
+@resource('suspension_point')
+class SuspensionPoint(Component):
     support_type = Property(str)
     canopy_diameter = Property(float)
     canopy_depth = Property(float)
@@ -312,17 +362,20 @@ class SuspensionPoint(bases.Component):
     chain_length = Property(float)
 
 
-class TableLeaf(bases.Component):
+@resource('table_leaf')
+class TableLeaf(Component):
     width = Property(float)
     depth = Property(float)
 
 
-class TableLeaves(bases.Component):
+@resource('table_leaves')
+class TableLeaves(Component):
     quantity = Property(int)
     table_leaf_list = Property(TableLeaf, True)
 
 
-class Textile(bases.Component):
+@resource('textile')
+class Textile(Component):
     content = Property(str)
     weave_type = Property(str)
     width = Property(float)
@@ -332,10 +385,12 @@ class Textile(bases.Component):
     com_requirement = Property(float)
 
 
-class Weight(bases.Component):
+@resource('weight')
+class Weight(Component):
     weight = Property(float)
 
 
-class Visibility(bases.Component):
+@resource('visibility')
+class Visibility(Component):
     active = Property(bool)
     meets_posting_requirements = Property(bool)
