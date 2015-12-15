@@ -9,6 +9,9 @@ import decimal
 from amber_lib.connection import Connection
 
 
+class ResponseException(Exception):
+    pass
+
 """
 class Error(object):
     status = ""
