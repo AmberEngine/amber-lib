@@ -9,6 +9,7 @@ import mock
 
 from amber_lib.models import bases
 
+
 FAKE_DATE = datetime(2015, 11, 30, 22, 36, 52, 538755)
 FAKE_DATE_FORMAT = datetime.isoformat(FAKE_DATE)
 
@@ -70,8 +71,11 @@ class Model(unittest.TestCase):
     def dunder_getattribute_callable_test(self):
         ctx = Context()
 
+        def test(x):
+            return 3
+
         class TestModel2(TestModel):
-            my_func = lambda x: 3
+            my_func = test
 
         model = TestModel2(ctx)
         self.assertEqual(model.__getattribute__('my_func')(), 3)
@@ -126,8 +130,9 @@ class Model(unittest.TestCase):
 
         model = bases.Model(ctx1)
 
-        side_effect = lambda _, __: (_ for _ in ()).throw(AttributeError(''))
-        mock_getattr.side_effect = side_effect
+        def effect():
+            raise AttributeError
+        side_effect = effect
 
         self.assertRaises(
             AttributeError,
@@ -147,13 +152,11 @@ class Model(unittest.TestCase):
             first = bases.Property(str)
             third = bases.Property(Third)
 
-
         f = First(Context())
         f.third = Third(Context())
         f.third.second = 'test'
 
         self.assertEqual(f.third.second, 'test')
-
 
     @mock.patch('amber_lib.models.bases.client.Container')
     @mock.patch('amber_lib.models.bases.Model.endpoint')
@@ -227,7 +230,6 @@ class Model(unittest.TestCase):
         model.from_json(json)
         self.assertTrue(mock_from_dict.called)
 
-
     @mock.patch('amber_lib.models.bases.Model.update')
     @mock.patch('amber_lib.models.bases.Model.ctx')
     @mock.patch('amber_lib.models.bases.Model.endpoint')
@@ -275,7 +277,6 @@ class Model(unittest.TestCase):
     ):
         model = TestModel(Context())
 
-
         model.save('{"foo": "bar"}')
 
         self.assertEqual(mock_update.call_count, 2)
@@ -292,7 +293,6 @@ class Model(unittest.TestCase):
             mock_end(),
             mock_dict()
         )
-
 
     def to_dict_test(self):
         model = TestModel(Context())
@@ -342,7 +342,13 @@ class Model(unittest.TestCase):
     @mock.patch('amber_lib.models.bases.Model.endpoint')
     @mock.patch('amber_lib.models.bases.Model.ctx')
     @mock.patch('amber_lib.client.send')
-    def retrieve_test(self, mock_send, mock_ctx, mock_endpoint, mock_from_dict):
+    def retrieve_test(
+            self,
+            mock_send,
+            mock_ctx,
+            mock_endpoint,
+            mock_from_dict
+    ):
         model = TestModel(Context())
         model.id = 5
         model.retrieve(model.id)
@@ -379,8 +385,10 @@ class Property(unittest.TestCase):
             prop = bases.Property(str, True)
 
         test = TestProp()
+
         def set_it():
             test.prop = 'not_a_list'
+
         self.assertRaises(TypeError, set_it)
         self.assertEqual(test.prop.value, None)
 
@@ -389,8 +397,10 @@ class Property(unittest.TestCase):
             prop = bases.Property(str, True)
 
         test = TestProp()
+
         def set_it():
             test.prop = [1, 2, 3]
+
         self.assertRaises(TypeError, set_it)
         self.assertEqual(test.prop.value, None)
 
@@ -404,7 +414,6 @@ class Property(unittest.TestCase):
         test.prop = list_
 
         self.assertEqual(test.prop.value, list_)
-
 
     def dunder_set_valid_type_test(self):
         class TestProp(object):
@@ -433,8 +442,6 @@ class Property(unittest.TestCase):
         else:
             self.assertEqual(test.prop.value, magic_str)
 
-
-
     def dunder_set_convert_int_for_float_test(self):
         class testprop(object):
             prop = bases.Property(float)
@@ -452,8 +459,10 @@ class Property(unittest.TestCase):
             prop = bases.Property(bool)
 
         test = testprop()
+
         def set_it():
             test.prop = 'i am not a bool'
+
         self.assertRaises(TypeError, set_it)
 
 
