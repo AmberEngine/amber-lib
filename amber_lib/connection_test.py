@@ -7,11 +7,16 @@ import amber_lib.models.primaries as primaries
 
 
 class Connection(unittest.TestCase):
-    def dunder_iniit_test(self):
-        dict_ = {'foo': 'bar', 'fizz': 'buzz'}
+    def dunder_enter_test(self):
+        dict_ = {}
 
-        conn = connection.Connection(dict_)
-        self.assertEqual(conn.context, dict_)
+        conn1 = connection.Connection({})
+        with conn1 as conn2:
+            self.assertEqual(conn2, conn1)
+
+    def dunder_exit_test(self):
+        conn = connection.Connection({})
+        self.assertEqual(conn.__exit__(None, None, None), None)
 
     def dunder_getattr_valid_model_test(self):
         conn = connection.Connection({})
@@ -34,13 +39,8 @@ class Connection(unittest.TestCase):
         conn = connection.Connection({})
         self.assertRaises(AttributeError, lambda: conn.DoesntExistModel)
 
-    def dunder_enter_test(self):
-        dict_ = {}
+    def dunder_init_test(self):
+        dict_ = {'foo': 'bar', 'fizz': 'buzz'}
 
-        conn1 = connection.Connection({})
-        with conn1 as conn2:
-            self.assertEqual(conn2, conn1)
-
-    def dunder_exit_test(self):
-        conn = connection.Connection({})
-        self.assertEqual(conn.__exit__(None, None, None), None)
+        conn = connection.Connection(dict_)
+        self.assertEqual(conn.context, dict_)
