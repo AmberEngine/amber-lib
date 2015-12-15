@@ -24,12 +24,11 @@ class Container(object):
         """ Initialize a new instance of Container, specifying a JSON-HAL
         dictionary, the class the data represents, and a context.
         """
-        self.ctx = ctx
-        self.values = {}
         self.class_ = class_
+        self.ctx = ctx
         self.kind = class_.__name__.lower()
-
         self.offset = offset
+        self.values = {}
 
         self.hal = dict_.get('_links', {})
         self.total = dict_.get('total')
@@ -371,11 +370,11 @@ def create_payload(context, url, data):
     dictionary.
     """
     payload = {
-        'public_key': context.public,
-        'url': url,
-        'timestamp': datetime.isoformat(datetime.utcnow()),
+        'data': data,
         'headers': {'Content-Type': 'application/json'},
-        'data': data
+        'public_key': context.public,
+        'timestamp': datetime.isoformat(datetime.utcnow()),
+        'url': url
     }
 
     jdump = json.dumps(
