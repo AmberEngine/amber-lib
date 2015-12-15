@@ -1,8 +1,9 @@
-from amber_lib.models.bases import Model, Property
+from amber_lib.models.bases import Model, Property, resource
 from amber_lib.models.primaries import Assemblage
 from amber_lib.models import components
 
 
+@resource('products')
 class Product(Model):
     id = Property(int)
     assemblage = Property(Assemblage)
@@ -28,7 +29,7 @@ class Product(Model):
     identity = Property(components.Identity)
     images = Property(components.Images)
     interior_dimension = Property(components.InteriorDimension)
-    instructions = Property(components.Instructions)
+    instruction = Property(components.Instruction)
     leather = Property(components.Leather)
     manufacturer = Property(components.Manufacturer)
     option_sets = Property(components.OptionSets)
@@ -37,8 +38,8 @@ class Product(Model):
     pricing = Property(components.Pricing)
     pedestal = Property(components.Pedestal)
     pillows = Property(components.Pillows)
-    promotional_tags = Property(components.PromotionalTags)
-    overall_dimensions = Property(components.OverallDimensions)
+    promotional_tag = Property(components.PromotionalTag)
+    overall_dimension = Property(components.OverallDimension)
     seat = Property(components.Seat)
     shade = Property(components.Shade)
     shelves = Property(components.Shelves)

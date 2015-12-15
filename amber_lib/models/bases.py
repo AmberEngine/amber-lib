@@ -1,8 +1,6 @@
-import copy
 import json
-import sys
-
 from amber_lib import client
+
 
 def resource(endpoint):
     def set_resource(obj):
@@ -45,22 +43,24 @@ class Model(object):
             self.__dict__[attr].__set__(self, val)
             return
         else:
-            def find(obj, attr):
-                if attr in obj.__dict__:
-                    return obj.__dict__[attr]
-                if attr in obj.__class__.__dict__:
-                    return obj.__class__.__dict__[attr]
+            def find(obj, key):
+                if key in obj.__dict__:
+                    return obj.__dict__[key]
+                if key in obj.__class__.__dict__:
+                    return obj.__class__.__dict__[key]
 
                 for parent in obj.__class__.__bases__:
                     if issubclass(parent, Model):
-                        result = find(parent, attr)
+                        result = find(parent, key)
                         if result:
                             return result
                 return None
 
             prop = find(self, attr)
             if not prop:
-                raise AttributeError("[%s] %s:%s" % (self.__class__, attr, val))
+                raise AttributeError(
+                    "[%s] %s:%s" % (self.__class__, attr, val)
+                )
 
             self.__dict__[attr] = Property(prop.kind, prop.is_list)
             setattr(self, attr, val)
@@ -92,8 +92,10 @@ class Model(object):
     def delete(self, id_=None):
         if hasattr(self, "id") and self.id is not None and self.id > 0:
             if id_ is not None:
-                raise ArgumentError('Cannot delete using an already instantiated model. >:(')
-            returned_dict = client.send(
+                raise ValueError(
+                    'Cannot delete using an already instantiated model. >:('
+                )
+            client.send(
                 client.DELETE,
                 self.ctx(),
                 self.endpoint(),
@@ -101,14 +103,14 @@ class Model(object):
             )
         elif id_ is not None:
             self.id = id_
-            returned_dict = client.send(
+            client.send(
                 client.DELETE,
                 self.ctx(),
                 self.endpoint(),
                 None
             )
         else:
-            raise ArgumentError
+            raise ValueError
 
         self.__dict__ = {}
         return self
@@ -116,7 +118,6 @@ class Model(object):
     def endpoint(self):
         loc = "/%s" % self._resource
 
-        id_val = 0
         if hasattr(self, "id") is False or self.id is None:
             return loc
 
@@ -130,7 +131,6 @@ class Model(object):
         """
         def explode_dict(obj, exp_dict):
             for key, val in exp_dict.items():
-                is_list = isinstance(val, list)
                 attr = object.__getattribute__(obj, key)
 
                 if isinstance(val, dict):
@@ -282,17 +282,18 @@ class Component(Model):
     _resource = 'component'
     component_data_id = Property(int)
     product_id = Property(int)
-    parent_component_id = Property(int)
-    parent_table_name = Property(str)
-
+    parent_id = Property(int)
+    parent_name = Property(str)
 
     def delete(self, id_=None):
         if hasattr(self, "component_data_id") and \
                 self.component_data_id is not None and \
                 self.component_data_id > 0:
             if id_ is not None:
-                raise ArgumentError('Cannot delete using an already instantiated model. >:(')
-            returned_dict = client.send(
+                raise ValueError(
+                    'Cannot delete using an already instantiated model. >:('
+                )
+            client.send(
                 client.DELETE,
                 self.ctx(),
                 self.endpoint(),
@@ -300,24 +301,21 @@ class Component(Model):
             )
         elif id_ is not None:
             self.component_data_id = id_
-            returned_dict = client.send(
+            client.send(
                 client.DELETE,
                 self.ctx(),
                 self.endpoint(),
                 None
             )
         else:
-            raise ArgumentError
+            raise ValueError
 
         self.__dict__ = {}
         return self
 
-
-
     def endpoint(self):
         loc = "/components/%s" % self._resource
 
-        id_val = 0
         if hasattr(self, "component_data_id") is False or \
                 self.component_data_id is None:
             return loc

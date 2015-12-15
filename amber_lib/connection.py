@@ -1,6 +1,7 @@
 import amber_lib.models.primaries as primaries
 import amber_lib.models.product as product
 import amber_lib.models.components as components
+from amber_lib.client import send, GET
 
 
 class Connection(object):
@@ -30,4 +31,5 @@ class Connection(object):
     def __exit__(self, exception_type, exception_val, trace):
         pass
 
-
+    def ping(self):
+        send(GET, self.context, '', {})

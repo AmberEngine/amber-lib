@@ -1,7 +1,7 @@
 from amber_lib.models.bases import Model, resource
 from amber_lib.models.bases import Property
 
-@resource('api_key')
+@resource('api_keys')
 class APIKey(Model):
     id = Property(int)
     name = Property(str)
@@ -32,7 +32,7 @@ class Assemblage(Model):
     assemblage_element_list = Property(AssemblageElement, True)
 
 
-@resource('collection')
+@resource('collections')
 class Collection(Model):
     id = Property(int)
     manufacturer_id = Property(int)
@@ -40,7 +40,7 @@ class Collection(Model):
     designed_by = Property(str)
 
 
-@resource('event')
+@resource('events')
 class Event(Model):
     id = Property(int)
     name = Property(str)
@@ -50,12 +50,12 @@ class Event(Model):
     date_time = Property(str)
 
 
-@resource('export')
+@resource('exports')
 class Export:
     pass
 
 
-@resource('manufacturer')
+@resource('manufacturers')
 class Manufacturer(Model):
     id = Property(int)
     name = Property(str)
@@ -86,7 +86,7 @@ class Manufacturer(Model):
     returnable = Property(bool)
     return_period = Property(int)
 
-@resource('manufacturer_image')
+@resource('manufacturer_images')
 class ManufacturerImage(Model):
     id = Property(int)
     manufacturer_id = Property(int)
@@ -103,7 +103,7 @@ class OptionSet(Model):
     type = Property(str)
 
 
-@resource('sales_channel')
+@resource('sales_channels')
 class SalesChannel(Model):
     id = Property(int)
     api_key_id = Property(int)
@@ -129,7 +129,7 @@ class SalesChannel(Model):
     other_image = Property(bool)
 
 
-@resource('sales_channel_preference')
+@resource('sales_channel_preferences')
 class SalesChannelPreference(Model):
     id = Property(int)
     manufacturer_id = Property(int)

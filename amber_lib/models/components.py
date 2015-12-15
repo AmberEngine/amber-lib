@@ -178,8 +178,8 @@ class Identity(Component):
     alternate_name = Property(str)
 
 
-@resource('instructions')
-class Instructions(Component):
+@resource('instruction')
+class Instruction(Component):
     cleaning_directions = Property(str)
     installation_directions = Property(str)
 
@@ -250,8 +250,8 @@ class Pricing(Component):
     dealer_price = Property(int)
 
 
-@resource('promotional_tags')
-class PromotionalTags(Component):
+@resource('promotional_tag')
+class PromotionalTag(Component):
     new_product = Property(bool)
     best_seller = Property(bool)
     limited_stock = Property(bool)
@@ -278,8 +278,8 @@ class OrderingInformation(Component):
     stock = Property(float)
 
 
-@resource('overall_dimensions')
-class OverallDimensions(Component):
+@resource('overall_dimension')
+class OverallDimension(Component):
     width = Property(float)
     height = Property(float)
     depth = Property(float)

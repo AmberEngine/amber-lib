@@ -15,6 +15,7 @@ class Context(object):
     private = "sn4ikxumkpi5dqb0vwo1ujbi68uv3bvoak1p0xzgbzhg71v9p1sn7a2t49dh2tz"
     host = "http://example.com"
     port = "8080"
+    request_attempts = 3
 
 
 FAKE_DATE = datetime(2015, 11, 30, 22, 36, 52, 538755)

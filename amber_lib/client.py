@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+#
 import base64
 import json
 import hashlib
@@ -288,7 +291,7 @@ class Container(object):
         """ Retrieve the previous batch of entries from the API using the HAL
         previous-href link endpoint.
         """
-         if self.hal is None or 'previous' not in self.hal:
+        if self.hal is None or 'previous' not in self.hal:
             return False
 
         moar_data = send(GET, self.ctx, self.hal['previous']['href'], None)
@@ -436,5 +439,8 @@ def send(method, ctx, endpoint, json_data, **uri_params):
         else:
             break
 
-    error = r.json()
-    raise Exception(error['code'], error['title'], error['message'])
+    try:
+        error = r.json()
+        raise Exception(error['code'], error['title'], error['message'])
+    except ValueError:
+        Exception(r.status_code, url)
