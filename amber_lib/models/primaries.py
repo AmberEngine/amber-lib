@@ -12,14 +12,6 @@ class APIKey(Model):
     sales_channel_id = Property(int)
 
 
-@resource('assemblage')
-class Assemblage(Model):
-    id = Property(int)
-    name = Property(str)
-    description = Property(str)
-    assemblage_element_list = Property(AssemblageElement, True)
-
-
 class AssemblageElement(Model):
     table_name = Property(str)
     class_name = Property(str)
@@ -30,6 +22,14 @@ class AssemblageElement(Model):
 
 
 AssemblageElement.child_component = Property(AssemblageElement)
+
+
+@resource('assemblage')
+class Assemblage(Model):
+    id = Property(int)
+    name = Property(str)
+    description = Property(str)
+    assemblage_element_list = Property(AssemblageElement, True)
 
 
 @resource('collections')
