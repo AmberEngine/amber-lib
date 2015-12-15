@@ -1,5 +1,5 @@
-from amber_lib.models.bases import Model, resource
-from amber_lib.models.bases import Property
+from amber_lib.models.bases import Model, Property, resource
+
 
 @resource('api_keys')
 class APIKey(Model):
@@ -12,6 +12,14 @@ class APIKey(Model):
     sales_channel_id = Property(int)
 
 
+@resource('assemblage')
+class Assemblage(Model):
+    id = Property(int)
+    name = Property(str)
+    description = Property(str)
+    assemblage_element_list = Property(AssemblageElement, True)
+
+
 class AssemblageElement(Model):
     table_name = Property(str)
     class_name = Property(str)
@@ -22,14 +30,6 @@ class AssemblageElement(Model):
 
 
 AssemblageElement.child_component = Property(AssemblageElement)
-
-
-@resource('assemblage')
-class Assemblage(Model):
-    id = Property(int)
-    name = Property(str)
-    description = Property(str)
-    assemblage_element_list = Property(AssemblageElement, True)
 
 
 @resource('collections')
@@ -85,6 +85,7 @@ class Manufacturer(Model):
     restock_fee = Property(int)
     returnable = Property(bool)
     return_period = Property(int)
+
 
 @resource('manufacturer_images')
 class ManufacturerImage(Model):

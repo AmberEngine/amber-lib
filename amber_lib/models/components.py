@@ -1,6 +1,89 @@
-from amber_lib.models.bases import Component, resource
+from amber_lib import client
 from amber_lib.models import primaries
-from amber_lib.models.bases import Property
+from amber_lib.models.bases import Model, Property, resource
+
+
+class Component(Model):
+    _resource = 'component'
+    component_data_id = Property(int)
+    parent_id = Property(int)
+    parent_name = Property(str)
+    product_id = Property(int)
+
+    def delete(self, id_=None):
+        if hasattr(self, "component_data_id") and \
+                self.component_data_id is not None and \
+                self.component_data_id > 0:
+            if id_ is not None:
+                raise ValueError(
+                    'Cannot delete using an already instantiated model. >:('
+                )
+            client.send(
+                client.DELETE,
+                self.ctx(),
+                self.endpoint(),
+                None
+            )
+        elif id_ is not None:
+            self.component_data_id = id_
+            client.send(
+                client.DELETE,
+                self.ctx(),
+                self.endpoint(),
+                None
+            )
+        else:
+            raise ValueError
+
+        self.__dict__ = {}
+        return self
+
+    def endpoint(self):
+        loc = "/components/%s" % self._resource
+
+        if hasattr(self, "component_data_id") is False or \
+                self.component_data_id is None:
+            return loc
+
+        if isinstance(self.component_data_id, int) and \
+                self.component_data_id > 0:
+            return loc + "/%d" % self.component_data_id
+
+        raise TypeError
+
+    def retrieve(self, id_):
+        self.component_data_id = id_
+        payload = client.send(
+            client.GET,
+            self.ctx(),
+            self.endpoint(),
+            None,
+        )
+        self.from_dict(payload)
+        return self
+
+    def save(self, data=None):
+        if data is not None:
+            self.update(data)
+
+        if hasattr(self, "component_data_id") and self.component_data_id is \
+                not None and self.component_data_id > 0:
+            returned_dict = client.send(
+                client.PUT,
+                self.ctx(),
+                self.endpoint(),
+                self.to_dict()
+            )
+        else:
+            returned_dict = client.send(
+                client.POST,
+                self.ctx(),
+                self.endpoint(),
+                self.to_dict()
+            )
+
+        self.update(returned_dict)
+        return self
 
 
 @resource('audit')
@@ -8,6 +91,7 @@ class Audit(Component):
     date_added = Property(str)
     date_updated = Property(str)
     updated_by_api_key = Property(str)
+
 
 @resource('arm')
 class Arm(Component):
@@ -178,19 +262,6 @@ class Identity(Component):
     alternate_name = Property(str)
 
 
-@resource('instruction')
-class Instruction(Component):
-    cleaning_directions = Property(str)
-    installation_directions = Property(str)
-
-
-@resource('interior_dimension')
-class InteriorDimension(Component):
-    depth = Property(float)
-    height = Property(float)
-    width = Property(float)
-
-
 @resource('image')
 class Image(Component):
     default = Property(bool)
@@ -207,6 +278,19 @@ class Images(Component):
     image_list = Property(Image, True)
 
 
+@resource('instruction')
+class Instruction(Component):
+    cleaning_directions = Property(str)
+    installation_directions = Property(str)
+
+
+@resource('interior_dimension')
+class InteriorDimension(Component):
+    depth = Property(float)
+    height = Property(float)
+    width = Property(float)
+
+
 @resource('leather')
 class Leather(Component):
     type = Property(str)
@@ -220,42 +304,6 @@ class Leather(Component):
 class Manufacturer(Component):
     manufacturer_id = Property(int)
     manufacturer = Property(primaries.Manufacturer)
-
-
-@resource('pattern')
-class Pattern(Component):
-    pattern_number = Property(str)
-    vertical_repeat = Property(float)
-    horizontal_repeat = Property(float)
-    direction = Property(str)
-    color = Property(str)
-    scale = Property(str)
-    design_type = Property(str)
-
-
-@resource('pedestal')
-class Pedestal(Component):
-    height = Property(float)
-    diameter = Property(float)
-    depth = Property(float)
-    width = Property(float)
-
-
-@resource('pricing')
-class Pricing(Component):
-    wholesale = Property(int)
-    trade_price = Property(int)
-    minimum_internet_price = Property(int)
-    msrp = Property(int)
-    dealer_price = Property(int)
-
-
-@resource('promotional_tag')
-class PromotionalTag(Component):
-    new_product = Property(bool)
-    best_seller = Property(bool)
-    limited_stock = Property(bool)
-    discontinued = Property(bool)
 
 
 @resource('option_set')
@@ -286,6 +334,25 @@ class OverallDimension(Component):
     diameter = Property(float)
 
 
+@resource('pattern')
+class Pattern(Component):
+    pattern_number = Property(str)
+    vertical_repeat = Property(float)
+    horizontal_repeat = Property(float)
+    direction = Property(str)
+    color = Property(str)
+    scale = Property(str)
+    design_type = Property(str)
+
+
+@resource('pedestal')
+class Pedestal(Component):
+    height = Property(float)
+    diameter = Property(float)
+    depth = Property(float)
+    width = Property(float)
+
+
 @resource('pillow')
 class Pillow(Component):
     width = Property(float)
@@ -297,6 +364,23 @@ class Pillow(Component):
 class Pillows(Component):
     quantity = Property(int)
     pillow_list = Property(Pillow, True)
+
+
+@resource('pricing')
+class Pricing(Component):
+    wholesale = Property(int)
+    trade_price = Property(int)
+    minimum_internet_price = Property(int)
+    msrp = Property(int)
+    dealer_price = Property(int)
+
+
+@resource('promotional_tag')
+class PromotionalTag(Component):
+    new_product = Property(bool)
+    best_seller = Property(bool)
+    limited_stock = Property(bool)
+    discontinued = Property(bool)
 
 
 @resource('seat')

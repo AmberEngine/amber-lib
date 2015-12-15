@@ -2,13 +2,15 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
-import os
-import unittest
 import sys
+import unittest
 
 import mock
 
-from . import bases
+from amber_lib.models import bases
+
+FAKE_DATE = datetime(2015, 11, 30, 22, 36, 52, 538755)
+FAKE_DATE_FORMAT = datetime.isoformat(FAKE_DATE)
 
 
 class Context(object):
@@ -36,9 +38,6 @@ class TestModel(bases.Model):
     model = bases.Property(TestChild)
     testchild_list = bases.Property(TestChild, True)
 
-FAKE_DATE = datetime(2015, 11, 30, 22, 36, 52, 538755)
-FAKE_DATE_FORMAT = datetime.isoformat(FAKE_DATE)
-
 
 class Model(unittest.TestCase):
     def init_test(self):
@@ -59,6 +58,7 @@ class Model(unittest.TestCase):
 
     def dunder_getattribute_underscored_test(self):
         ctx = Context()
+
         class TestModel2(TestModel):
             _test = None
 
@@ -69,6 +69,7 @@ class Model(unittest.TestCase):
 
     def dunder_getattribute_callable_test(self):
         ctx = Context()
+
         class TestModel2(TestModel):
             my_func = lambda x: 3
 
@@ -454,104 +455,6 @@ class Property(unittest.TestCase):
         def set_it():
             test.prop = 'i am not a bool'
         self.assertRaises(TypeError, set_it)
-
-class Component(unittest.TestCase):
-    def endpoint_no_id_test(self):
-        model = bases.Component(Context())
-        self.assertEqual(model.endpoint(), '/components/component')
-
-    def endpoint_int_id_test(self):
-        model = bases.Component(Context())
-        model.component_data_id = 1
-
-        self.assertEqual(model.endpoint(), '/components/component/1')
-
-    def endpoint_wrong_id_type_test(self):
-        model = bases.Component(Context())
-        model.component_data_id = 5  # ... because we should never be doing this shit...
-        model.__dict__['component_data_id'].value = "foobar_2"
-
-        self.assertRaises(TypeError, model.endpoint)
-
-    @mock.patch('amber_lib.models.bases.Component.from_dict')
-    @mock.patch('amber_lib.models.bases.Component.endpoint')
-    @mock.patch('amber_lib.models.bases.Component.ctx')
-    @mock.patch('amber_lib.client.send')
-    def retrieve_test(self, mock_send, mock_ctx, mock_endpoint, mock_from_dict):
-        model = bases.Component(Context())
-        model.component_data_id = 5
-        model.retrieve(model.component_data_id)
-
-        self.assertTrue(mock_send.called)
-        self.assertTrue(mock_endpoint.called)
-        self.assertTrue(mock_from_dict.called)
-        self.assertTrue(mock_ctx.called)
-
-    @mock.patch('amber_lib.models.bases.Component.update')
-    @mock.patch('amber_lib.models.bases.Component.ctx')
-    @mock.patch('amber_lib.models.bases.Component.endpoint')
-    @mock.patch('amber_lib.models.bases.Component.to_dict')
-    @mock.patch('amber_lib.client.send')
-    def save_update_test(
-        self,
-        mock_send,
-        mock_dict,
-        mock_end,
-        mock_ctx,
-        mock_update
-    ):
-        model = bases.Component(Context())
-        model.component_data_id = 49
-        model.save()
-
-        self.assertEqual(mock_update.call_count, 1)
-
-        self.assertTrue(mock_send.called)
-        self.assertTrue(mock_dict.called)
-        self.assertTrue(mock_end.called)
-        self.assertTrue(mock_ctx.called)
-        self.assertTrue(mock_send.called)
-
-        mock_send.assert_called_with(
-            'put',
-            mock_ctx(),
-            mock_end(),
-            mock_dict()
-        )
-
-    @mock.patch('amber_lib.models.bases.Component.update')
-    @mock.patch('amber_lib.models.bases.Component.ctx')
-    @mock.patch('amber_lib.models.bases.Component.endpoint')
-    @mock.patch('amber_lib.models.bases.Component.to_dict')
-    @mock.patch('amber_lib.client.send')
-    def save_create_test(
-        self,
-        mock_send,
-        mock_dict,
-        mock_end,
-        mock_ctx,
-        mock_update
-    ):
-        model = bases.Component(Context())
-
-
-        model.save('{"foo": "bar"}')
-
-        self.assertEqual(mock_update.call_count, 2)
-
-        self.assertTrue(mock_send.called)
-        self.assertTrue(mock_dict.called)
-        self.assertTrue(mock_end.called)
-        self.assertTrue(mock_ctx.called)
-        self.assertTrue(mock_send.called)
-
-        mock_send.assert_called_with(
-            'post',
-            mock_ctx(),
-            mock_end(),
-            mock_dict()
-        )
-
 
 
 if __name__ == "__main__":

@@ -1,39 +1,18 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-#
+
 import base64
-import json
-import hashlib
-from datetime import datetime
 import copy
+from datetime import datetime
+import hashlib
+import json
 
 import requests
 
-
+DELETE = 'delete'
 GET = 'get'
 POST = 'post'
 PUT = 'put'
-DELETE = 'delete'
-
-
-class Context(object):
-    """ Context contains contextual data for generating data requests to the
-    API. Used for determining which API is being hit, contains authentication
-    information, and optional parameters.
-    """
-    host = ""
-    port = ""
-    private = ""
-    public = ""
-    request_attempts = 3
-
-    def __init__(self, **kwargs):
-        """ Create a new instance of Context, using keyword arguments to
-        override class defaults.
-        """
-        for key, value in kwargs.items():
-            if hasattr(self, key):
-                setattr(self, key, value)
 
 
 class Container(object):
@@ -341,7 +320,7 @@ class Container(object):
                 break
             self.values[index + insert_index + 1] = val
 
-        self.values[index] = item
+        self.values[insert_index] = item
 
     def pop(self, index=None):
         """ Retrieve and remove the last index from the Collection.
@@ -365,6 +344,26 @@ class Container(object):
         """
         for key, val in enumerate(reversed(self)):
             self.values[key] = val
+
+
+class Context(object):
+    """ Context contains contextual data for generating data requests to the
+    API. Used for determining which API is being hit, contains authentication
+    information, and optional parameters.
+    """
+    host = ""
+    port = ""
+    private = ""
+    public = ""
+    request_attempts = 3
+
+    def __init__(self, **kwargs):
+        """ Create a new instance of Context, using keyword arguments to
+        override class defaults.
+        """
+        for key, value in kwargs.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
 
 
 def create_payload(context, url, data):
@@ -429,6 +428,7 @@ def send(method, ctx, endpoint, json_data, **uri_params):
 
     retry_on = [408, 419, 500, 502, 504]
     attempts = 0
+    r = None
     while attempts < ctx.request_attempts:
         r = getattr(requests, method)(url, data=payload)
         status = r.status_code

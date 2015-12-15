@@ -1,27 +1,18 @@
 import json
+
 from amber_lib import client
 
 
-def resource(endpoint):
-    def set_resource(obj):
-        obj._resource = endpoint
-        return obj
-    return set_resource
-
-
 class Model(object):
-    _resource = 'models'
     _ctx = None
     _links = {}
+    _resource = 'models'
 
     def __init__(self, context):
         """ Initialize a new instance of the Model, saving the current context
         internally.
         """
         self._ctx = context
-
-    def ctx(self):
-        return self._ctx
 
     def __getattr__(self, attr):
         raise AttributeError(
@@ -65,29 +56,8 @@ class Model(object):
             self.__dict__[attr] = Property(prop.kind, prop.is_list)
             setattr(self, attr, val)
 
-    def query(self, batch_size=500, offset=0):
-        """ Retrieve a collection of instances of the model, using the
-        URI params from the keyword arguments.
-        """
-        # TODO: Limit the total returned results.
-        # TODO: Accept fields to pass on to client.send as a kwarg
-        payload = client.send(
-            client.GET,
-            self._ctx,
-            self.endpoint(),
-            None,
-            limit=batch_size,
-            offset=offset
-        )
-
-        collection = client.Container(
-            payload,
-            self.__class__,
-            self._ctx,
-            offset
-        )
-
-        return collection
+    def ctx(self):
+        return self._ctx
 
     def delete(self, id_=None):
         if hasattr(self, "id") and self.id is not None and self.id > 0:
@@ -155,6 +125,46 @@ class Model(object):
         """
         dict_ = json.loads(json_)
         return self.from_dict(dict_)
+
+    def query(self, batch_size=500, offset=0):
+        """ Retrieve a collection of instances of the model, using the
+        URI params from the keyword arguments.
+        """
+        # TODO: Limit the total returned results.
+        # TODO: Accept fields to pass on to client.send as a kwarg
+        payload = client.send(
+            client.GET,
+            self._ctx,
+            self.endpoint(),
+            None,
+            limit=batch_size,
+            offset=offset
+        )
+
+        collection = client.Container(
+            payload,
+            self.__class__,
+            self._ctx,
+            offset
+        )
+
+        return collection
+
+    def retrieve(self, id_):
+        """ Retrieve the data for a database entry constrained by the
+        specified ID, and udpate the current instance using the retrieved
+        data.
+        """
+        self.id = id_
+        payload = client.send(
+            client.GET,
+            self.ctx(),
+            self.endpoint(),
+            None,
+        )
+        self.from_dict(payload)
+
+        return self
 
     def save(self, data=None):
         """ Save the current state of the model into the database, either
@@ -227,22 +237,6 @@ class Model(object):
         else:
             raise TypeError
 
-    def retrieve(self, id_):
-        """ Retrieve the data for a database entry constrained by the
-        specified ID, and udpate the current instance using the retrieved
-        data.
-        """
-        self.id = id_
-        payload = client.send(
-            client.GET,
-            self.ctx(),
-            self.endpoint(),
-            None,
-        )
-        self.from_dict(payload)
-
-        return self
-
 
 class Property(object):
     def __init__(self, kind, is_list=False):
@@ -278,84 +272,8 @@ class Property(object):
             )
 
 
-class Component(Model):
-    _resource = 'component'
-    component_data_id = Property(int)
-    product_id = Property(int)
-    parent_id = Property(int)
-    parent_name = Property(str)
-
-    def delete(self, id_=None):
-        if hasattr(self, "component_data_id") and \
-                self.component_data_id is not None and \
-                self.component_data_id > 0:
-            if id_ is not None:
-                raise ValueError(
-                    'Cannot delete using an already instantiated model. >:('
-                )
-            client.send(
-                client.DELETE,
-                self.ctx(),
-                self.endpoint(),
-                None
-            )
-        elif id_ is not None:
-            self.component_data_id = id_
-            client.send(
-                client.DELETE,
-                self.ctx(),
-                self.endpoint(),
-                None
-            )
-        else:
-            raise ValueError
-
-        self.__dict__ = {}
-        return self
-
-    def endpoint(self):
-        loc = "/components/%s" % self._resource
-
-        if hasattr(self, "component_data_id") is False or \
-                self.component_data_id is None:
-            return loc
-
-        if isinstance(self.component_data_id, int) and \
-                self.component_data_id > 0:
-            return loc + "/%d" % self.component_data_id
-
-        raise TypeError
-
-    def retrieve(self, id_):
-        self.component_data_id = id_
-        payload = client.send(
-            client.GET,
-            self.ctx(),
-            self.endpoint(),
-            None,
-        )
-        self.from_dict(payload)
-        return self
-
-    def save(self, data=None):
-        if data is not None:
-            self.update(data)
-
-        if hasattr(self, "component_data_id") and self.component_data_id is \
-                not None and self.component_data_id > 0:
-            returned_dict = client.send(
-                client.PUT,
-                self.ctx(),
-                self.endpoint(),
-                self.to_dict()
-            )
-        else:
-            returned_dict = client.send(
-                client.POST,
-                self.ctx(),
-                self.endpoint(),
-                self.to_dict()
-            )
-
-        self.update(returned_dict)
-        return self
+def resource(endpoint):
+    def set_resource(obj):
+        obj._resource = endpoint
+        return obj
+    return set_resource

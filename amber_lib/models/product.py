@@ -1,6 +1,6 @@
+from amber_lib.models import components
 from amber_lib.models.bases import Model, Property, resource
 from amber_lib.models.primaries import Assemblage
-from amber_lib.models import components
 
 
 @resource('products')
