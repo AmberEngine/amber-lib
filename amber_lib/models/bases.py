@@ -285,6 +285,35 @@ class Component(Model):
     parent_component_id = Property(int)
     parent_table_name = Property(str)
 
+
+    def delete(self, id_=None):
+        if hasattr(self, "component_data_id") and \
+                self.component_data_id is not None and \
+                self.component_data_id > 0:
+            if id_ is not None:
+                raise ArgumentError('Cannot delete using an already instantiated model. >:(')
+            returned_dict = client.send(
+                client.DELETE,
+                self.ctx(),
+                self.endpoint(),
+                None
+            )
+        elif id_ is not None:
+            self.component_data_id = id_
+            returned_dict = client.send(
+                client.DELETE,
+                self.ctx(),
+                self.endpoint(),
+                None
+            )
+        else:
+            raise ArgumentError
+
+        self.__dict__ = {}
+        return self
+
+
+
     def endpoint(self):
         loc = "/components/%s" % self._resource
 

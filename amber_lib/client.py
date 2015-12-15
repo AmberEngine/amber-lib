@@ -13,9 +13,29 @@ PUT = 'put'
 DELETE = 'delete'
 
 
+class Context(object):
+    """ Context contains contextual data for generating data requests to the
+    API. Used for determining which API is being hit, contains authentication
+    information, and optional parameters.
+    """
+    host = ""
+    port = ""
+    private = ""
+    public = ""
+    request_attempts = 3
+
+    def __init__(self, **kwargs):
+        """ Create a new instance of Context, using keyword arguments to
+        override class defaults.
+        """
+        for key, value in kwargs.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+
+
 class Container(object):
-    """ Container is a lazy-loaded list of API resources. Elements can be accessed
-    using either an index subscript or a python slice subscript.
+    """ Container is a lazy-loaded list of API entities. Elements can be
+    accessed using either an index subscript or a python slice subscript.
     """
 
     def __init__(self, dict_, class_, ctx, offset=0):
@@ -38,6 +58,10 @@ class Container(object):
         self.__append(embedded)
 
     def __add__(self, other):
+        """ Magic method __add__ will concatenate two container instances
+        together and return a new copy contain the data from both. This method
+        will first retrieve all available entries, à la proactive-loading.
+        """
         if not isinstance(other, Container):
             raise TypeError('"NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO!" -D.V.')
 
@@ -50,9 +74,19 @@ class Container(object):
         return self_copy
 
     def __contains__(self, item):
+        """ Magic method which will return a boolean result indicating True
+        if the specified item exists within the Container; false, otherwise.
+        This method will first retrieve all available entries, à la
+        proactive-loading.
+        """
+        self.__finish_it()
         return item in self.values.values()
 
     def __delitem__(self, key):
+        """ Magic method which will attempt to remove the specifid index
+        from the Container. This method will first retrieve all available
+        entries, à la proactive-loading.
+        """
         self.__finish_it()
 
         if key not in self.values:
@@ -101,25 +135,35 @@ class Container(object):
             raise TypeError
 
     def __iter__(self):
-        """ Yeild sequential values from the total entries available.
+        """ Magic method for yeilding sequential values from the total
+        entries available.
         """
         for val in range(len(self)):
             yield self[val]
 
     def __le__(self, other):
+        """ Magic method for humour & reddit.
+        """
         return "le API > %s" % (other,)
 
     def __len__(self):
-        """ Return the total number of accessible database entries.
+        """ Magic method for returning the total number of accessible
+        database entries.
         """
         if self.total:
             return self.total
         return len(self.values)
 
     def __pow__(self, other):
+        """ Magic method for N64 nostalgia.
+        """
         return "It's a me! Mario!" * other
 
     def __reversed__(self):
+        """ Magic method for returning a copy of the current Container, with
+        the order of the values it contains sorted in reverse order. This
+        method will first retrieve all entries, à la proactive-loading.
+        """
         self.__finish_it()
 
         self_copy = copy.copy(self)
@@ -131,15 +175,24 @@ class Container(object):
         return self_copy
 
     def __setitem__(self, key, value):
+        """ Magic method for assigning a particular value to an available
+        indexable location within the current Container. This method will
+        first retrieve all available entries, à la proactive-loading.
+        """
         self.__finish_it()
         if key not in self.values:
             raise IndexError
         self.values[key] = value
 
     def __all(self):
+        """ Retrieve all possible entries from the current Container.
+        """
         return self[:]
 
     def __append(self, values):
+        """ Append either a list, a Container, or an entity to the
+        current container.
+        """
         if isinstance(values, list):
             offset = self.offset
             for index, value in enumerate(values):
@@ -162,6 +215,9 @@ class Container(object):
             self.values[len(self.values)] = values
 
     def __finish_it(self):
+        """ It's dangerous to go alone! Take all these entries! Retrieve all
+        the things!
+        """
         if self.total is not None and self.total > len(self.values):
             self.__all()
         self.hal = {}
@@ -169,8 +225,9 @@ class Container(object):
         self.total = None
 
     def __get(self, index):
-        # Deal with negative indexes: if |index| < total, adjust index to
-        # become positive, and retrieve. Otherwise, raise error.
+        """ Retrieve a value at the provided index from the Container. Negative
+        indices will operate relatively to the end of the Container.
+        """
         if index < 0:
             if abs(index) >= len(self):
                 raise IndexError()
@@ -193,16 +250,22 @@ class Container(object):
             return self.values[index]
 
     def __next(self):
+        """ Retrieve the next batch of entries from the API using the HAL
+        next-href link endpoint.
+        """
         if self.hal is None or 'next' not in self.hal:
             return False
 
-        moar_data = send(GET, self.ctx, self.hal['next']['href'], None)
-        self.hal = moar_data.get('_links', {})
-        embedded = moar_data.get('_embedded', {}).get(self.kind + 's', [])
+        more_data = send(GET, self.ctx, self.hal['next']['href'], None)
+        self.hal = more_data.get('_links', {})
+        embedded = more_data.get('_embedded', {}).get(self.kind + 's', [])
 
         self.__append(embedded)
 
     def __prepend(self, values):
+        """ Prepend a list, Container or an entry to the current Container's
+        values.
+        """
         if isinstance(values, list):
             for index, value in enumerate(values):
                 self.__finish_it()
@@ -222,7 +285,10 @@ class Container(object):
             self[0] = values
 
     def __previous(self):
-        if self.hal is None or 'previous' not in self.hal:
+        """ Retrieve the previous batch of entries from the API using the HAL
+        previous-href link endpoint.
+        """
+         if self.hal is None or 'previous' not in self.hal:
             return False
 
         moar_data = send(GET, self.ctx, self.hal['previous']['href'], None)
@@ -236,22 +302,36 @@ class Container(object):
         self.__prepend(embedded)
 
     def append(self, value):
+        """ Append a value to the end of the current Container. This method
+        will retrieve all available entries, à la proactive-loading.
+        """
         self.__finish_it()
         self.values[len(self.values)] = value
 
     def count(self):
+        """ Return the current length of the Container.
+        """
         return len(self)
 
     def extend(self, list_):
+        """ Append an existing list or container to the current Container
+        instance.
+        """
         self.__append(list_)
 
     def index(self, item):
+        """ Retrieve the integer index number where the first instance of the
+        provided item can be found.
+        """
         for key, val in enumerate(self):
             if val == item:
                 return key
         raise ValueError
 
     def insert(self, insert_index, item):
+        """ Insert the provided item at the specified index. This method will
+        retrieve all available entries, à la proactive-loading.
+        """
         self.__finish_it()
         for index, val in enumerate(reversed(self)):
             if index >= insert_index:
@@ -261,6 +341,8 @@ class Container(object):
         self.values[index] = item
 
     def pop(self, index=None):
+        """ Retrieve and remove the last index from the Collection.
+        """
         if index is None:
             index = len(self) - 1
 
@@ -270,14 +352,22 @@ class Container(object):
         return val
 
     def remove(self, item):
+        """ Remove the first instance of the item specified.
+        """
         del self[self.index(item)]
 
     def reverse(self):
+        """ Perform an in-place reversal of the ordering of the values in the
+        Container.
+        """
         for key, val in enumerate(reversed(self)):
             self.values[key] = val
 
 
 def create_payload(context, url, data):
+    """ Generate a new dictionary payload based on a context, url and data
+    dictionary.
+    """
     payload = {
         'public_key': context.public,
         'url': url,
@@ -286,7 +376,11 @@ def create_payload(context, url, data):
         'data': data
     }
 
-    jdump = json.dumps(payload, sort_keys=True, separators=(',', ':')).encode('utf-8')
+    jdump = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(',', ':')
+    ).encode('utf-8')
 
     hash_ = hashlib.sha256(jdump)
     hash_.update(context.private.encode('utf-8'))
@@ -318,6 +412,11 @@ def create_url(context, endpoint, **uri_args):
 
 
 def send(method, ctx, endpoint, json_data, **uri_params):
+    """ Send a data request to a resource on API, based on the context,
+    endpoint, JSON data and optional URI parameter values. This method will
+    attempt to retry on certain server errors. A JSON dictionary of the
+    response will be returned.
+    """
     method = method.lower()
     if method not in ['get', 'post', 'put', 'delete']:
         raise AttributeError('Bad method')
@@ -325,8 +424,17 @@ def send(method, ctx, endpoint, json_data, **uri_params):
     url = create_url(ctx, endpoint, **uri_params)
     payload = create_payload(ctx, url, json_data)
 
-    r = getattr(requests, method)(url, data=payload)
-    if r.status_code != 200:
-        error = r.json()
-        raise Exception(error['code'], error['title'], error['message'])
-    return r.json()
+    retry_on = [408, 419, 500, 502, 504]
+    attempts = 0
+    while attempts < ctx.request_attempts:
+        r = getattr(requests, method)(url, data=payload)
+        status = r.status_code
+        if status == 200:
+            return r.json()
+        elif status in retry_on:
+            attempts += 1
+        else:
+            break
+
+    error = r.json()
+    raise Exception(error['code'], error['title'], error['message'])
