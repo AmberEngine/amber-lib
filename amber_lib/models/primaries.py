@@ -36,6 +36,7 @@ class Assemblage(Model):
 class Collection(Model):
     id = Property(int)
     manufacturer_id = Property(int)
+    name = Property(str)
     description = Property(str)
     designed_by = Property(str)
 
@@ -109,12 +110,13 @@ class SalesChannel(Model):
     id = Property(int)
     api_key_id = Property(int)
     visible = Property(bool)
-    name = Property(str)
+    sales_channel_name = Property(str)
+    email = Property(str)
     bio = Property(str)
     url = Property(str)
     logo_url = Property(str)
     phone = Property(str)
-    extension = Property(str)
+    phone_extension = Property(str)
     street_address_1 = Property(str)
     street_address_2 = Property(str)
     city = Property(str)

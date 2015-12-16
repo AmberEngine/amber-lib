@@ -150,6 +150,20 @@ class Model(object):
 
         return collection
 
+    def relate(self, obj):
+        this_resource = self._resource
+        obj_resource = obj._resource
+        payload = client.send(
+            client.POST,
+            self.ctx(),
+            "/relations",
+            None,
+            **{
+                this_resource: self.id,
+                obj_resource: obj.id
+            }
+        )
+
     def retrieve(self, id_):
         """ Retrieve the data for a database entry constrained by the
         specified ID, and udpate the current instance using the retrieved
@@ -225,6 +239,20 @@ class Model(object):
         key-value pairs for the internal class data.
         """
         return json.dumps(self.to_dict())
+
+    def unrelate(self, obj):
+        this_resource = self._resource
+        obj_resource = obj._resource
+        payload = client.send(
+            client.DELETE,
+            self.ctx(),
+            "/relations",
+            None,
+            **{
+                this_resource: self.id,
+                obj_resource: obj.id
+            }
+        )
 
     def update(self, data):
         """ Update the internal data of the class instance using either
