@@ -101,25 +101,25 @@ class Arm(Component):
 
 @resource('base')
 class Base(Component):
-    height = Property(float)
-    diameter = Property(float)
     depth = Property(float)
+    diameter = Property(float)
+    height = Property(float)
     width = Property(float)
 
 
 @resource('box')
 class Box(Component):
+    depth = Property(float)
+    height = Property(float)
     weight = Property(float)
     width = Property(float)
-    height = Property(float)
-    depth = Property(float)
 
 
 @resource('bulb')
 class Bulb(Component):
-    type = Property(str)
     base = Property(str)
     quantity = Property(int)
+    type = Property(str)
     wattage = Property(int)
 
 
@@ -132,8 +132,8 @@ class Category(Component):
 
 @resource('collection')
 class Collection(Component):
-    collection_id = Property(int)
     collection = Property(primaries.Collection)
+    collection_id = Property(int)
 
 
 @resource('construction_information')
@@ -144,90 +144,90 @@ class ConstructionInformation(Component):
 
 @resource('cushion')
 class Cushion(Component):
+    depth = Property(float)
     fill = Property(str)
+    height = Property(float)
     style = Property(str)
     width = Property(float)
-    depth = Property(float)
-    height = Property(float)
 
 
 @resource('cushions')
 class Cushions(Component):
-    quantity = Property(int)
     cushion_list = Property(Cushion, True)
+    quantity = Property(int)
 
 
 @resource('description')
 class Description(Component):
+    alternate = Property(str)
+    designer = Property(str)
+    features = Property(str)
     primary = Property(str)
     retail = Property(str)
-    designer = Property(str)
-    alternate = Property(str)
-    features = Property(str)
 
 
 @resource('door')
 class Door(Component):
-    width = Property(float)
     depth = Property(float)
     height = Property(float)
     opening = Property(float)
+    width = Property(float)
 
 
 @resource('doors')
 class Doors(Component):
-    quantity = Property(int)
     door_list = Property(Door, True)
+    quantity = Property(int)
 
 
 @resource('durability')
 class Durability(Component):
+    flammability = Property(str)
     martindale = Property(str)
     wyzenbeek = Property(str)
-    flammability = Property(str)
 
 
 @resource('drawer')
 class Drawer(Component):
-    width = Property(float)
     depth = Property(float)
     height = Property(float)
+    width = Property(float)
 
 
 @resource('drawers')
 class Drawers(Component):
-    quantity = Property(int)
     drawer_list = Property(Drawer, True)
+    quantity = Property(int)
 
 
 @resource('electrical')
 class Electrical(Component):
+    exterior_use = Property(bool)
     switch_type = Property(str)
     voltage = Property(int)
-    exterior_use = Property(bool)
 
 
 @resource('fiber')
 class Fiber(Component):
-    pile = Property(str)
     construction = Property(str)
+    pile = Property(str)
 
 
 @resource('flame')
 class Flame(Component):
-    fuel_type = Property(str)
     burner_capacity = Property(float)
     burning_time = Property(float)
+    fuel_type = Property(str)
     heat_output = Property(float)
     minimum_room_size = Property(float)
 
 
 @resource('footboard')
 class Footboard(Component):
-    height = Property(float)
-    width = Property(float)
     depth = Property(float)
     floor_clearance = Property(float)
+    height = Property(float)
+    width = Property(float)
 
 
 @resource('footrest')
@@ -237,8 +237,8 @@ class Footrest(Component):
 
 @resource('frame')
 class Frame(Component):
-    height = Property(float)
     back_rail_height = Property(float)
+    height = Property(float)
 
 
 @resource('glass')
@@ -248,25 +248,25 @@ class Glass(Component):
 
 @resource('headboard')
 class Headboard(Component):
-    height = Property(float)
-    width = Property(float)
     depth = Property(float)
     floor_clearance = Property(float)
+    height = Property(float)
+    width = Property(float)
 
 
 @resource('identity')
 class Identity(Component):
-    name = Property(str)
-    manufacturer_sku = Property(str)
-    source_url = Property(str)
     alternate_name = Property(str)
+    manufacturer_sku = Property(str)
+    name = Property(str)
+    source_url = Property(str)
 
 
 @resource('image')
 class Image(Component):
-    default = Property(bool)
-    category = Property(str)
     caption = Property(str)
+    category = Property(str)
+    default = Property(bool)
     full_size = Property(str)
     large_size = Property(str)
     medium_size = Property(str)
@@ -293,17 +293,17 @@ class InteriorDimension(Component):
 
 @resource('leather')
 class Leather(Component):
-    type = Property(str)
-    pattern_number = Property(str)
-    hide_size = Property(float)
     finish = Property(str)
     col_requirement = Property(str)
+    hide_size = Property(float)
+    pattern_number = Property(str)
+    type = Property(str)
 
 
 @resource('manufacturer')
 class Manufacturer(Component):
-    manufacturer_id = Property(int)
     manufacturer = Property(primaries.Manufacturer)
+    manufacturer_id = Property(int)
 
 
 @resource('option_set')
@@ -318,95 +318,95 @@ class OptionSets(Component):
 
 @resource('ordering_information')
 class OrderingInformation(Component):
-    unit = Property(str)
     discontinued = Property(bool)
     lead_time = Property(str)
-    quick_ship = Property(bool)
     minimum_quantity = Property(int)
+    quick_ship = Property(bool)
+    unit = Property(str)
     stock = Property(float)
 
 
 @resource('overall_dimension')
 class OverallDimension(Component):
-    width = Property(float)
-    height = Property(float)
     depth = Property(float)
     diameter = Property(float)
+    height = Property(float)
+    width = Property(float)
 
 
 @resource('pattern')
 class Pattern(Component):
-    pattern_number = Property(str)
-    vertical_repeat = Property(float)
-    horizontal_repeat = Property(float)
-    direction = Property(str)
     color = Property(str)
-    scale = Property(str)
     design_type = Property(str)
+    direction = Property(str)
+    horizontal_repeat = Property(float)
+    pattern_number = Property(str)
+    scale = Property(str)
+    vertical_repeat = Property(float)
 
 
 @resource('pedestal')
 class Pedestal(Component):
-    height = Property(float)
     diameter = Property(float)
     depth = Property(float)
+    height = Property(float)
     width = Property(float)
 
 
 @resource('pillow')
 class Pillow(Component):
+    depth = Property(float)
     width = Property(float)
     height = Property(float)
-    depth = Property(float)
 
 
 @resource('pillows')
 class Pillows(Component):
-    quantity = Property(int)
     pillow_list = Property(Pillow, True)
+    quantity = Property(int)
 
 
 @resource('pricing')
 class Pricing(Component):
-    wholesale = Property(int)
-    trade_price = Property(int)
+    dealer_price = Property(int)
     minimum_internet_price = Property(int)
     msrp = Property(int)
-    dealer_price = Property(int)
+    trade_price = Property(int)
+    wholesale = Property(int)
 
 
 @resource('promotional_tag')
 class PromotionalTag(Component):
-    new_product = Property(bool)
     best_seller = Property(bool)
-    limited_stock = Property(bool)
     discontinued = Property(bool)
+    limited_stock = Property(bool)
+    new_product = Property(bool)
 
 
 @resource('seat')
 class Seat(Component):
-    height = Property(float)
-    depth = Property(float)
-    width = Property(float)
     construction = Property(str)
+    depth = Property(float)
+    height = Property(float)
+    width = Property(float)
 
 
 @resource('shade')
 class Shade(Component):
-    type = Property(str)
-    height = Property(float)
-    width = Property(float)
     depth = Property(float)
     diameter = Property(float)
+    height = Property(float)
     material = Property(str)
     quantity = Property(int)
+    type = Property(str)
+    width = Property(float)
 
 
 @resource('shelf')
 class Shelf(Component):
+    depth = Property(float)
     width = Property(float)
     height = Property(float)
-    depth = Property(float)
 
 
 @resource('shelves')
@@ -417,39 +417,39 @@ class Shelves(Component):
 
 @resource('shipping_information')
 class ShippingInformation(Component):
-    ships_from = Property(str)
-    volume = Property(float)
-    standard = Property(bool)
-    freight = Property(bool)
-    white_glove = Property(bool)
-    drop_ship = Property(bool)
-    notes = Property(bool)
     box_list = Property(Box, True)
+    drop_ship = Property(bool)
+    freight = Property(bool)
+    notes = Property(bool)
+    ships_from = Property(str)
+    standard = Property(bool)
+    volume = Property(float)
+    white_glove = Property(bool)
 
 
 @resource('side_rail')
 class SideRail(Component):
-    length = Property(float)
     floor_clearance = Property(float)
+    length = Property(float)
 
 
 @resource('suspension_point')
 class SuspensionPoint(Component):
-    support_type = Property(str)
-    canopy_diameter = Property(float)
     canopy_depth = Property(float)
+    canopy_diameter = Property(float)
     canopy_height = Property(float)
     canopy_width = Property(float)
-    wire_length = Property(float)
-    minimum_hanging_length = Property(float)
-    maximum_hanging_length = Property(float)
     chain_length = Property(float)
+    maximum_hanging_length = Property(float)
+    minimum_hanging_length = Property(float)
+    support_type = Property(str)
+    wire_length = Property(float)
 
 
 @resource('table_leaf')
 class TableLeaf(Component):
-    width = Property(float)
     depth = Property(float)
+    width = Property(float)
 
 
 @resource('table_leaves')
@@ -460,13 +460,13 @@ class TableLeaves(Component):
 
 @resource('textile')
 class Textile(Component):
+    com_requirement = Property(float)
     content = Property(str)
-    weave_type = Property(str)
-    width = Property(float)
+    grade = Property(str)
     treatment = Property(str)
     usage = Property(str)
-    grade = Property(str)
-    com_requirement = Property(float)
+    weave_type = Property(str)
+    width = Property(float)
 
 
 @resource('weight')
