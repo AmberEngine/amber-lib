@@ -483,6 +483,33 @@ class Container(unittest.TestCase):
         for i in range(len(reversed_ctn)):
             self.assertEqual(reversed_ctn[i], values[len(values) - i - 1])
 
+    @mock.patch('amber_lib.client.send')
+    def set_relation_relate_test(self, mock_send):
+        type_ = "GET"
+        tupperwear = client.Container({}, mock.Mock, {}, None)
+        m = mock.Mock()
+        m.id = 5
+        m._resource = 'fubars'
+        tupperwear.append(m)
+
+        tupperwear.set_relation(type_, m)
+        self.assertTrue(mock_send.called)
+
+    @mock.patch('amber_lib.client.send')
+    def set_relation_with_container_test(self, mock_send):
+        type_ = "GET"
+        tupperwear = client.Container({}, mock.Mock, Context(), None)
+        m = mock.Mock()
+        m.id = 5
+        m._resource = 'fubars'
+        tupperwear.append(m)
+
+        jar = client.Container({}, mock.Mock, {}, None)
+        jar.append(m)
+
+        tupperwear.set_relation(type_, jar)
+        self.assertTrue(mock_send.called)
+
 
 class CreatePayload(unittest.TestCase):
     def create_payload_test(self):
