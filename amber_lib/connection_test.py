@@ -1,5 +1,7 @@
 import unittest
 
+import mock
+
 import amber_lib.connection as connection
 import amber_lib.models.bases as bases
 import amber_lib.models.components as components
@@ -44,3 +46,10 @@ class Connection(unittest.TestCase):
 
         conn = connection.Connection(dict_)
         self.assertEqual(conn.context, dict_)
+
+    @mock.patch('amber_lib.connection.send')
+    def ping_test(self, mock_send):
+        conn = connection.Connection({})
+        conn.ping()
+
+        self.assertTrue(mock_send.called)

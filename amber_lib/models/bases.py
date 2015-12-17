@@ -6,7 +6,9 @@ from amber_lib import client
 class Model(object):
     _ctx = None
     _links = {}
+    _pk = "id"
     _resource = 'models'
+
 
     def __init__(self, context):
         """ Initialize a new instance of the Model, saving the current context
@@ -60,7 +62,7 @@ class Model(object):
         return self._ctx
 
     def delete(self, id_=None):
-        if hasattr(self, "id") and self.id is not None and self.id > 0:
+        if self.is_valid():
             if id_ is not None:
                 raise ValueError(
                     'Cannot delete using an already instantiated model. >:('
@@ -72,7 +74,7 @@ class Model(object):
                 None
             )
         elif id_ is not None:
-            self.id = id_
+            setattr(self, self._pk, id_)
             client.send(
                 client.DELETE,
                 self.ctx(),
@@ -88,11 +90,11 @@ class Model(object):
     def endpoint(self):
         loc = "/%s" % self._resource
 
-        if hasattr(self, "id") is False or self.id is None:
+        if not self.is_valid():
             return loc
 
-        if isinstance(self.id, int) and self.id > 0:
-            return loc + "/%d" % self.id
+        if isinstance(self.pk(), int) and self.pk() > 0:
+            return loc + "/%d" % self.pk()
         raise TypeError
 
     def from_dict(self, dict_):
@@ -126,6 +128,9 @@ class Model(object):
         dict_ = json.loads(json_)
         return self.from_dict(dict_)
 
+    def pk(self):
+        return getattr(self, self._pk)
+
     def query(self, batch_size=500, offset=0):
         """ Retrieve a collection of instances of the model, using the
         URI params from the keyword arguments.
@@ -150,26 +155,26 @@ class Model(object):
 
         return collection
 
-    def relate(self, obj):
-        this_resource = self._resource
-        obj_resource = obj._resource
+    def set_relation(self, bool_, obj):
         payload = client.send(
-            client.POST,
-            self.ctx(),
+            client.POST if bool_ is True else client.DELETE_,
             "/relations",
             None,
             **{
-                this_resource: self.id,
-                obj_resource: obj.id
+                self._resource: self.pk(),
+                obj._resource: obj.pk()
             }
         )
+
+    def relate(self, obj):
+        self.set_relation(True, obj)
 
     def retrieve(self, id_):
         """ Retrieve the data for a database entry constrained by the
         specified ID, and udpate the current instance using the retrieved
         data.
         """
-        self.id = id_
+        setattr(self, self._pk, id_)
         payload = client.send(
             client.GET,
             self.ctx(),
@@ -180,6 +185,17 @@ class Model(object):
 
         return self
 
+    def is_valid(self):
+        return hasattr(self, self._pk) and \
+                getattr(self, self._pk) is not None and \
+                int(getattr(self, self._pk)) > 0
+
+    def refresh(self):
+        if self.is_valid():
+            self.retrieve(self.pk())
+        else:
+            raise Exception
+
     def save(self, data=None):
         """ Save the current state of the model into the database, either
         creating a new entry or updating an existing database entry. It
@@ -189,7 +205,7 @@ class Model(object):
         if data is not None:
             self.update(data)
 
-        if hasattr(self, "id") and self.id is not None and self.id > 0:
+        if self.is_valid():
             returned_dict = client.send(
                 client.PUT,
                 self.ctx(),
@@ -241,18 +257,7 @@ class Model(object):
         return json.dumps(self.to_dict())
 
     def unrelate(self, obj):
-        this_resource = self._resource
-        obj_resource = obj._resource
-        payload = client.send(
-            client.DELETE,
-            self.ctx(),
-            "/relations",
-            None,
-            **{
-                this_resource: self.id,
-                obj_resource: obj.id
-            }
-        )
+        self.set_relation(False, obj)
 
     def update(self, data):
         """ Update the internal data of the class instance using either
@@ -300,7 +305,7 @@ class Property(object):
             )
 
 
-def resource(endpoint):
+def resource(endpoint, pk="id"):
     def set_resource(obj):
         obj._resource = endpoint
         return obj

@@ -41,6 +41,46 @@ FAKE_DATE_FORMAT = datetime.isoformat(FAKE_DATE)
 
 
 class Component(unittest.TestCase):
+    @mock.patch('amber_lib.models.components.Component.endpoint')
+    @mock.patch('amber_lib.models.components.Component.ctx')
+    @mock.patch('amber_lib.client.send')
+    @mock.patch('amber_lib.models.components.Component.is_valid')
+    def delete_valid_entry_test(
+            self,
+            mock_is_valid,
+            mock_send,
+            mock_ctx,
+            mock_endpoint
+        ):
+        model = components.Component(Context())
+        model.component_data_id = 5
+
+        mock_is_valid.return_value = True
+
+        model.delete(model.component_data_id)
+
+        self.assertTrue(mock_send.called)
+        self.assertTrue(mock_endpoint.called)
+        self.assertTrue(mock_ctx.called)
+
+    @mock.patch('amber_lib.models.components.Component.endpoint')
+    @mock.patch('amber_lib.models.components.Component.ctx')
+    @mock.patch('amber_lib.client.send')
+    @mock.patch('amber_lib.models.components.Component.is_valid')
+    def delete_invalid_entry_test(
+            self,
+            mock_is_valid,
+            mock_send,
+            mock_ctx,
+            mock_endpoint
+        ):
+        model = components.Component(Context())
+        model.component_data_id = 5
+
+        mock_is_valid.return_value = False
+
+        self.assertRaises(ValueError, lambda: model.delete())
+
     def endpoint_no_id_test(self):
         model = components.Component(Context())
         self.assertEqual(model.endpoint(), '/components/component')
@@ -49,20 +89,20 @@ class Component(unittest.TestCase):
         model = components.Component(Context())
         model.component_data_id = 1
 
+        print(type(getattr(model, model._pk)))
         self.assertEqual(model.endpoint(), '/components/component/1')
-
-    def endpoint_wrong_id_type_test(self):
-        model = components.Component(Context())
-        model.component_data_id = 5  # ... because we should never be doing this shit...
-        model.__dict__['component_data_id'].value = "foobar_2"
-
-        self.assertRaises(TypeError, model.endpoint)
 
     @mock.patch('amber_lib.models.components.Component.from_dict')
     @mock.patch('amber_lib.models.components.Component.endpoint')
     @mock.patch('amber_lib.models.components.Component.ctx')
     @mock.patch('amber_lib.client.send')
-    def retrieve_test(self, mock_send, mock_ctx, mock_endpoint, mock_from_dict):
+    def retrieve_test(
+            self,
+            mock_send,
+            mock_ctx,
+            mock_endpoint,
+            mock_from_dict
+        ):
         model = components.Component(Context())
         model.component_data_id = 5
         model.retrieve(model.component_data_id)

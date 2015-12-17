@@ -332,6 +332,36 @@ class Container(object):
 
         return val
 
+    def set_relation(self, type_, thing):
+        first = [str(entry.id) for entry in self]
+        if isinstance(thing, Container):
+            second = [str(entry.id) for entry in thing]
+        else:
+            second = [str(thing.id)]
+
+        res1 = self[0]._resource
+        if isinstance(thing, Container):
+            res2 = thing[0]._resource
+        else:
+            res2 = thing._resource
+
+        payload = send(
+            type_,
+            self.ctx,
+            "/relations",
+            None,
+            **{
+                res1: ",".join(first),
+                res2: ",".join(second)
+            }
+        )
+
+    def relate(self, thing):
+        self.set_relate(POST, thing)
+
+    def unrelate(self, thing):
+        self.set_relate(DELETE, thing)
+
     def remove(self, item):
         """ Remove the first instance of the item specified.
         """
@@ -432,7 +462,10 @@ def send(method, ctx, endpoint, json_data, **uri_params):
         r = getattr(requests, method)(url, data=payload)
         status = r.status_code
         if status == 200:
-            return r.json()
+            try:
+                return r.json()
+            except ValueError:
+                return {}
         elif status in retry_on:
             attempts += 1
         else:

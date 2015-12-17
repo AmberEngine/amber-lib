@@ -4,6 +4,7 @@ from amber_lib.models.bases import Model, Property, resource
 
 
 class Component(Model):
+    _pk = "component_data_id"
     _resource = 'component'
     component_data_id = Property(int)
     parent_id = Property(int)
@@ -11,21 +12,13 @@ class Component(Model):
     product_id = Property(int)
 
     def delete(self, id_=None):
-        if hasattr(self, "component_data_id") and \
-                self.component_data_id is not None and \
-                self.component_data_id > 0:
-            if id_ is not None:
-                raise ValueError(
-                    'Cannot delete using an already instantiated model. >:('
-                )
-            client.send(
-                client.DELETE,
-                self.ctx(),
-                self.endpoint(),
-                None
-            )
-        elif id_ is not None:
-            self.component_data_id = id_
+        if id_ is not None:
+            if self.is_valid() and self.pk() != id_:
+                raise ValueError
+            else:
+                setattr(self, self._pk, id_)
+
+        if self.is_valid():
             client.send(
                 client.DELETE,
                 self.ctx(),
@@ -41,18 +34,14 @@ class Component(Model):
     def endpoint(self):
         loc = "/components/%s" % self._resource
 
-        if hasattr(self, "component_data_id") is False or \
-                self.component_data_id is None:
+        if not self.is_valid():
             return loc
 
-        if isinstance(self.component_data_id, int) and \
-                self.component_data_id > 0:
-            return loc + "/%d" % self.component_data_id
-
-        raise TypeError
+        if isinstance(self.pk(), int) and self.pk() > 0:
+            return loc + "/%d" % self.pk()
 
     def retrieve(self, id_):
-        self.component_data_id = id_
+        setattr(self, self._pk, id_)
         payload = client.send(
             client.GET,
             self.ctx(),
@@ -66,8 +55,7 @@ class Component(Model):
         if data is not None:
             self.update(data)
 
-        if hasattr(self, "component_data_id") and self.component_data_id is \
-                not None and self.component_data_id > 0:
+        if self.is_valid():
             returned_dict = client.send(
                 client.PUT,
                 self.ctx(),

@@ -180,13 +180,6 @@ class Model(unittest.TestCase):
 
         self.assertEqual(model.endpoint(), '/testmodels/1')
 
-    def endpoint_wrong_id_type_test(self):
-        model = TestModel(Context())
-        model.id = 5  # ... because we should never be doing this shit...
-        model.__dict__['id'].value = "foobar_2"
-
-        self.assertRaises(TypeError, model.endpoint)
-
     def from_dict_test(self):
         dict_ = {
             'foo': 'bar',
