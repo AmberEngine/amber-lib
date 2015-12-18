@@ -357,10 +357,10 @@ class Container(object):
         )
 
     def relate(self, thing):
-        self.set_relate(POST, thing)
+        self.set_relation(POST, thing)
 
     def unrelate(self, thing):
-        self.set_relate(DELETE, thing)
+        self.set_relation(DELETE, thing)
 
     def remove(self, item):
         """ Remove the first instance of the item specified.
@@ -459,8 +459,12 @@ def send(method, ctx, endpoint, json_data, **uri_params):
     attempts = 0
     r = None
     while attempts < ctx.request_attempts:
+        print("method %s" % method)
         r = getattr(requests, method)(url, data=payload)
+        print(r)
         status = r.status_code
+        print(status)
+        print(status == 200)
         if status == 200:
             try:
                 return r.json()
@@ -475,4 +479,4 @@ def send(method, ctx, endpoint, json_data, **uri_params):
         error = r.json()
         raise Exception(error['code'], error['title'], error['message'])
     except ValueError:
-        Exception(r.status_code, url)
+        raise Exception(r.status_code, url)
