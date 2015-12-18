@@ -4,6 +4,10 @@ from amber_lib.models.bases import Model, Property, resource
 
 
 class Component(Model):
+    """ A layer on top of Model for handling differences between models and
+    Component models.
+    """
+
     _pk = "component_data_id"
     _resource = 'component'
     component_data_id = Property(int)
@@ -12,6 +16,8 @@ class Component(Model):
     product_id = Property(int)
 
     def delete(self, id_=None):
+        """ Delete a component.
+        """
         if id_ is not None:
             if self.is_valid() and self.pk() != id_:
                 raise ValueError
@@ -32,6 +38,8 @@ class Component(Model):
         return self
 
     def endpoint(self):
+        """ Retrieve the endpoint URL for the current component.
+        """
         loc = "/components/%s" % self._resource
 
         if not self.is_valid():
@@ -41,6 +49,8 @@ class Component(Model):
             return loc + "/%d" % self.pk()
 
     def retrieve(self, id_):
+        """ Retreive a component by ID.
+        """
         setattr(self, self._pk, id_)
         payload = client.send(
             client.GET,
@@ -52,6 +62,8 @@ class Component(Model):
         return self
 
     def save(self, data=None):
+        """ Save the current data in the model to the API.
+        """
         if data is not None:
             self.update(data)
 

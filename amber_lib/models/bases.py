@@ -4,6 +4,10 @@ from amber_lib import client
 
 
 class Model(object):
+    """ Model is a base class which contains all the methods requires for
+    the various CRUD methods on database entries, querying, and managing
+    database entries.
+    """
     _ctx = None
     _links = {}
     _pk = "id"
@@ -17,11 +21,17 @@ class Model(object):
         self._ctx = context
 
     def __getattr__(self, attr):
+        """ This magic method is called when access to an attribute which
+        does not exist occurrs.
+        """
         raise AttributeError(
             '"%s" does not have: %s' % (self.__class__.__name__, attr)
         )
 
     def __getattribute__(self, attr):
+        """ This magic method is called whenever access to an attribute is
+        attempted, even if that attribute does not exist.
+        """
         obj_attr = object.__getattribute__(self, attr)
         if attr.startswith('_') or hasattr(obj_attr, '__call__'):
             return obj_attr
@@ -59,9 +69,14 @@ class Model(object):
             setattr(self, attr, val)
 
     def ctx(self):
+        """ Retrieve the context of the model.
+        """
         return self._ctx
 
     def delete(self, id_=None):
+        """ Delete the current model, delete the model as specified by ID, or
+        error out, depending on the weather conditions.
+        """
         if self.is_valid():
             if id_ is not None:
                 raise ValueError(
@@ -88,6 +103,8 @@ class Model(object):
         return self
 
     def endpoint(self):
+        """ Generate and retrieve an API URL endpoint for the current model.
+        """
         loc = "/%s" % self._resource
 
         if not self.is_valid():
@@ -129,6 +146,8 @@ class Model(object):
         return self.from_dict(dict_)
 
     def pk(self):
+        """ Retrieve the primary key for the current model.
+        """
         return getattr(self, self._pk)
 
     def query(self, batch_size=500, offset=0):
@@ -156,6 +175,9 @@ class Model(object):
         return collection
 
     def set_relation(self, bool_, obj):
+        """ Create or remove a relation between the current model and a
+        different model.
+        """
         payload = client.send(
             client.POST if bool_ is True else client.DELETE_,
             "/relations",
@@ -167,6 +189,8 @@ class Model(object):
         )
 
     def relate(self, obj):
+        """ Create a relation between this object and another.
+        """
         self.set_relation(True, obj)
 
     def retrieve(self, id_):
@@ -186,11 +210,17 @@ class Model(object):
         return self
 
     def is_valid(self):
+        """ Determine if the current model is valid, based on the contents
+        of its primary key.
+        """
         return hasattr(self, self._pk) and \
                 getattr(self, self._pk) is not None and \
                 int(getattr(self, self._pk)) > 0
 
     def refresh(self):
+        """ If the current entity is valid, update it by retrieve it's own
+        data and perform an internal update.
+        """
         if self.is_valid():
             self.retrieve(self.pk())
         else:
@@ -257,6 +287,8 @@ class Model(object):
         return json.dumps(self.to_dict())
 
     def unrelate(self, obj):
+        """ Unrelate this object and another object.
+        """
         self.set_relation(False, obj)
 
     def update(self, data):
@@ -272,12 +304,23 @@ class Model(object):
 
 
 class Property(object):
+    """ Enable enforcing static-typing in the dynamic langaugage Python. This
+    can't be a bad idea, right? Hurray!
+    """
+
     def __init__(self, kind, is_list=False):
+        """ Initialize a new Property, specifying the class and whether
+        it should be a list of things or not.
+        """
         self.kind = kind
         self.is_list = is_list
         self.value = None
 
     def __set__(self, obj, value):
+        """ When attempting to set this Property, as an attribute, to a new
+        value, the new value must first match the rules of the instantiated
+        Property. Otherwise an exception is raised.
+        """
         if value is None:
             self.value = None
         elif self.is_list is True:
@@ -306,6 +349,9 @@ class Property(object):
 
 
 def resource(endpoint, pk="id"):
+    """ This is a decorator for specifying a endpoint and what attribute
+    stores the primary key for a model.
+    """
     def set_resource(obj):
         obj._resource = endpoint
         return obj
