@@ -32,6 +32,26 @@ class Assemblage(Model):
     description = Property(str)
 
 
+@resource('categories')
+class Categories(Model):
+    primaries = Property(str, True)
+    secondaries = Property(str, True)
+    tertiaries = Property(str, True)
+
+    class Count(Model):
+        primary_categories = Property(int)
+        secondary_categories = Property(int)
+        tertiary_categories = Property(int)
+    count = Property(Count)
+
+    total = Property(int)
+
+    def delete(self):
+        pass
+
+    def query(self):
+        pass
+
 @resource('collections')
 class Collection(Model):
     description = Property(str)

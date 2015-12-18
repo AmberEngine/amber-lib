@@ -193,12 +193,14 @@ class Model(object):
         """
         self.set_relation(True, obj)
 
-    def retrieve(self, id_):
+    def retrieve(self, id_=None):
         """ Retrieve the data for a database entry constrained by the
         specified ID, and udpate the current instance using the retrieved
         data.
         """
-        setattr(self, self._pk, id_)
+        if id_ is not None:
+            setattr(self, self._pk, id_)
+
         payload = client.send(
             client.GET,
             self.ctx(),
@@ -315,6 +317,8 @@ class Property(object):
         self.kind = kind
         self.is_list = is_list
         self.value = None
+        if is_list:
+            self.value = []
 
     def __set__(self, obj, value):
         """ When attempting to set this Property, as an attribute, to a new
@@ -329,13 +333,17 @@ class Property(object):
             else:
                 for val in value:
                     if isinstance(val, self.kind) is False:
+                        if self.kind == str and \
+                                type(val).__name__ == 'unicode':
+                            self.value.append(val.encode('utf-8'))
+                            continue
                         raise TypeError(
                             'Type: \'%s\' is not \'%s\'' % (
                                 type(val),
                                 self.kind
                             )
                         )
-                    self.value = value
+                    self.value.append(val)
         elif isinstance(value, self.kind):
             self.value = value
         elif isinstance(value, int) and self.kind == float:
