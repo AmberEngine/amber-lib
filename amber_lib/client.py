@@ -96,7 +96,6 @@ class Container(object):
             collection[:]
             collection[-5:]
             collection[1:100:5]
-
         """
         if isinstance(key, slice):
             start = key.start if key.start else 0
@@ -333,6 +332,9 @@ class Container(object):
         return val
 
     def set_relation(self, type_, thing):
+        """ Set or unset a relation between all the elements contained within
+        the Container and the thing.
+        """
         first = [str(entry.id) for entry in self]
         if isinstance(thing, Container):
             second = [str(entry.id) for entry in thing]
@@ -357,9 +359,15 @@ class Container(object):
         )
 
     def relate(self, thing):
+        """ Create a relation between the Container's contained elements and
+        the thing.
+        """
         self.set_relation(POST, thing)
 
     def unrelate(self, thing):
+        """ Uncreate a relation between the current Container's contained
+        collection of elements.
+        """
         self.set_relation(DELETE, thing)
 
     def remove(self, item):
