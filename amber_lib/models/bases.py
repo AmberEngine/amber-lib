@@ -267,14 +267,10 @@ class Model(object):
                 else:
                     prop = find(obj, key)
                     if prop is not None:
-                        print(prop.kind)
                         if issubclass(prop.kind, Model):
                             continue
                     dict_[key] = item
             return dict_
-        print("*" * 1000)
-        import pprint
-        pprint.pprint(collapse_dict(self))
         return collapse_dict(self)
 
     def to_json(self):
