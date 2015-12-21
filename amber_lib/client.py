@@ -320,6 +320,13 @@ class Container(object):
 
         self.values[insert_index] = item
 
+    def list_to_json(self):
+        list_ = []
+        for index in sorted(self.values.keys()):
+            list_.append(self[index].to_dict())
+
+        return json.dumps(list_)
+
     def pop(self, index=None):
         """ Retrieve and remove the last index from the Collection.
         """
