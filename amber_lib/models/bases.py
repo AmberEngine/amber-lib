@@ -150,7 +150,7 @@ class Model(object):
         """
         return getattr(self, self._pk)
 
-    def query(self, batch_size=500, offset=0):
+    def query(self, batch_size=500, offset=0, **kwargs):
         """ Retrieve a collection of instances of the model, using the
         URI params from the keyword arguments.
         """
@@ -162,7 +162,8 @@ class Model(object):
             self.endpoint(),
             None,
             limit=batch_size,
-            offset=offset
+            offset=offset,
+            **kwargs
         )
 
         collection = client.Container(

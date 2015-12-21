@@ -12,6 +12,9 @@ from amber_lib.connection import Connection
 class ResponseException(Exception):
     pass
 
+class ConnectionException(Exception):
+    pass
+
 """
 class Error(object):
     status = ""
