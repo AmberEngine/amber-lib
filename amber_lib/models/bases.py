@@ -13,7 +13,6 @@ class Model(object):
     _pk = "id"
     _resource = 'models'
 
-
     def __init__(self, context):
         """ Initialize a new instance of the Model, saving the current context
         internally.
@@ -46,19 +45,6 @@ class Model(object):
             self.__dict__[attr].__set__(self, val)
             return
         else:
-            def find(obj, key):
-                if key in obj.__dict__:
-                    return obj.__dict__[key]
-                if key in obj.__class__.__dict__:
-                    return obj.__class__.__dict__[key]
-
-                for parent in obj.__class__.__bases__:
-                    if issubclass(parent, Model):
-                        result = find(parent, key)
-                        if result:
-                            return result
-                return None
-
             prop = find(self, attr)
             if not prop:
                 raise AttributeError(
@@ -217,8 +203,8 @@ class Model(object):
         of its primary key.
         """
         return hasattr(self, self._pk) and \
-                getattr(self, self._pk) is not None and \
-                int(getattr(self, self._pk)) > 0
+            getattr(self, self._pk) is not None and \
+            int(getattr(self, self._pk)) > 0
 
     def refresh(self):
         """ If the current entity is valid, update it by retrieve it's own
@@ -279,8 +265,16 @@ class Model(object):
                             list_.append(el)
                     dict_[key] = list_
                 else:
+                    prop = find(obj, key)
+                    if prop is not None:
+                        print(prop.kind)
+                        if issubclass(prop.kind, Model):
+                            continue
                     dict_[key] = item
             return dict_
+        print("*" * 1000)
+        import pprint
+        pprint.pprint(collapse_dict(self))
         return collapse_dict(self)
 
     def to_json(self):
@@ -355,6 +349,20 @@ class Property(object):
             raise TypeError(
                 'Type: \'%s\' is not \'%s\'' % (type(value), self.kind)
             )
+
+
+def find(obj, key):
+    if key in obj.__dict__:
+        return obj.__dict__[key]
+    if key in obj.__class__.__dict__:
+        return obj.__class__.__dict__[key]
+
+    for parent in obj.__class__.__bases__:
+        if issubclass(parent, Model):
+            result = find(parent, key)
+            if result:
+                return result
+    return None
 
 
 def resource(endpoint, pk="id"):
