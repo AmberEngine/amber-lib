@@ -136,7 +136,7 @@ class Model(object):
         """
         return getattr(self, self._pk)
 
-    def query(self, batch_size=500, offset=0, **kwargs):
+    def query(self, filtering=None, batch_size=500, offset=0, **kwargs):
         """ Retrieve a collection of instances of the model, using the
         URI params from the keyword arguments.
         """
@@ -146,7 +146,7 @@ class Model(object):
             client.GET,
             self._ctx,
             self.endpoint(),
-            None,
+            {"filtering": filtering.to_dict()} if filtering else None,
             limit=batch_size,
             offset=offset,
             **kwargs
