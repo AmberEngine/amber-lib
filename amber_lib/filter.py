@@ -9,8 +9,8 @@ class Predicate(object):
     def to_dict(self):
         return {self.path: self.expression}
 
-AND = "and"
-OR = "or"
+AND = "&&"
+OR = "||"
 
 class _Operator(object):
     def __init__(self, type_, *preds):
@@ -29,7 +29,7 @@ class _Operator(object):
             else:
                 raise TypeError()
 
-        return {"$%s" % self.type_: list_}
+        return {self.type_: list_}
 
     def to_json(self):
         return json.dumps(self.to_dict())
@@ -43,37 +43,37 @@ class Or(_Operator):
         _Operator.__init__(self, OR, *preds)
 
 def equal(value):
-    return {"$eq": value}
+    return {"==": value}
 
 def not_equal(value):
-    return {"$neq": value}
+    return {"!=": value}
 
 def within(*value):
     if not isinstance(value, tuple):
         raise TypeError()
-    return {"$in": value}
+    return {"in": value}
 
 def not_in(*value):
     if not isinstance(value, tuple):
         raise TypeError()
-    return {"$notIn": value}
+    return {"!in": value}
 
 def min(value):
-    return {"$gte": value}
+    return {">=": value}
 
 def max(value):
-    return {"$lte": value}
+    return {"<=": value}
 
 def greater_than(value):
-    return {"$gt": value}
+    return {">": value}
 
 def less_than(value):
-    return {"$lt": value}
+    return {"<>": value}
 
 def is_null():
-    return {"$null": ""}
+    return {"null": ""}
 
 def is_not_null():
-    return {"$notNull": ""}
+    return {"!null": ""}
 
 
