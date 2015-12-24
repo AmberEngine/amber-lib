@@ -1,3 +1,4 @@
+from amber_lib import client
 from amber_lib.models import components
 from amber_lib.models.bases import Model, Property, resource
 from amber_lib.models.primaries import Assemblage
@@ -49,3 +50,27 @@ class Product(Model):
     textile = Property(components.Textile)
     visibility = Property(components.Visibility)
     weight = Property(components.Weight)
+
+    def search(self, filtering=None, batch_size=500, offset=0, terms=None, **kwargs):
+        kwargs.update({"terms": terms})
+
+        payload = client.send(
+            client.POST,
+            self._ctx,
+            "/products/search",
+            {"filtering": filtering.to_dict()} if filtering else None,
+            limit=batch_size,
+            offset=offset,
+            **kwargs
+        )
+
+        collection = client.Container(
+            payload,
+            self.__class__,
+            self._ctx,
+            offset
+        )
+
+        return collection
+
+

@@ -309,7 +309,7 @@ class Manufacturer(Component):
 @resource('option_set')
 class OptionSet(Component):
     option_set_id = Property(int)
-
+    option_set = Property(primaries.OptionSet)
 
 @resource('option_sets')
 class OptionSets(Component):

@@ -49,8 +49,9 @@ class Categories(Model):
     def delete(self):
         pass
 
-    def query(self):
+    def save(self):
         pass
+
 
 @resource('collections')
 class Collection(Model):

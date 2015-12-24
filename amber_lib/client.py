@@ -293,6 +293,11 @@ class Container(object):
         """
         return len(self)
 
+    def delete(self):
+        self.__finish_it()
+        for entity in self:
+            entity.delete()
+
     def extend(self, list_):
         """ Append an existing list or container to the current Container
         instance.
