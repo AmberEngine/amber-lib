@@ -298,7 +298,7 @@ class Model(object):
     def form_schema(self):
         """ Retrieve the Schema for the """
         endpoint = "/form_schemas/%s" % self._resource
-        response = client.send(client.GET, self.ctx(), endpoint)
+        response = client.send(client.GET, self.ctx(), endpoint, {})
         return response
 
 class Property(object):

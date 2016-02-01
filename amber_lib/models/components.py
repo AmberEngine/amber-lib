@@ -85,6 +85,12 @@ class Component(Model):
         self.update(returned_dict)
         return self
 
+    def form_schema(self):
+        """ Retrieve the Schema for the """
+        endpoint = "/form_schemas/products?component=%s" % self._resource
+        response = client.send(client.GET, self.ctx(), endpoint, {})
+        return response
+
 
 @resource('audit')
 class Audit(Component):
