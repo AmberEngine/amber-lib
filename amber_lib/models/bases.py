@@ -295,6 +295,11 @@ class Model(object):
         else:
             raise TypeError
 
+    def form_schema(self):
+        """ Retrieve the Schema for the """
+        endpoint = "/form_schemas/%s" % self._resource
+        response = client.send(client.GET, self.ctx(), endpoint)
+        return response
 
 class Property(object):
     """ Enable enforcing static-typing in the dynamic langaugage Python. This
