@@ -431,6 +431,7 @@ class ShippingInformation(Component):
     standard = Property(bool)
     volume = Property(float)
     white_glove = Property(bool)
+    country_of_origin = Property(str)
 
 
 @resource('side_rail')
