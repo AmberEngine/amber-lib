@@ -267,7 +267,8 @@ class Model(object):
                 else:
                     prop = find(obj, key)
                     if prop is not None:
-                        if issubclass(prop.kind, Model):
+                        if isinstance(prop.kind, type) and \
+                                issubclass(prop.kind, Model):
                             continue
                     dict_[key] = item
             return dict_

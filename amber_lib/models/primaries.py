@@ -118,6 +118,115 @@ class ManufacturerImage(Model):
     url = Property(str)
 
 
+@resource('options')
+class Option(Model):
+    class Nailhead(Model):
+        id = Property(int)
+        option_id = Property(int)
+        finish = Property(str)
+        height = Property(float)
+        width = Property(float)
+        depth = Property(float)
+        diameter = Property(float)
+
+    class Leather(Model):
+        id = Property(int)
+        option_id = Property(int)
+        type = Property(str)
+        hide_size = Property(float)
+        averag_thickness = Property(float)
+        finish = Property(str)
+        performance = Property(str)
+        flammability = Property(str)
+        cleaning_instructions = Property(str)
+
+    class Hardware(Model):
+        id = Property(int)
+        option_id = Property(int)
+        finish = Property(str)
+        height = Property(float)
+        width = Property(float)
+        depth = Property(float)
+        diameter = Property(float)
+
+    class Textile(Model):
+        id = Property(int)
+        option_id = Property(int)
+        content = Property(str)
+        cleaning_instructions = Property(str)
+        direction = Property(str)
+        color = Property(str)
+        design_type = Property(str)
+        flammability = Property(str)
+        grade = Property(str)
+        horizontal_repeat = Property(float)
+        martindal = Property(str)
+        scale = Property(str)
+        treatment = Property(str)
+        usage = Property(str)
+        vertical_repeat = Property(float)
+        weave_type = Property(str)
+        width = Property(float)
+        wyzenbeek = Property(str)
+
+    class Trim(Model):
+        id = Property(int)
+        option_id = Property(int)
+        color = Property(str)
+        content = Property(str)
+        height = Property(float)
+        width = Property(float)
+        depth = Property(float)
+        diameter = Property(float)
+        trim_type = Property(str)
+
+    id = Property(int)
+    option_set_id = Property(int)
+    number = Property(str)
+    description = Property(str)
+    default = Property(bool)
+    image = Property(str)
+    surcharge = Property(int)
+    type = Property(str)
+    type_data = Property((Nailhead, Leather, Hardware, Textile, Trim))
+
+    def from_dict(self, dict_):
+        """ Update the internal dictionary for the instance using the
+        key-value pairs contained within the provided dictionary.
+        """
+        def explode_dict(obj, exp_dict):
+            for key, val in exp_dict.items():
+                attr = object.__getattribute__(obj, key)
+
+                if isinstance(val, dict):
+                    if not isinstance(attr, dict):
+                        type_ = exp_dict.get("type")
+                        inst = None
+                        if type_ == "nailheadOptionType":
+                            inst = Option.Nailhead(obj.ctx())
+                        elif type_ == "leatherOptionType":
+                            inst = Option.Leather(obj.ctx())
+                        elif type_ == "hardwareOptionType":
+                            inst = Option.Hardware(obj.ctx())
+                        elif type_ == "textileOptionType":
+                            inst = Option.Textile(obj.ctx())
+                        elif type_ == "trimOptionType":
+                            inst = Option.Trim(obj.ctx())
+                        val = explode_dict(inst, val)
+                elif isinstance(val, list):
+                    list_ = []
+                    for el in val:
+                        if isinstance(el, dict):
+                            inst = attr.kind(obj.ctx())
+                            el = explode_dict(inst, el)
+                        list_.append(el)
+                    val = list_
+                setattr(obj, key, val)
+            return obj
+        return explode_dict(self, dict_)
+
+
+
 @resource('option_sets')
 class OptionSet(Model):
     id = Property(int)
