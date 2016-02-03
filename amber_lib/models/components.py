@@ -330,7 +330,7 @@ class OrderingInformation(Component):
     quick_ship = Property(bool)
     unit = Property(str)
     stock = Property(float)
-
+    warrenty = Property(str)
 
 @resource('overall_dimension')
 class OverallDimension(Component):
