@@ -146,6 +146,7 @@ class Collection(Component):
 class ConstructionInformation(Component):
     material = Property(str)
     joinery_type = Property(str)
+    finish = Property(str)
 
 
 @resource('cushion')
