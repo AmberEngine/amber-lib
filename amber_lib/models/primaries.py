@@ -34,16 +34,15 @@ class Assemblage(Model):
 
 @resource('categories')
 class Categories(Model):
-    primaries = Property(str, True)
-    secondaries = Property(str, True)
-    tertiaries = Property(str, True)
+    primary = Property(str, True)
+    secondary = Property(str, True)
+    tertiary = Property(str, True)
 
     class Count(Model):
         primary_categories = Property(int)
         secondary_categories = Property(int)
         tertiary_categories = Property(int)
     count = Property(Count)
-
     total = Property(int)
 
     def delete(self):
