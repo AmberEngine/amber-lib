@@ -147,6 +147,7 @@ class ConstructionInformation(Component):
     material = Property(str)
     joinery_type = Property(str)
     finish = Property(str)
+    assembly_required = Property(bool)
 
 
 @resource('cushion')
@@ -326,6 +327,7 @@ class OptionSets(Component):
 @resource('ordering_information')
 class OrderingInformation(Component):
     discontinued = Property(bool)
+    force_multiples = Property(int)
     lead_time = Property(str)
     minimum_quantity = Property(int)
     quick_ship = Property(bool)
