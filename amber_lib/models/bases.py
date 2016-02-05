@@ -111,6 +111,12 @@ class Model(object):
                 if isinstance(val, dict):
                     if not isinstance(attr, dict):
                         inst = attr.kind(obj.ctx())
+                        # Try to fill the new instance with data from the old
+                        # instance so we don't lose data that isn't included
+                        # in the val
+                        orig = getattr(obj, key)
+                        if orig:
+                            inst.update(orig.to_dict())
                         val = explode_dict(inst, val)
                 elif isinstance(val, list):
                     list_ = []
