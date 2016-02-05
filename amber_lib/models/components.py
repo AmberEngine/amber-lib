@@ -165,6 +165,11 @@ class Cushions(Component):
     quantity = Property(int)
 
 
+@resource('feature')
+class Feature(Component):
+    description = Property(str)
+
+
 @resource('description')
 class Description(Component):
     alternate = Property(str)
@@ -214,11 +219,6 @@ class Electrical(Component):
     exterior_use = Property(bool)
     switch_type = Property(str)
     voltage = Property(int)
-
-
-@resource('feature')
-class Feature(Component):
-    description = Property(str)
 
 
 @resource('fiber')
