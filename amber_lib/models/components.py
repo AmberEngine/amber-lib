@@ -427,7 +427,7 @@ class ShippingInformation(Component):
     box_list = Property(Box, True)
     drop_ship = Property(bool)
     freight = Property(bool)
-    notes = Property(bool)
+    notes = Property(str)
     ships_from = Property(str)
     standard = Property(bool)
     volume = Property(float)
