@@ -172,6 +172,7 @@ class Description(Component):
     features = Property(str)
     primary = Property(str)
     retail = Property(str)
+    feature_list = Property(Feature, True)
 
 
 @resource('door')
@@ -213,6 +214,11 @@ class Electrical(Component):
     exterior_use = Property(bool)
     switch_type = Property(str)
     voltage = Property(int)
+
+
+@resource('feature')
+class Feature(Component):
+    description = Property(str)
 
 
 @resource('fiber')
