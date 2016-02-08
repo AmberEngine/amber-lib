@@ -174,7 +174,7 @@ class Feature(Component):
 class Description(Component):
     alternate = Property(str)
     designer = Property(str)
-    features = Property(str)
+    feature_list = Property(Feature, True)
     primary = Property(str)
     retail = Property(str)
     feature_list = Property(Feature, True)
