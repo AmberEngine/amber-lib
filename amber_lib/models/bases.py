@@ -353,6 +353,8 @@ class Property(object):
             self.value = float(value)
         elif self.kind == str and type(value).__name__ == 'unicode':
             self.value = value.encode('utf-8')
+        elif self.kind == int && isinstance(value, str):
+            self.value = int(value.encode('utf-8'))
         else:
             raise TypeError(
                 'Type: \'%s\' is not \'%s\'' % (type(value), self.kind)
