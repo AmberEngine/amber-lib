@@ -177,7 +177,6 @@ class Description(Component):
     feature_list = Property(Feature, True)
     primary = Property(str)
     retail = Property(str)
-    feature_list = Property(Feature, True)
 
 
 @resource('door')
