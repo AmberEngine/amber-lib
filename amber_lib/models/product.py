@@ -56,14 +56,21 @@ class Product(Model):
         if not self.category.primary:
             Model.form_schema(self)
         else:
-            uri_params = {
-                "primary": self.category.primary,
-                "secondary": self.category.secondary,
-                "tertiary": self.category.tertiary
-            }
+            uri_params = {}
+            if self.category.primary:
+                uri_params['primary'] = self.category.primary
+            if self.category.secondary:
+                uri_params['secondary'] = self.category.secondary
+            if self.category.tertiary:
+                uri_params['tertiary'] = self.category.tertiary
 
             endpoint = "/form_schemas/%s" % self._resource
-            return client.send(client.GET, self.ctx(),endpoint,{},**uri_params)
+            return client.send(
+                client.GET,
+                self.ctx(),
+                endpoint, {},
+                **uri_params
+            )
 
     def search(self, filtering=None, batch_size=500, offset=0, terms=None, **kwargs):
         kwargs.update({"terms": terms})
