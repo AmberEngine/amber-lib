@@ -328,7 +328,7 @@ class Property(object):
         value, the new value must first match the rules of the instantiated
         Property. Otherwise an exception is raised.
         """
-        if value is None || (isinstance(value, str) && not value && not isinstance(self.kind, str)):
+        if value is None or (isinstance(value, str) and not value and not isinstance(self.kind, str)):
             self.value = None
         elif self.is_list is True:
             if not isinstance(value, list):
@@ -353,7 +353,7 @@ class Property(object):
             self.value = float(value)
         elif self.kind == str and type(value).__name__ == 'unicode':
             self.value = value.encode('utf-8')
-        elif self.kind == int and isinstance(value, unicode) && value.isdigit():
+        elif self.kind == int and isinstance(value, unicode) and value.isdigit():
             self.value = int(value.encode('utf-8'))
         else:
             raise TypeError(
