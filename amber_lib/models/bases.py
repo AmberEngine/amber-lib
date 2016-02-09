@@ -337,7 +337,9 @@ class Property(object):
             if not isinstance(value, list):
                 raise TypeError('Value: \'%s\' is not a list' % value)
             else:
+                list_ = []
                 for val in value:
+
                     if type(val).__name__ == 'unicode':
                         val = val.encode('utf-8')
                     if isinstance(val, self.kind) is False:
@@ -347,7 +349,8 @@ class Property(object):
                                 self.kind
                             )
                         )
-                    self.value.append(val)
+                    list_.append(val)
+                self.value = list_
         elif isinstance(value, self.kind):
             self.value = value
         elif isinstance(value, int) and self.kind == float:
