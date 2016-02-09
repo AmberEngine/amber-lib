@@ -117,6 +117,13 @@ class ManufacturerImage(Model):
     url = Property(str)
 
 
+class MultiValue(Model):
+    component = Property(str)
+    id = Property(int)
+    value = Property(str)
+    value_type = Property(str)
+
+
 @resource('options')
 class Option(Model):
     class Nailhead(Model):

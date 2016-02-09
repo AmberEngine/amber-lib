@@ -350,8 +350,8 @@ class OverallDimension(Component):
 
 @resource('pattern')
 class Pattern(Component):
-    color = Property(str)
-    design_type = Property(str)
+    color = Property(primaries.MultiValue, True)
+    design_type = Property(primaries.MultiValue, True)
     direction = Property(str)
     horizontal_repeat = Property(float)
     pattern_number = Property(str)
@@ -479,8 +479,8 @@ class Textile(Component):
     content = Property(str)
     grade = Property(str)
     treatment = Property(str)
-    usage = Property(str)
-    weave_type = Property(str)
+    usage = Property(primaries.MultiValue, True)
+    weave_type = Property(primaries.MultiValue, True)
     width = Property(float)
 
 
