@@ -51,6 +51,12 @@ class Product(Model):
     visibility = Property(components.Visibility)
     weight = Property(components.Weight)
 
+    def get_components(self):
+        return {
+            key: val for key, val in self.__dict__.items()
+            if key != 'id' and not key.startswith('_')
+        }
+
     def form_schema(self):
         """ Retrieve the Schema for the """
         if not self.category.primary:
