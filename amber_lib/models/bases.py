@@ -328,18 +328,18 @@ class Property(object):
         value, the new value must first match the rules of the instantiated
         Property. Otherwise an exception is raised.
         """
-        if value is None or (isinstance(value, str) and not value and not isinstance(self.kind, str)):
+        if type(value).__name__ == 'unicode':
+            value = value.encode('utf-8')
+        if value is None or (isinstance(value, str)) and not value and not isinstance(self.kind, str)):
             self.value = None
         elif self.is_list is True:
             if not isinstance(value, list):
                 raise TypeError('Value: \'%s\' is not a list' % value)
             else:
                 for val in value:
+                    if type(val).__name__ == 'unicode':
+                        val = val.encode('utf-8')
                     if isinstance(val, self.kind) is False:
-                        if self.kind == str and \
-                                type(val).__name__ == 'unicode':
-                            self.value.append(val.encode('utf-8'))
-                            continue
                         raise TypeError(
                             'Type: \'%s\' is not \'%s\'' % (
                                 type(val),
@@ -351,10 +351,10 @@ class Property(object):
             self.value = value
         elif isinstance(value, int) and self.kind == float:
             self.value = float(value)
-        elif self.kind == str and type(value).__name__ == 'unicode':
-            self.value = value.encode('utf-8')
-        elif self.kind == int and isinstance(value, unicode) and value.isdigit():
-            self.value = int(value.encode('utf-8'))
+        elif self.kind == str:
+            self.value = value
+        elif self.kind == int and isinstance(value, str) and value.isdigit():
+            self.value = int(value)
         else:
             raise TypeError(
                 'Type: \'%s\' is not \'%s\'' % (type(value), self.kind)
@@ -383,3 +383,4 @@ def resource(endpoint, pk="id"):
         obj._resource = endpoint
         return obj
     return set_resource
+
