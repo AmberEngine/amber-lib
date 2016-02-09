@@ -330,7 +330,8 @@ class Property(object):
         """
         if type(value).__name__ == 'unicode':
             value = value.encode('utf-8')
-        if value is None or (isinstance(value, str)) and not value and not isinstance(self.kind, str)):
+        if value is None or (isinstance(value, str) and not value and \
+                not isinstance(self.kind, str)):
             self.value = None
         elif self.is_list is True:
             if not isinstance(value, list):
