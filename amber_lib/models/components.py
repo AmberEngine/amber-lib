@@ -119,6 +119,8 @@ class Box(Component):
     height = Property(float)
     weight = Property(float)
     width = Property(float)
+    quantity = Property(int)
+    volume = Property(float)
 
 
 @resource('bulb')
@@ -157,6 +159,7 @@ class Cushion(Component):
     height = Property(float)
     style = Property(str)
     width = Property(float)
+    quantity = Property(int)
 
 
 @resource('cushions')
@@ -185,6 +188,7 @@ class Door(Component):
     height = Property(float)
     opening = Property(float)
     width = Property(float)
+    quantity = Property(int)
 
 
 @resource('doors')
@@ -205,6 +209,7 @@ class Drawer(Component):
     depth = Property(float)
     height = Property(float)
     width = Property(float)
+    quantity = Property(int)
 
 
 @resource('drawers')
@@ -372,6 +377,7 @@ class Pillow(Component):
     depth = Property(float)
     width = Property(float)
     height = Property(float)
+    quantity = Property(int)
 
 
 @resource('pillows')
@@ -421,6 +427,7 @@ class Shelf(Component):
     depth = Property(float)
     width = Property(float)
     height = Property(float)
+    quantity = Property(int)
 
 
 @resource('shelves')
@@ -465,6 +472,7 @@ class SuspensionPoint(Component):
 class TableLeaf(Component):
     depth = Property(float)
     width = Property(float)
+    quantity = Property(int)
 
 
 @resource('table_leaves')
