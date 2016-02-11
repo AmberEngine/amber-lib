@@ -194,6 +194,7 @@ class Option(Model):
     id = Property(int)
     option_set_id = Property(int)
     number = Property(str)
+    name = Property(str)
     description = Property(str)
     default = Property(bool)
     image = Property(str)
@@ -213,16 +214,18 @@ class Option(Model):
                     if not isinstance(attr, dict):
                         type_ = exp_dict.get("type")
                         inst = None
-                        if type_ == "nailheadOptionType":
+                        if type_ == "nailhead":
                             inst = Option.Nailhead(obj.ctx())
-                        elif type_ == "leatherOptionType":
+                        elif type_ == "leather":
                             inst = Option.Leather(obj.ctx())
-                        elif type_ == "hardwareOptionType":
+                        elif type_ == "hardware":
                             inst = Option.Hardware(obj.ctx())
-                        elif type_ == "textileOptionType":
+                        elif type_ == "textile":
                             inst = Option.Textile(obj.ctx())
-                        elif type_ == "trimOptionType":
+                        elif type_ == "trim":
                             inst = Option.Trim(obj.ctx())
+                        elif type_ == "finish":
+                            pass  # because finish has no extra fields
                         val = explode_dict(inst, val)
                 elif isinstance(val, list):
                     list_ = []
