@@ -308,6 +308,7 @@ class Model(object):
         response = client.send(client.GET, self.ctx(), endpoint, {})
         return response
 
+
 class Property(object):
     """ Enable enforcing static-typing in the dynamic langaugage Python. This
     can't be a bad idea, right? Hurray!
@@ -343,12 +344,15 @@ class Property(object):
                     if type(val).__name__ == 'unicode':
                         val = val.encode('utf-8')
                     if isinstance(val, self.kind) is False:
-                        raise TypeError(
-                            'Type: \'%s\' is not \'%s\'' % (
-                                type(val),
-                                self.kind
+                        if self.kind == int and isinstance(val, str) and val.isdigit():
+                            val = int(val)
+                        else:
+                            raise TypeError(
+                                'Type: \'%s\' is not \'%s\'' % (
+                                    type(val),
+                                    self.kind
+                                )
                             )
-                        )
                     list_.append(val)
                 self.value = list_
         elif isinstance(value, self.kind):
@@ -363,7 +367,6 @@ class Property(object):
             raise TypeError(
                 'Type: \'%s\' is not \'%s\'' % (type(value), self.kind)
             )
-
 
 def find(obj, key):
     if key in obj.__dict__:
@@ -387,4 +390,3 @@ def resource(endpoint, pk="id"):
         obj._resource = endpoint
         return obj
     return set_resource
-
