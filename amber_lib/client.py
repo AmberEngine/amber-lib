@@ -419,6 +419,8 @@ def create_payload(context, url, data):
     """ Generate a new dictionary payload based on a context, url and data
     dictionary.
     """
+    if not data:
+        data = {}
     payload = {
         'data': data,
         'headers': {'Content-Type': 'application/json'},
@@ -462,7 +464,7 @@ def create_url(context, endpoint, **uri_args):
     return url
 
 
-def send(method, ctx, endpoint, json_data, **uri_params):
+def send(method, ctx, endpoint, json_data=None, **uri_params):
     """ Send a data request to a resource on API, based on the context,
     endpoint, JSON data and optional URI parameter values. This method will
     attempt to retry on certain server errors. A JSON dictionary of the

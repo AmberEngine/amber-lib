@@ -173,8 +173,8 @@ class Model(object):
         """
         payload = client.send(
             client.POST if bool_ is True else client.DELETE_,
+            self.ctx(),
             "/relations",
-            None,
             **{
                 self._resource: self.pk(),
                 obj._resource: obj.pk()
