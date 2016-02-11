@@ -324,14 +324,14 @@ class Manufacturer(Component):
     manufacturer_id = Property(int)
 
 
-@resource('option_set')
-class OptionSet(Component):
-    option_set_id = Property(int)
-    option_set = Property(primaries.OptionSet)
+# @resource('option_set')
+# class OptionSet(Component):
+#     option_set_id = Property(int)
+#     option_set = Property(primaries.OptionSet)
 
 @resource('option_sets')
 class OptionSets(Component):
-    option_set_list = Property(OptionSet, True)
+    option_set_list = Property(primaries.OptionSet, True)
 
 
 @resource('ordering_information')
