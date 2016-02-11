@@ -26,7 +26,7 @@ class Container(object):
         """
         self.class_ = class_
         self.ctx = ctx
-        self.kind = class_.__name__.lower()
+        self.kind = class_._resource
         self.offset = offset
         self.values = {}
 
@@ -35,7 +35,7 @@ class Container(object):
 
         self.batch_size = dict_.get('count', self.total)
 
-        embedded = dict_.get('_embedded', {}).get(self.kind + 's', [])
+        embedded = dict_.get('_embedded', {}).get(self.kind, [])
         self.__append(embedded)
 
     def __add__(self, other):

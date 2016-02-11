@@ -244,6 +244,7 @@ class OptionSet(Model):
     manufacturer_id = Property(int)
     name = Property(str)
     type = Property(str)
+    option_list = Property(Option, True)
 
 
 @resource('sales_channels')
