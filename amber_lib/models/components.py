@@ -340,6 +340,7 @@ class OrderingInformation(Component):
     discontinued = Property(bool)
     force_multiples = Property(int)
     lead_time = Property(str)
+    lead_time_unit = Property(str)
     minimum_quantity = Property(int)
     quick_ship = Property(bool)
     unit = Property(str)
