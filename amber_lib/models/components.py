@@ -189,6 +189,7 @@ class Door(Component):
     opening = Property(float)
     width = Property(float)
     quantity = Property(int)
+    thickness = Property(float)
 
 
 @resource('doors')
@@ -378,6 +379,7 @@ class Pillow(Component):
     width = Property(float)
     height = Property(float)
     quantity = Property(int)
+    thickness = Property(float)
 
 
 @resource('pillows')
@@ -428,6 +430,7 @@ class Shelf(Component):
     width = Property(float)
     height = Property(float)
     quantity = Property(int)
+    thickness = Property(float)
 
 
 @resource('shelves')
