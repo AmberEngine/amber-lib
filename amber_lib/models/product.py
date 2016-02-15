@@ -60,7 +60,7 @@ class Product(Model):
     def form_schema(self):
         """ Retrieve the Schema for the """
         if not self.category.primary:
-            Model.form_schema(self)
+            return Model.form_schema(self)
         else:
             uri_params = {}
             if self.category.primary:
