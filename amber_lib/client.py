@@ -175,6 +175,8 @@ class Container(object):
         """
         if isinstance(values, list):
             offset = self.offset
+            if len(values) <= 0:
+                return
             for index, value in enumerate(values):
                 self.offset += 1
                 if isinstance(value, dict):
@@ -238,7 +240,7 @@ class Container(object):
 
         more_data = send(GET, self.ctx, self.hal['next']['href'], None)
         self.hal = more_data.get('_links', {})
-        embedded = more_data.get('_embedded', {}).get(self.kind + 's', [])
+        embedded = more_data.get('_embedded', {}).get(self.kind, [])
 
         self.__append(embedded)
 
@@ -273,7 +275,7 @@ class Container(object):
 
         moar_data = send(GET, self.ctx, self.hal['previous']['href'], None)
         self.hal = moar_data.get('_links', {})
-        embedded = moar_data.get('_embedded', {}).get(self.kind + 's', [])
+        embedded = moar_data.get('_embedded', {}).get(self.kind, [])
 
         self.offset -= self.batch_size
         if self.offset < 0:
