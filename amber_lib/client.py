@@ -502,7 +502,7 @@ def send(method, ctx, endpoint, json_data=None, **uri_params):
         status_code = r.status_code
         if status_code in errors.HTTP_ERRORS:
             raise errors.HTTP_ERRORS[status_code](
-                errors['code'],
+                error['code'],
                 error['title'],
                 error['message']
             )
