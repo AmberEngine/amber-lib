@@ -367,7 +367,7 @@ class Property(object):
             self.value = int(value)
         else:
             raise TypeError(
-                'Type: \'%s\' is not \'%s\'' % (type(value), self.kind)
+                'Type: \'%s\' for \'%s\' is not \'%s\'' % (type(value), value, self.kind)
             )
 
 def find(obj, key):
