@@ -9,7 +9,7 @@ import json
 
 import requests
 
-from amber_lib import errors
+import amber_lib.errors as errors
 
 DELETE = 'delete'
 GET = 'get'
