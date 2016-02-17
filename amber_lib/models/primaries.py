@@ -1,4 +1,5 @@
 from amber_lib.models.bases import Model, Property, resource
+from amber_lib import client
 
 
 @resource('api_keys')
@@ -275,6 +276,24 @@ class SalesChannel(Model):
     url = Property(str)
     visible = Property(bool)
     zipcode = Property(str)
+
+    def related_product_ids(self):
+        """ related_product_ids will return a dictionary containing both a
+        list of product id (in the "product_ids" attribute) and a count of
+        the total number of product IDs returned.
+        """
+        if not self.is_valid():
+            raise Exception("Sales Channel is not valid")
+
+        payload = client.send(
+            client.GET,
+            self.ctx(),
+            '/relations',
+            None,
+            sales_channel_id=self.pk()
+        )
+
+        return payload
 
 
 @resource('sales_channel_preferences')
