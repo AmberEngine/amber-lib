@@ -110,7 +110,13 @@ class Model(object):
 
                 if isinstance(val, dict):
                     if not isinstance(attr, dict):
-                        inst = attr.kind(obj.ctx())
+                        inst = None
+                        if isinstance(attr.kind, tuple):
+                            for kind in attr.kind:
+                                if isinstance(val, kind):
+                                    inst = kind(obj.ctx())
+                        else:
+                            inst = attr.kind(obj.ctx())
                         # Try to fill the new instance with data from the old
                         # instance so we don't lose data that isn't included
                         # in the val
