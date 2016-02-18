@@ -1,6 +1,6 @@
 import json
 
-from amber_lib import client
+from amber_lib import client, errors
 
 
 class Model(object):
@@ -154,22 +154,25 @@ class Model(object):
         """
         # TODO: Limit the total returned results.
         # TODO: Accept fields to pass on to client.send as a kwarg
-        payload = client.send(
-            client.GET,
-            self._ctx,
-            self.endpoint(),
-            {"filtering": filtering.to_dict()} if filtering else None,
-            limit=batch_size,
-            offset=offset,
-            **kwargs
-        )
+        try:
+            payload = client.send(
+                client.GET,
+                self._ctx,
+                self.endpoint(),
+                {"filtering": filtering.to_dict()} if filtering else None,
+                limit=batch_size,
+                offset=offset,
+                **kwargs
+            )
 
-        collection = client.Container(
-            payload,
-            self.__class__,
-            self._ctx,
-            offset
-        )
+            collection = client.Container(
+                payload,
+                self.__class__,
+                self._ctx,
+                offset
+            )
+        except errors.NotFound:
+            collection = client.Container({}, self.__class__, self._ctx, 0)
 
         return collection
 

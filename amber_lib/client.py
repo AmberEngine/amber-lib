@@ -33,7 +33,7 @@ class Container(object):
         self.values = {}
 
         self.hal = dict_.get('_links', {})
-        self.total = dict_.get('total')
+        self.total = dict_.get('total', 0)
 
         self.batch_size = dict_.get('count', self.total)
 
