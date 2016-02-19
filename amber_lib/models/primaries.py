@@ -10,7 +10,7 @@ class APIKey(Model):
     private = Property(str)
     public = Property(str)
     sales_channel_id = Property(int)
-    type = Property(str)
+    kind = Property(str)
     role_name = Property(str)
 
 
@@ -147,7 +147,7 @@ class Option(Model):
     class Leather(Model):
         id = Property(int)
         option_id = Property(int)
-        type = Property(str)
+        leather_type = Property(str)
         hide_size = Property(float)
         averag_thickness = Property(float)
         finish = Property(str)
@@ -203,7 +203,7 @@ class Option(Model):
     default = Property(bool)
     image = Property(str)
     surcharge = Property(int)
-    type = Property(str)
+    kind = Property(str)
     type_data = Property((Nailhead, Leather, Hardware, Textile, Trim))
 
     def from_dict(self, dict_):
@@ -250,7 +250,7 @@ class OptionSet(Model):
     id = Property(int)
     manufacturer_id = Property(int)
     name = Property(str)
-    type = Property(str)
+    kind = Property(str)
     option_list = Property(Option, True)
 
 

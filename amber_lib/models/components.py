@@ -127,7 +127,7 @@ class Box(Component):
 class Bulb(Component):
     base = Property(str)
     quantity = Property(int)
-    type = Property(str)
+    kind = Property(str)
     wattage = Property(int)
 
 
@@ -262,7 +262,7 @@ class Frame(Component):
 
 @resource('glass')
 class Glass(Component):
-    type = Property(str)
+    kind = Property(str)
 
 
 @resource('headboard')
@@ -316,7 +316,7 @@ class Leather(Component):
     col_requirement = Property(str)
     hide_size = Property(float)
     pattern_number = Property(str)
-    type = Property(str)
+    kind = Property(str)
 
 
 @resource('manufacturer')
@@ -421,7 +421,7 @@ class Shade(Component):
     height = Property(float)
     material = Property(str)
     quantity = Property(int)
-    type = Property(str)
+    kind = Property(str)
     width = Property(float)
 
 
