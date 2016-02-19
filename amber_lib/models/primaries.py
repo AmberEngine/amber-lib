@@ -204,7 +204,7 @@ class Option(Model):
     image = Property(str)
     surcharge = Property(int)
     kind = Property(str)
-    type_data = Property((Nailhead, Leather, Hardware, Textile, Trim))
+    extended_data = Property((Nailhead, Leather, Hardware, Textile, Trim))
 
     def from_dict(self, dict_):
         """ Update the internal dictionary for the instance using the
