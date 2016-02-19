@@ -11,6 +11,7 @@ class APIKey(Model):
     public = Property(str)
     sales_channel_id = Property(int)
     type = Property(str)
+    role_name = Property(str)
 
 
 class AssemblageElement(Model):
