@@ -104,6 +104,8 @@ class Manufacturer(Model):
     state = Property(str)
     street_address_1 = Property(str)
     street_address_2 = Property(str)
+    province = Property(str)
+    country = Property(str)
     twitter_url = Property(str)
     updated_by_api_key = Property(str)
     url = Property(str)
