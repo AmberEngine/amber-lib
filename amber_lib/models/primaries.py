@@ -270,7 +270,7 @@ class SalesChannel(Model):
     phone = Property(str)
     phone_extension = Property(str)
     pinterest_url = Property(str)
-    sales_channel_name = Property(str)
+    name = Property(str)
     setting_image = Property(bool)
     state = Property(str)
     street_address_1 = Property(str)
