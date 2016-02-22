@@ -349,7 +349,7 @@ class Container(object):
 
     def set_relation(self, type_, thing):
         """ Set or unset a relation between all the elements contained within
-        the Container and the thing.
+        the Container and the thing being related to.
         """
         first = [str(entry.id) for entry in self]
         if isinstance(thing, Container):
