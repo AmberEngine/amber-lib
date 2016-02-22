@@ -181,7 +181,7 @@ class Model(object):
         different model.
         """
         payload = client.send(
-            client.POST if bool_ is True else client.DELETE_,
+            client.POST if bool_ is True else client.DELETE,
             self.ctx(),
             "/relations",
             **{
