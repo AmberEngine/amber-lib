@@ -43,6 +43,7 @@ class Product(Model):
     overall_dimension = Property(components.OverallDimension)
     seat = Property(components.Seat)
     shade = Property(components.Shade)
+    side_rail = Property(components.SideRail)
     shelves = Property(components.Shelves)
     shipping_information = Property(components.ShippingInformation)
     suspension_point = Property(components.SuspensionPoint)
