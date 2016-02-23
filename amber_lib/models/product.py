@@ -10,6 +10,7 @@ class Product(Model):
     assemblage = Property(Assemblage)
     arm = Property(components.Arm)
     audit = Property(components.Audit)
+    base = Property(components.Base)
     bulb = Property(components.Bulb)
     category = Property(components.Category)
     collection = Property(components.Collection)
