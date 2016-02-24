@@ -14,6 +14,7 @@ class Product(Model):
     bulb = Property(components.Bulb)
     category = Property(components.Category)
     collection = Property(components.Collection)
+    com_col = Property(components.COMCOL)
     construction_information = Property(components.ConstructionInformation)
     cushions = Property(components.Cushions)
     description = Property(components.Description)
