@@ -144,6 +144,11 @@ class Collection(Component):
     collection_id = Property(int)
 
 
+@resource('com_col')
+class COMCOL(Component):
+    com = Property(float)
+    col = Property(float)
+
 @resource('construction_information')
 class ConstructionInformation(Component):
     material = Property(str)
@@ -184,7 +189,6 @@ class Description(Component):
 
 @resource('door')
 class Door(Component):
-    depth = Property(float)
     height = Property(float)
     opening = Property(float)
     width = Property(float)
@@ -223,7 +227,7 @@ class Drawers(Component):
 class Electrical(Component):
     exterior_use = Property(bool)
     switch_type = Property(str)
-    voltage = Property(int)
+    voltage = Property(float)
 
 
 @resource('fiber')
@@ -314,7 +318,6 @@ class InteriorDimension(Component):
 @resource('leather')
 class Leather(Component):
     finish = Property(str)
-    col_requirement = Property(str)
     hide_size = Property(float)
     pattern_number = Property(str)
     kind = Property(str)
@@ -340,7 +343,7 @@ class OptionSets(Component):
 class OrderingInformation(Component):
     discontinued = Property(bool)
     force_multiples = Property(int)
-    lead_time = Property(str)
+    lead_time = Property(int)
     lead_time_unit = Property(str)
     minimum_quantity = Property(int)
     quick_ship = Property(bool)
@@ -377,7 +380,6 @@ class Pedestal(Component):
 
 @resource('pillow')
 class Pillow(Component):
-    depth = Property(float)
     width = Property(float)
     height = Property(float)
     quantity = Property(int)
@@ -430,7 +432,6 @@ class Shade(Component):
 class Shelf(Component):
     depth = Property(float)
     width = Property(float)
-    height = Property(float)
     quantity = Property(int)
     thickness = Property(float)
 
@@ -488,7 +489,6 @@ class TableLeaves(Component):
 
 @resource('textile')
 class Textile(Component):
-    com_requirement = Property(float)
     content = Property(str)
     grade = Property(str)
     treatment = Property(str)
