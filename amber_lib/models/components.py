@@ -286,6 +286,7 @@ class Image(Component):
     caption = Property(str)
     category = Property(str)
     default = Property(bool)
+    description = Property(str)
     full_size = Property(str)
     large_size = Property(str)
     medium_size = Property(str)
