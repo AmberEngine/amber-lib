@@ -219,23 +219,27 @@ class Option(Model):
                 if isinstance(val, dict):
                     if not isinstance(attr, dict):
                         type_ = obj.kind
-                        inst = None
-                        if type_ == "nailhead":
-                            inst = Option.Nailhead(obj.ctx())
-                        elif type_ == "leather":
-                            inst = Option.Leather(obj.ctx())
-                        elif type_ == "hardware":
-                            inst = Option.Hardware(obj.ctx())
-                        elif type_ == "textile":
-                            inst = Option.Textile(obj.ctx())
-                        elif type_ == "trim":
-                            inst = Option.Trim(obj.ctx())
-                        elif type_ == "finish":
-                            pass  # because finish has no extra fields
-                        if inst is None:
-                            val = None
+                        if not getattr(obj, key):
+                            inst = None
+
+                            if type_ == "nailhead":
+                                inst = Option.Nailhead(obj.ctx())
+                            elif type_ == "leather":
+                                inst = Option.Leather(obj.ctx())
+                            elif type_ == "hardware":
+                                inst = Option.Hardware(obj.ctx())
+                            elif type_ == "textile":
+                                inst = Option.Textile(obj.ctx())
+                            elif type_ == "trim":
+                                inst = Option.Trim(obj.ctx())
+                            elif type_ == "finish":
+                                pass  # because finish has no extra fields
+                            if inst is None:
+                                val = None
+                            else:
+                                val = inst.from_dict(val)
                         else:
-                            val = inst.from_dict(val)
+                            val = getattr(obj, key).from_dict(val)
                 elif isinstance(val, list):
                     list_ = []
                     for el in val:
