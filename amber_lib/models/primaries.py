@@ -178,6 +178,7 @@ class Option(Model):
         grade = Property(str)
         horizontal_repeat = Property(float)
         martindale = Property(str)
+        pattern_number = Property(str)
         scale = Property(str)
         treatment = Property(str)
         usage = Property(str)
