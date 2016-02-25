@@ -110,26 +110,20 @@ class Model(object):
 
                 if isinstance(val, dict):
                     if not isinstance(attr, dict):
-                        inst = None
-                        if isinstance(attr.kind, tuple):
-                            for kind in attr.kind:
-                                if isinstance(val, kind):
-                                    inst = kind(obj.ctx())
-                        else:
-                            inst = attr.kind(obj.ctx())
+                        inst = attr.kind(obj.ctx())
                         # Try to fill the new instance with data from the old
                         # instance so we don't lose data that isn't included
                         # in the val
                         orig = getattr(obj, key)
                         if orig:
                             inst.update(orig.to_dict())
-                        val = explode_dict(inst, val)
+                        val = inst.from_dict(val)
                 elif isinstance(val, list):
                     list_ = []
                     for el in val:
                         if isinstance(el, dict):
                             inst = attr.kind(obj.ctx())
-                            el = explode_dict(inst, el)
+                            el = inst.from_dict(el)
                         list_.append(el)
                     val = list_
                 setattr(obj, key, val)

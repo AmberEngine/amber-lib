@@ -177,7 +177,7 @@ class Option(Model):
         flammability = Property(str)
         grade = Property(str)
         horizontal_repeat = Property(float)
-        martindal = Property(str)
+        martindale = Property(str)
         scale = Property(str)
         treatment = Property(str)
         usage = Property(str)
@@ -218,7 +218,7 @@ class Option(Model):
 
                 if isinstance(val, dict):
                     if not isinstance(attr, dict):
-                        type_ = exp_dict.get("type")
+                        type_ = exp_dict.get("kind")
                         inst = None
                         if type_ == "nailhead":
                             inst = Option.Nailhead(obj.ctx())
@@ -232,13 +232,16 @@ class Option(Model):
                             inst = Option.Trim(obj.ctx())
                         elif type_ == "finish":
                             pass  # because finish has no extra fields
-                        val = explode_dict(inst, val)
+                        if inst is None:
+                            val = None
+                        else:
+                            val = inst.from_dict(val)
                 elif isinstance(val, list):
                     list_ = []
                     for el in val:
                         if isinstance(el, dict):
                             inst = attr.kind(obj.ctx())
-                            el = explode_dict(inst, el)
+                            el = inst.from_dict(el)
                         list_.append(el)
                     val = list_
                 setattr(obj, key, val)
