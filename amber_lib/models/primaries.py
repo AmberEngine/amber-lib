@@ -218,7 +218,7 @@ class Option(Model):
 
                 if isinstance(val, dict):
                     if not isinstance(attr, dict):
-                        type_ = exp_dict.get("kind")
+                        type_ = obj.kind
                         inst = None
                         if type_ == "nailhead":
                             inst = Option.Nailhead(obj.ctx())
