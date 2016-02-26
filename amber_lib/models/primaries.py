@@ -131,7 +131,7 @@ class MultiValue(Model):
 
 
 class MultiValueList(Model):
-    multi_values = Property(MultiValue, True)
+    multi_values = Property(int, True)
     accepted_values = Property(MultiValue, True)
 
 
