@@ -33,6 +33,7 @@ class Product(Model):
     images = Property(components.Images)
     interior_dimension = Property(components.InteriorDimension)
     instruction = Property(components.Instruction)
+    keyword = Property(components.Keyword)
     leather = Property(components.Leather)
     manufacturer = Property(components.Manufacturer)
     option_sets = Property(components.OptionSets)

@@ -283,6 +283,7 @@ class Identity(Component):
     manufacturer_sku = Property(str)
     name = Property(str)
     source_url = Property(str)
+    upc = Property(str)
 
 
 @resource('image')
@@ -313,6 +314,11 @@ class InteriorDimension(Component):
     depth = Property(float)
     height = Property(float)
     width = Property(float)
+
+
+@resource('keyword')
+class Keyword(Component):
+    keywords = Property(str)
 
 
 @resource('leather')
