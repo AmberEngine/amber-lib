@@ -68,7 +68,7 @@ def greater_than(value):
     return {">": value}
 
 def less_than(value):
-    return {"<>": value}
+    return {"<": value}
 
 def is_null():
     return {"null": ""}
