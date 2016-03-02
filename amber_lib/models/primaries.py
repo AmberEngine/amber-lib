@@ -1,5 +1,7 @@
+from datetime import datetime
 from amber_lib.models.bases import Model, Property, resource
 from amber_lib import client
+from amber_lib.errors import MethodNotAllowed
 
 
 @resource('api_keys')
@@ -74,8 +76,41 @@ class Event(Model):
 
 
 @resource('exports')
-class Export:
-    pass
+class Export(Model):
+    id = Property(int)
+    user_email = Property(str)
+    user_manufacturer_id = Property(int)
+    partial_product_data = Property(str)
+    url = Property(str)
+    date_created = Property(datetime)
+    date_exported = Property(datetime)
+    mapping_id = Property(int)
+    message = Property(str)
+    status = Property(str)
+
+    def save(self, data=None):
+        """ Save the current state of the model into the database, either
+        creating a new entry or updating an existing database entry. It
+        is dependent on whether a valid ID is present (which is required
+        for updates).
+        """
+        if data is not None:
+            self.update(data)
+
+        if self.is_valid():
+            raise MethodNotAllowed(
+                'Updates to existing Exports is not allowed.'
+            )
+        else:
+            returned_dict = client.send(
+                client.POST,
+                self.ctx(),
+                self.endpoint(),
+                self.to_dict()
+            )
+
+        self.update(returned_dict)
+        return self
 
 
 @resource('manufacturers')
