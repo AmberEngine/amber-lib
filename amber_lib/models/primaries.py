@@ -1,4 +1,3 @@
-from datetime import datetime
 from amber_lib.models.bases import Model, Property, resource
 from amber_lib import client
 from amber_lib.errors import MethodNotAllowed
@@ -75,15 +74,15 @@ class Event(Model):
     object_type = Property(str)
 
 
-@resource('exports')
+@resource('export')
 class Export(Model):
     id = Property(int)
     user_email = Property(str)
     user_manufacturer_id = Property(int)
     partial_product_data = Property(str)
     url = Property(str)
-    date_created = Property(datetime)
-    date_exported = Property(datetime)
+    date_created = Property(str)
+    date_exported = Property(str)
     mapping_id = Property(int)
     message = Property(str)
     status = Property(str)
