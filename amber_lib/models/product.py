@@ -82,9 +82,7 @@ class Product(Model):
                 **uri_params
             )
 
-    def search(self, filtering=None, batch_size=500, offset=0, terms=None, **kwargs):
-        kwargs.update({"terms": terms})
-
+    def search(self, filtering=None, batch_size=500, offset=0,  **kwargs):
         payload = client.send(
             client.POST,
             self._ctx,
