@@ -79,7 +79,7 @@ class Export(Model):
     id = Property(int)
     user_email = Property(str)
     user_manufacturer_id = Property(int)
-    partial_product_data = Property(str)
+    product_ids = Property(int, True)
     url = Property(str)
     date_created = Property(str)
     date_exported = Property(str)
