@@ -90,7 +90,7 @@ class Export(Model):
 
 @resource('export_jobs')
 class ExportJob(Model):
-    id = Property(int)
+    export_id = Property(int)
 
 
 @resource('manufacturers')
