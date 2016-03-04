@@ -88,6 +88,11 @@ class Export(Model):
     status = Property(str)
 
 
+@resource('export_jobs')
+class ExportJob(Model):
+    id = Property(int)
+
+
 @resource('manufacturers')
 class Manufacturer(Model):
     active = Property(bool)
