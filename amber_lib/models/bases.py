@@ -352,18 +352,21 @@ class Property(object):
                     list_.append(cast_as_kind(val, kind, False))
                 return list_
 
-            if isinstance(value, self.kind):
+            if isinstance(value, kind):
                 value = value
-            elif isinstance(value, int) and self.kind == float:
+            elif isinstance(value, int) and kind == float:
                 value = float(value)
-            elif isinstance(value, float) and self.kind == int:
+            elif isinstance(value, float) and kind == int:
                 value = int(value)
-            elif self.kind == int and isinstance(value, str) and value.isdigit():
+            elif kind == int and isinstance(value, str) and value.isdigit():
                 value = int(value)
             else:
-                raise TypeError(
-                    'Type: \'%s\' for \'%s\' is not \'%s\'' % (type(value), value, self.kind)
-                )
+                try:
+                    value = kind(value)
+                except Exception:
+                    raise TypeError(
+                        'Type: \'%s\' for \'%s\' is not \'%s\'' % (type(value), value, kind)
+                    )
             return value
 
         self.value = cast_as_kind(value, self.kind, self.is_list)
