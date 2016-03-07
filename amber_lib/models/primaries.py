@@ -109,7 +109,6 @@ class Manufacturer(Model):
     phone = Property(str)
     phone_extension = Property(str)
     pinterest_url = Property(str)
-    real = Property(bool)
     restock_fee = Property(int)
     return_period = Property(int)
     returnable = Property(bool)
