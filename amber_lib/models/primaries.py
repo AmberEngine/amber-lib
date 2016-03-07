@@ -101,7 +101,7 @@ class Manufacturer(Model):
     featured = Property(bool)
     google_plus_url = Property(str)
     id = Property(int)
-    internal = Property(str)
+    internal = Property(bool)
     legal = Property(str)
     linkedin_url = Property(str)
     logo_url = Property(str)
