@@ -332,46 +332,42 @@ class Property(object):
         value, the new value must first match the rules of the instantiated
         Property. Otherwise an exception is raised.
         """
-        if type(value).__name__ == 'unicode':
-            value = value.encode('utf-8')
-        if value is None or (isinstance(value, str) and not value and \
-                not isinstance(self.kind, str)):
-            self.value = None
-        elif self.is_list is True:
-            if not isinstance(value, list):
-                raise TypeError('Value: \'%s\' is not a list' % value)
-            else:
+        def cast_as_kind(value, kind, is_list):
+            # Check for returning None
+            if value is None:
+                return None
+
+            if isinstance(value, str) and isinstance(self.kind, str) and not value:
+                return None
+
+            if type(value).__name__ == 'unicode':
+                # TODO: address this later
+                value = value.encode('utf-8')
+
+            if is_list:
+                if not isinstance(value, list):
+                    raise TypeError('Value: \'%s\' is not a list' % value)
                 list_ = []
                 for val in value:
+                    list_.append(cast_as_kind(val, kind, False))
+                return list_
 
-                    if type(val).__name__ == 'unicode':
-                        val = val.encode('utf-8')
-                    if isinstance(val, self.kind) is False:
-                        if self.kind == int and isinstance(val, str) and val.isdigit():
-                            val = int(val)
-                        else:
-                            raise TypeError(
-                                'Type: \'%s\' is not \'%s\'' % (
-                                    type(val),
-                                    self.kind
-                                )
-                            )
-                    list_.append(val)
-                self.value = list_
-        elif isinstance(value, self.kind):
-            self.value = value
-        elif isinstance(value, int) and self.kind == float:
-            self.value = float(value)
-        elif isinstance(value, float) and self.kind == int:
-            self.value = int(value)
-        elif self.kind == str:
-            self.value = value
-        elif self.kind == int and isinstance(value, str) and value.isdigit():
-            self.value = int(value)
-        else:
-            raise TypeError(
-                'Type: \'%s\' for \'%s\' is not \'%s\'' % (type(value), value, self.kind)
-            )
+            if isinstance(value, self.kind):
+                value = value
+            elif isinstance(value, int) and self.kind == float:
+                value = float(value)
+            elif isinstance(value, float) and self.kind == int:
+                value = int(value)
+            elif self.kind == int and isinstance(value, str) and value.isdigit():
+                value = int(value)
+            else:
+                raise TypeError(
+                    'Type: \'%s\' for \'%s\' is not \'%s\'' % (type(value), value, self.kind)
+                )
+            return value
+
+        self.value = cast_as_kind(value, self.kind, self.is_list)
+
 
 def find(obj, key):
     if key in obj.__dict__:
