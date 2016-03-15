@@ -458,6 +458,9 @@ def create_url(context, endpoint, **uri_args):
     """
     url = '%s:%s%s' % (context.host, context.port, endpoint)
 
+    if not context.port or context.port == '80':
+        url = '%s%s' % (context.host, endpoint)
+
     if len(uri_args) > 0:
         url += '?'
         query_params = []
