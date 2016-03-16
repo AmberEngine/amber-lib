@@ -183,6 +183,10 @@ class Model(object):
                 obj._resource: obj.pk()
             }
         )
+        # Dear Future Dev, if you're wondering why changes are disappearing
+        # when relate/unrelate calls are made then this line is why, but
+        # without it then relate/unrelate changes disappear on save calls.
+        self.refresh()
 
     def relate(self, obj):
         """ Create a relation between this object and another.
