@@ -164,6 +164,7 @@ class Option(Model):
         id = Property(int)
         option_id = Property(int)
         leather_type = Property(str)
+        pattern_number = Property(str)
         hide_size = Property(float)
         average_thickness = Property(float)
         finish = Property(str)
