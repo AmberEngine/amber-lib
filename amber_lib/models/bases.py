@@ -174,6 +174,7 @@ class Model(object):
         """ Create or remove a relation between the current model and a
         different model.
         """
+        self.save()
         payload = client.send(
             client.POST if bool_ is True else client.DELETE,
             self.ctx(),
