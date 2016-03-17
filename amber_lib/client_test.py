@@ -510,7 +510,7 @@ class Container(unittest.TestCase):
     @mock.patch('amber_lib.client.send')
     def set_relation_relate_test(self, mock_send):
         type_ = "GET"
-        tupperwear = client.Container({}, mock.Mock, {}, None)
+        tupperwear = client.Container({}, mock.Mock(), {}, None)
         m = mock.Mock()
         m.id = 5
         m._resource = 'fubars'
@@ -522,13 +522,13 @@ class Container(unittest.TestCase):
     @mock.patch('amber_lib.client.send')
     def set_relation_with_container_test(self, mock_send):
         type_ = "GET"
-        tupperwear = client.Container({}, mock.Mock, TestContext(), None)
+        tupperwear = client.Container({}, mock.Mock(), TestContext(), None)
         m = mock.Mock()
         m.id = 5
         m._resource = 'fubars'
         tupperwear.append(m)
 
-        jar = client.Container({}, mock.Mock, {}, None)
+        jar = client.Container({}, mock.Mock(), {}, None)
         jar.append(m)
 
         tupperwear.set_relation(type_, jar)
@@ -536,7 +536,7 @@ class Container(unittest.TestCase):
 
     @mock.patch('amber_lib.client.Container.set_relation')
     def relate_test(self, mock_relation):
-        bag = client.Container({}, mock.Mock, TestContext(), None)
+        bag = client.Container({}, mock.Mock(), TestContext(), None)
         obj = mock.Mock()
         bag.relate(obj)
 
@@ -545,7 +545,7 @@ class Container(unittest.TestCase):
 
     @mock.patch('amber_lib.client.Container.set_relation')
     def unrelate_test(self, mock_relation):
-        bag = client.Container({}, mock.Mock, TestContext(), None)
+        bag = client.Container({}, mock.Mock(), TestContext(), None)
         obj = mock.Mock()
         bag.unrelate(obj)
 
