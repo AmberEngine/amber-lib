@@ -363,8 +363,9 @@ class Property(object):
                 value = float(value)
             elif isinstance(value, float) and kind == int:
                 value = int(value)
-            elif kind == int and isinstance(value, str) and value.isdigit():
-                value = int(value)
+            elif kind == int and isinstance(value, str):
+                if value.isdigit():
+                    value = int(value)
             else:
                 try:
                     value = kind(value)
