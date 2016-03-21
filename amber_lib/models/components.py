@@ -189,11 +189,11 @@ class Description(Component):
 
 @resource('door')
 class Door(Component):
+    depth = Property(float)
     height = Property(float)
     opening = Property(float)
     width = Property(float)
     quantity = Property(int)
-    thickness = Property(float)
 
 
 @resource('doors')
