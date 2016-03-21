@@ -84,9 +84,9 @@ class Product(Model):
 
     def search(self, filtering=None, batch_size=500, offset=0,  **kwargs):
         payload = client.send(
-            client.POST,
+            client.GET,
             self._ctx,
-            "/products/search",
+            "/products_search",
             {"filtering": filtering.to_dict()} if filtering else None,
             limit=batch_size,
             offset=offset,
