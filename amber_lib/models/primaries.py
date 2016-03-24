@@ -74,7 +74,7 @@ class Event(Model):
     object_type = Property(str)
 
 
-@resource('events')
+@resource('moment')
 class Moment(Model):
     id = Property(int)
     resource_name = Property(str)
