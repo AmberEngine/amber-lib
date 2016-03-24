@@ -8,6 +8,7 @@ import hashlib
 import json
 
 import requests
+from urllib.parse import quote
 
 import amber_lib.errors as errors
 
@@ -465,7 +466,9 @@ def create_url(context, endpoint, **uri_args):
         url += '?'
         query_params = []
         for key in sorted(uri_args.keys()):
-            query_params.append('%s=%s' % (key, uri_args[key]))
+            val = str(uri_args[key])
+            val = quote(val)
+            query_params.append('%s=%s' % (key, val))
 
         url += '&'.join(query_params)
     return url
