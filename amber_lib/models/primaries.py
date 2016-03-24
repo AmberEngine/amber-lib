@@ -64,14 +64,14 @@ class Collection(Model):
     name = Property(str)
 
 
-@resource('event')
-class Event(Model):
-    date_time = Property(str)
-    id = Property(int)
-    message = Property(str)
-    name = Property(str)
-    object_id = Property(int)
-    object_type = Property(str)
+# @resource('event')
+# class Event(Model):
+#     date_time = Property(str)
+#     id = Property(int)
+#     message = Property(str)
+#     name = Property(str)
+#     object_id = Property(int)
+#     object_type = Property(str)
 
 
 @resource('events')
