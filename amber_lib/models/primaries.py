@@ -64,7 +64,7 @@ class Collection(Model):
     name = Property(str)
 
 
-@resource('events')
+@resource('event')
 class Event(Model):
     date_time = Property(str)
     id = Property(int)
@@ -72,6 +72,16 @@ class Event(Model):
     name = Property(str)
     object_id = Property(int)
     object_type = Property(str)
+
+
+@resource('events')
+class Events(Model):
+    id = Property(int)
+    resource_name = Property(str)
+    resource_action = Property(str)
+    created_by_apikey = Property(int)
+    date_created = Property(str)
+    ip = Property(str)
 
 
 @resource('exports')
