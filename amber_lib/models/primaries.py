@@ -79,6 +79,7 @@ class Moment(Model):
     id = Property(int)
     resource_name = Property(str)
     resource_action = Property(str)
+    resource_id = Property(int)
     created_by_api_key = Property(str)
     date_created = Property(str)
     ip = Property(str)
