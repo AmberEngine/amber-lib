@@ -228,6 +228,8 @@ class Option(Model):
         """ Update the internal dictionary for the instance using the
         key-value pairs contained within the provided dictionary.
         """
+        if 'kind' in dict_:
+            self.kind = dict_['kind']
         def explode_dict(obj, exp_dict):
             for key, val in exp_dict.items():
                 attr = object.__getattribute__(obj, key)
