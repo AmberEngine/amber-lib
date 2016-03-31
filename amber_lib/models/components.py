@@ -34,7 +34,7 @@ class Component(Model):
         else:
             raise ValueError
 
-        self.__dict__ = {}
+        self.clear()
         return self
 
     def endpoint(self):
@@ -58,6 +58,8 @@ class Component(Model):
             self.endpoint(),
             None,
         )
+
+        self.clear()
         self.from_dict(payload)
         return self
 
@@ -82,6 +84,7 @@ class Component(Model):
                 self.to_dict()
             )
 
+        self.clear()
         self.update(returned_dict)
         return self
 

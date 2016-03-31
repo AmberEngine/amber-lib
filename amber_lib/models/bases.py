@@ -54,6 +54,15 @@ class Model(object):
             self.__dict__[attr] = Property(prop.kind, prop.is_list)
             setattr(self, attr, val)
 
+    def clear(self):
+        dict_ = self.__dict__.copy()
+        for key in dict_:
+            if key.startswith('_'):
+                continue
+            if hasattr(dict_[key], '__call__'):
+                continue
+            del self.__dict__[key]
+
     def ctx(self):
         """ Retrieve the context of the model.
         """
@@ -85,7 +94,7 @@ class Model(object):
         else:
             raise ValueError
 
-        self.__dict__ = {}
+        self.__dict__.clear()
         return self
 
     def endpoint(self):
@@ -208,7 +217,7 @@ class Model(object):
             self.endpoint(),
             None,
         )
-        self.__dict__ = {}
+        self.clear()
         self.from_dict(payload)
 
         return self
@@ -254,7 +263,7 @@ class Model(object):
                 self.to_dict()
             )
 
-        self.__dict__ = {}
+        self.clear()
         self.update(returned_dict)
         return self
 
