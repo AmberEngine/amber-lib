@@ -23,33 +23,17 @@ class Container(object):
     accessed using either an index subscript or a python slice subscript.
     """
 
-    def __init__(self, dict_, class_, ctx, offset=0):
-        """ Initialize a new instance of Container, specifying a JSON-HAL
-        dictionary, the class the data represents, and a context.
-        """
-        self.class_ = class_
-        self.ctx = ctx
-        self.kind = class_._resource
-        self.offset = offset
-        self.values = {}
-
-        self.hal = dict_.get('_links', {})
-        self.total = dict_.get('total', 0)
-
-        self.batch_size = dict_.get('count', self.total)
-
-        embedded = dict_.get('_embedded', {}).get(self.kind, [])
-        self.__append(embedded)
-
     def __add__(self, other):
-        """ Magic method __add__ will concatenate two container instances
-        together and return a new copy contain the data from both. This method
-        will first retrieve all available entries, à la proactive-loading.
+        """ Concatenate two container instances together and return a new copy
+        containing the data from both. This method will first retrieve all
+         available entries, à la proactive-loading.
         """
         if not isinstance(other, Container):
-            raise TypeError('"NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO!" -D.V.')
+            raise TypeError(
+                'A Container may only be added with another Container'
+            )
 
-        self.__finish_it()
+        self.all()
         self_copy = copy.copy(self)
         self_copy.values = copy.copy(self.values)
 
@@ -57,21 +41,47 @@ class Container(object):
             self_copy.__append(val)
         return self_copy
 
+    def __append(self, values):
+        """ Append either a list, a Container, or an entity to the
+        current container.
+        """
+        if isinstance(values, list):
+            offset = self.offset
+            if len(values) <= 0:
+                return
+            for index, value in enumerate(values):
+                self.offset += 1
+                if isinstance(value, dict):
+                    instance = self.class_(self.ctx)
+                    obj = instance.from_dict(value)
+                else:
+                    self.all()
+                    obj = value
+
+                self.values[index + offset] = obj
+        elif isinstance(values, Container):
+            self.all()
+            for val in values:
+                self.__append(val)
+        else:
+            values._ctx = self.ctx
+            self.all()
+            self.values[len(self.values)] = values
+
     def __contains__(self, item):
         """ Magic method which will return a boolean result indicating True
         if the specified item exists within the Container; false, otherwise.
         This method will first retrieve all available entries, à la
         proactive-loading.
         """
-        self.__finish_it()
+        self.all()
         return item in self.values.values()
 
     def __delitem__(self, key):
-        """ Magic method which will attempt to remove the specifid index
-        from the Container. This method will first retrieve all available
-        entries, à la proactive-loading.
+        """ Remove the specified index from the Container. This method will
+        first retrieve all available entries, à la proactive-loading.
         """
-        self.__finish_it()
+        self.all()
 
         if key not in self.values:
             raise IndexError
@@ -86,19 +96,16 @@ class Container(object):
 
         For example, using an integer index:
 
-            collection = magically_get_a_collection(...)
-
-            first = collection[0]
-            last = collection[-1]
-            print(collection[5]])
+            first = container[0]
+            last = container[-1]
+            print(container[5]])
 
         A Container's elements can also be accessed using slice objects:
 
-            collection = magically_get_a_collection(...)
-            collection[1:7]
-            collection[:]
-            collection[-5:]
-            collection[1:100:5]
+            container[1:7]
+            container[:]
+            container[-5:]
+            container[1:100:5]
         """
         if isinstance(key, slice):
             start = key.start if key.start else 0
@@ -117,37 +124,43 @@ class Container(object):
         else:
             raise TypeError
 
+    def __init__(self, dict_, class_, ctx, offset=0):
+        """ Initialize a new instance of Container, specifying a JSON-HAL
+        dictionary, the class the data represents, and a context.
+        """
+        self.class_ = class_
+        self.ctx = ctx
+        self.kind = class_._resource
+        self.offset = offset
+        self.values = {}
+
+        self.hal = dict_.get('_links', {})
+        self.total = dict_.get('total', 0)
+
+        self.batch_size = dict_.get('count', self.total)
+
+        embedded = dict_.get('_embedded', {}).get(self.kind, [])
+        self.__append(embedded)
+
     def __iter__(self):
-        """ Magic method for yeilding sequential values from the total
-        entries available.
+        """ Yield sequential values from the total entries available.
         """
         for val in range(len(self)):
             yield self[val]
 
-    def __le__(self, other):
-        """ Magic method for humour & reddit.
-        """
-        return "le API > %s" % (other,)
-
     def __len__(self):
-        """ Magic method for returning the total number of accessible
-        database entries.
+        """ Return the total number of readable  database entries.
         """
         if self.total:
             return self.total
         return len(self.values)
 
-    def __pow__(self, other):
-        """ Magic method for N64 nostalgia.
-        """
-        return "It's a me! Mario!" * other
-
     def __reversed__(self):
-        """ Magic method for returning a copy of the current Container, with
-        the order of the values it contains sorted in reverse order. This
-        method will first retrieve all entries, à la proactive-loading.
+        """ Return a copy of the current Container with the order of the
+        values it contains sorted in reverse order. This method will first
+        retrieve all entries, à la proactive-loading.
         """
-        self.__finish_it()
+        self.all()
 
         self_copy = copy.copy(self)
         self_copy.values = copy.copy(self.values)
@@ -158,56 +171,14 @@ class Container(object):
         return self_copy
 
     def __setitem__(self, key, value):
-        """ Magic method for assigning a particular value to an available
-        indexable location within the current Container. This method will
-        first retrieve all available entries, à la proactive-loading.
+        """ Assign a value to an indexable location within the current
+        Container. This method will first retrieve all available entries,
+        à la proactive-loading.
         """
-        self.__finish_it()
+        self.all()
         if key not in self.values:
             raise IndexError
         self.values[key] = value
-
-    def __all(self):
-        """ Retrieve all possible entries from the current Container.
-        """
-        return self[:]
-
-    def __append(self, values):
-        """ Append either a list, a Container, or an entity to the
-        current container.
-        """
-        if isinstance(values, list):
-            offset = self.offset
-            if len(values) <= 0:
-                return
-            for index, value in enumerate(values):
-                self.offset += 1
-                if isinstance(value, dict):
-                    instance = self.class_(self.ctx)
-                    obj = instance.from_dict(value)
-                else:
-                    self.__finish_it()
-                    obj = value
-
-                self.values[index + offset] = obj
-        elif isinstance(values, Container):
-            self.__finish_it()
-            for val in values:
-                self.__append(val)
-        else:
-            values._ctx = self.ctx
-            self.__finish_it()
-            self.values[len(self.values)] = values
-
-    def __finish_it(self):
-        """ It's dangerous to go alone! Take all these entries! Retrieve all
-        the things!
-        """
-        if self.total is not None and self.total > len(self.values):
-            self.__all()
-        self.hal = {}
-        self.batch_size = 0
-        self.total = None
 
     def __get(self, index):
         """ Retrieve a value at the provided index from the Container. Negative
@@ -253,16 +224,16 @@ class Container(object):
         """
         if isinstance(values, list):
             for index, value in enumerate(values):
-                self.__finish_it()
+                self.all()
                 obj = value
 
                 self.values[index + self.offset] = obj
         elif isinstance(values, Container):
-            self.__finish_it()
+            self.all()
             self.values = (values + self).values
         else:
             values._ctx = self.ctx
-            self.__finish_it()
+            self.all()
 
             for index, val in enumerate(reversed(self)):
                 self.values[index + 1] = val
@@ -286,11 +257,22 @@ class Container(object):
 
         self.__prepend(embedded)
 
+    def all(self):
+        """ Retrieve all possible entries from the current Container.
+        """
+        ret = self[:]
+
+        self.hal = {}
+        self.batch_size = 0
+        self.total = None
+
+        return ret
+
     def append(self, value):
         """ Append a value to the end of the current Container. This method
         will retrieve all available entries, à la proactive-loading.
         """
-        self.__finish_it()
+        self.all()
         self.values[len(self.values)] = value
 
     def count(self):
@@ -299,7 +281,7 @@ class Container(object):
         return len(self)
 
     def delete(self):
-        self.__finish_it()
+        self.all()
         for entity in self:
             entity.delete()
 
@@ -322,7 +304,7 @@ class Container(object):
         """ Insert the provided item at the specified index. This method will
         retrieve all available entries, à la proactive-loading.
         """
-        self.__finish_it()
+        self.all()
         for index, val in enumerate(reversed(self)):
             if index >= insert_index:
                 break
@@ -330,12 +312,22 @@ class Container(object):
 
         self.values[insert_index] = item
 
-    def list_to_json(self):
+    def to_json(self):
+        """ Retrieve a JSON string of all currently loaded model's dictionary
+        representations.
+        """
+        return json.dumps(self.to_list())
+
+    def to_list(self):
+        """ Retrieve a list of all currently loaded models as dictionary
+        objects.
+        """
         list_ = []
         for index in sorted(self.values.keys()):
             list_.append(self[index].to_dict())
 
-        return json.dumps(list_)
+        return list_
+
 
     def pop(self, index=None):
         """ Retrieve and remove the last index from the Collection.
