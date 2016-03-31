@@ -254,7 +254,8 @@ class Model(object):
                 self.to_dict()
             )
 
-        self.refresh()
+        self.__dict__ = {}
+        self.update(returned_dict)
         return self
 
     def to_dict(self):
