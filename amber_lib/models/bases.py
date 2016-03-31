@@ -208,6 +208,7 @@ class Model(object):
             self.endpoint(),
             None,
         )
+        self.__dict__ = {}
         self.from_dict(payload)
 
         return self
@@ -253,7 +254,7 @@ class Model(object):
                 self.to_dict()
             )
 
-        self.update(returned_dict)
+        self.refresh()
         return self
 
     def to_dict(self):
