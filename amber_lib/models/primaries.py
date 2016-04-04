@@ -84,6 +84,7 @@ class Export(Model):
     date_created = Property(str)
     date_exported = Property(str)
     mapping_id = Property(int)
+    mapping_name = Property(str)
     message = Property(str)
     status = Property(str)
 
