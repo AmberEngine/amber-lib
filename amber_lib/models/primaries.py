@@ -64,7 +64,7 @@ class Collection(Model):
     name = Property(str)
 
 
-@resource('event')
+@resource('events')
 class Event(Model):
     date_time = Property(str)
     id = Property(int)
