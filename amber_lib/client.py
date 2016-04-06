@@ -114,11 +114,12 @@ class Container(object):
                 end = key.stop
             step = key.step if key.step else 1
 
-            list_ = Container({}, self.class_, self.ctx)
+            list_ = []
+            # Container({}, self.class_, self.ctx)
             for index in range(start, end, step):
                 # Get next batch of entries.
                 list_.append(self.__get(index))
-            return list_
+            return Container({}, self.class_, self.ctx).append(list_)
         elif isinstance(key, int):
             return self.__get(key)
         else:
@@ -217,6 +218,8 @@ class Container(object):
         embedded = more_data.get('_embedded', {}).get(self.kind, [])
 
         self.__append(embedded)
+        if len(embedded) == 0:
+            return False
 
     def __prepend(self, values):
         """ Prepend a list, Container or an entry to the current Container's
