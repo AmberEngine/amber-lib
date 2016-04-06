@@ -114,11 +114,11 @@ class Container(object):
                 end = key.stop
             step = key.step if key.step else 1
 
-            list_ = Container({}, self.class_, self.ctx)
+            container = Container({}, self.class_, self.ctx)
             for index in range(start, end, step):
                 # Get next batch of entries.
-                list_.append(self.__get(index))
-            return list_
+                container.values[index] = self.__get(index)
+            return container
         elif isinstance(key, int):
             return self.__get(key)
         else:
@@ -508,3 +508,4 @@ def send(method, ctx, endpoint, json_data=None, **uri_params):
             raise Exception(error['code'], error['title'], error['message'])
     except ValueError:
         raise Exception(r.status_code, url)
+
