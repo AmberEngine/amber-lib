@@ -63,7 +63,7 @@ def within(value):
 
 
 def not_in(value):
-    if not isinstance(value, tuple):
+    if not isinstance(value, collections.Iterable):
         raise TypeError()
     return {"!in": value}
 
