@@ -378,13 +378,19 @@ class Property(object):
                 if value.isdigit():
                     value = int(value)
                 else:
-                    value = None
+                    raise TypeError(
+                        'Type: \'%s\' for \'%s\' is not \'%s\'' % (
+                            type(value), value, kind
+                        )
+                    )
             else:
                 try:
                     value = kind(value)
                 except Exception:
                     raise TypeError(
-                        'Type: \'%s\' for \'%s\' is not \'%s\'' % (type(value), value, kind)
+                        'Type: \'%s\' for \'%s\' is not \'%s\'' % (
+                            type(value), value, kind
+                        )
                     )
             return value
 

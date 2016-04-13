@@ -330,7 +330,6 @@ class Container(object):
 
         return list_
 
-
     def pop(self, index=None):
         """ Retrieve and remove the last index from the Collection.
         """

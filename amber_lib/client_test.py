@@ -71,7 +71,7 @@ class Context(unittest.TestCase):
 class Container(unittest.TestCase):
     def all_test(self):
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
-        self.assertEqual(ctn[:].values, ctn._Container__all().values)
+        self.assertEqual(ctn[:].values, ctn.all().values)
 
     def append_test(self):
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
@@ -185,20 +185,20 @@ class Container(unittest.TestCase):
             del ctn[100]
         self.assertRaises(IndexError, delete_index)
 
-    @mock.patch('amber_lib.client.Container._Container__all')
-    def dunder_finish_it_ignored_test(self, mock_all):
-        ctn = client.Container(FAKE_HAL, bases.Model, TestContext())
-        ctn._Container__finish_it()
-
-        mock_all.assert_not_called()
-
-    @mock.patch('amber_lib.client.Container._Container__all')
-    def dunder_finish_it_test(self, mock_all):
-        ctn = client.Container(FAKE_HAL, bases.Model, TestContext())
-        ctn.total = 500
-        ctn._Container__finish_it()
-
-        mock_all.assert_called_with()
+    # @mock.patch('amber_lib.client.Container._Container__all')
+    # def dunder_finish_it_ignored_test(self, mock_all):
+    #     ctn = client.Container(FAKE_HAL, bases.Model, TestContext())
+    #     ctn._Container__finish_it()
+    #
+    #     mock_all.assert_not_called()
+    #
+    # @mock.patch('amber_lib.client.Container._Container__all')
+    # def dunder_finish_it_test(self, mock_all):
+    #     ctn = client.Container(FAKE_HAL, bases.Model, TestContext())
+    #     ctn.total = 500
+    #     ctn._Container__finish_it()
+    #
+    #     mock_all.assert_called_with()
 
     def dunder_get_invalid_negative_index_test(self):
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
@@ -444,10 +444,6 @@ class Container(unittest.TestCase):
         self.assertEqual(ctn[1], model)
         self.assertEqual(ctn[2], second)
 
-    def le_api_test(self):
-        ctn = client.Container({}, bases.Model, TestContext())
-        self.assertTrue((ctn <= ctn).startswith("le"))
-
     def len_empty_test(self):
         ctn = client.Container({}, bases.Model, TestContext())
         self.assertEqual(len(ctn), 0)
@@ -487,10 +483,6 @@ class Container(unittest.TestCase):
 
         ctn.pop()
         self.assertEqual(len(ctn), length - 1)
-
-    def pow_test(self):
-        ctn = client.Container({}, bases.Model, TestContext())
-        self.assertTrue('Mario' in ctn ** 42)
 
     def reverse_test(self):
         ctn = client.Container(FAKE_HAL, bases.Model, TestContext())

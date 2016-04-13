@@ -383,19 +383,19 @@ class Property(unittest.TestCase):
             test.prop = 'not_a_list'
 
         self.assertRaises(TypeError, set_it)
-        self.assertEqual(test.prop.value, None)
+        self.assertEqual(test.prop.value, [])
 
     def dunder_set_list_invalid_element_type_test(self):
         class TestProp(object):
-            prop = bases.Property(str, True)
+            prop = bases.Property(int, True)
 
         test = TestProp()
 
         def set_it():
-            test.prop = [1, 2, 3]
+            test.prop = ['a', 'b', 'c']
 
         self.assertRaises(TypeError, set_it)
-        self.assertEqual(test.prop.value, None)
+        self.assertEqual(test.prop.value, [])
 
     def dunder_set_list_valid_element_type_test(self):
         class TestProp(object):
