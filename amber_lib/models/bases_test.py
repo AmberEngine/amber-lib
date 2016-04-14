@@ -8,7 +8,7 @@ import unittest
 import mock
 
 from amber_lib.models import bases
-
+from amber_lib import client
 
 FAKE_DATE = datetime(2015, 11, 30, 22, 36, 52, 538755)
 FAKE_DATE_FORMAT = datetime.isoformat(FAKE_DATE)
@@ -47,7 +47,7 @@ class Model(unittest.TestCase):
         model = bases.Model(ctx)
         self.assertEqual(model._ctx, ctx)
 
-    def dunder_getattr_known_attribute_test(self):
+    def test__getattr__(self):
         known_attr = "_ctx"
 
         ctx = Context()
@@ -55,7 +55,7 @@ class Model(unittest.TestCase):
 
         self.assertEqual(getattr(model, known_attr), ctx)
 
-    def dunder_getattr_unknown_attribute_test(self):
+    def test__getattr__missing_attribute(self):
         known_attr = "this_doesnt_exist"
 
         ctx = Context()
@@ -68,11 +68,11 @@ class Model(unittest.TestCase):
         with self.assertRaises(AttributeError):
             a = model.doesNotExist
 
-    def dunder_getattribute_missing_test(self):
+    def test__getattribute__missing(self):
         model = TestModel(Context())
         self.assertRaises(AttributeError, model.__getattribute__, 'nope')
 
-    def dunder_getattribute_underscored_test(self):
+    def test__getattribute__private(self):
         ctx = Context()
 
         class TestModel2(TestModel):
@@ -83,7 +83,7 @@ class Model(unittest.TestCase):
         self.assertEqual(model.__getattribute__('_test'), None)
         self.assertNotIn('_test', model.__dict__)
 
-    def dunder_getattribute_callable_test(self):
+    def test__getattribute__callable(self):
         ctx = Context()
 
         def test(x):
@@ -235,7 +235,7 @@ class Model(unittest.TestCase):
 
         curr_len = len(model.__dict__)
         public_count = 1
-        
+
         model.clear()
         self.assertEqual(len(model.__dict__), curr_len - public_count)
 
@@ -328,8 +328,14 @@ class Model(unittest.TestCase):
         mock_pk.return_value = 42
         self.assertEqual(model.endpoint(), '/models/42')
 
-    def test_form_schema(self):
-        self.assertTrue(False)
+    @mock.patch('amber_lib.models.bases.client.send')
+    def test_form_schema(self, mock_send):
+        model = bases.Model(Context())
+        model._resource = 'model'
+        url = "/form_schemas/%s" % model._resource
+
+        model.form_schema()
+        mock_send.assert_called_with(client.GET, model.ctx(), url, {})
 
     def from_dict_test(self):
         dict_ = {
@@ -418,11 +424,36 @@ class Model(unittest.TestCase):
         self.assertTrue(mock_endpoint.called)
         self.assertTrue(mock_container.called)
 
-    def test_set_relation(self):
-        self.assertTrue(False)
+    @mock.patch('amber_lib.models.bases.Model.refresh')
+    @mock.patch('amber_lib.models.bases.Model.pk')
+    @mock.patch('amber_lib.client.send')
+    @mock.patch('amber_lib.models.bases.Model.save')
+    def test_set_relation(self, mock_save, mock_send, mock_pk, mock_refresh):
+        model = bases.Model(Context())
+        obj = mock.Mock()
+        obj._resource = "res"
+        obj.pk = mock.Mock()
 
-    def test_relate(self):
-        self.assertTrue(False)
+        model.set_relation(True, obj)
+        mock_save.assert_called_with()
+        mock_send.assert_called_with(
+            client.POST,
+            model.ctx(),
+            "/relations",
+            **{
+                model._resource: mock_pk(),
+                obj._resource: obj.pk()
+            }
+        )
+        mock_refresh.assert_called_with()
+
+    @mock.patch('amber_lib.models.bases.Model.set_relation')
+    def test_relate(self, mock_relation):
+        model = bases.Model(Context())
+        obj = mock.Mock()
+        model.relate(obj)
+
+        mock_relation.assert_called_with(True, obj)
 
     @mock.patch('amber_lib.models.bases.Model.from_dict')
     @mock.patch('amber_lib.models.bases.Model.endpoint')
@@ -444,8 +475,27 @@ class Model(unittest.TestCase):
         self.assertTrue(mock_from_dict.called)
         self.assertTrue(mock_ctx.called)
 
-    def test_refresh(self):
-        self.assertTrue(False)
+    @mock.patch('amber_lib.models.bases.Model.pk')
+    @mock.patch('amber_lib.models.bases.Model.retrieve')
+    @mock.patch('amber_lib.models.bases.Model.is_valid')
+    def test_refresh_invalid_object(self, mock_validity, mock_retrieve, mock_pk):
+        model = bases.Model(Context())
+        mock_validity.return_value = False
+
+        with self.assertRaises(Exception):
+            model.refresh()
+        mock_validity.assert_called_with()
+
+    @mock.patch('amber_lib.models.bases.Model.pk')
+    @mock.patch('amber_lib.models.bases.Model.retrieve')
+    @mock.patch('amber_lib.models.bases.Model.is_valid')
+    def test_refresh_valid_object(self, mock_validity, mock_retrieve, mock_pk):
+        model = bases.Model(Context())
+        mock_validity.return_value = True
+
+        model.refresh()
+        mock_validity.assert_called_with()
+        mock_retrieve.assert_called_with(mock_pk())
 
     @mock.patch('amber_lib.models.bases.Model.update')
     @mock.patch('amber_lib.models.bases.Model.ctx')
@@ -537,8 +587,13 @@ class Model(unittest.TestCase):
         self.assertTrue(mock_dumps.called)
         self.assertTrue(mock_to_dict.called)
 
-    def test_unrelate(self):
-        self.assertTrue(False)
+    @mock.patch('amber_lib.models.bases.Model.set_relation')
+    def test_unrelate(self, mock_relation):
+        model = bases.Model(Context())
+        obj = mock.Mock()
+        model.unrelate(obj)
+
+        mock_relation.assert_called_with(False, obj)
 
     @mock.patch('amber_lib.models.bases.Model.from_dict')
     def update_dict_test(self, mock_dict):

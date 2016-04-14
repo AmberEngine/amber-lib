@@ -206,25 +206,6 @@ class Model(object):
 
         return collection
 
-    def set_relation(self, bool_, obj):
-        """ Create or remove a relation between the current model and a
-        different model.
-        """
-        self.save()
-        payload = client.send(
-            client.POST if bool_ is True else client.DELETE,
-            self.ctx(),
-            "/relations",
-            **{
-                self._resource: self.pk(),
-                obj._resource: obj.pk()
-            }
-        )
-        # Dear Future Dev, if you're wondering why changes are disappearing
-        # when relate/unrelate calls are made then this line is why, but
-        # without it then relate/unrelate changes disappear on save calls.
-        self.refresh()
-
     def relate(self, obj):
         """ Create a relation between this object and another.
         """
@@ -285,6 +266,25 @@ class Model(object):
         self.clear()
         self.update(returned_dict)
         return self
+
+    def set_relation(self, bool_, obj):
+        """ Create or remove a relation between the current model and a
+        different model.
+        """
+        self.save()
+        payload = client.send(
+            client.POST if bool_ is True else client.DELETE,
+            self.ctx(),
+            "/relations",
+            **{
+                self._resource: self.pk(),
+                obj._resource: obj.pk()
+            }
+        )
+        # Dear Future Dev, if you're wondering why changes are disappearing
+        # when relate/unrelate calls are made then this line is why, but
+        # without it then relate/unrelate changes disappear on save calls.
+        self.refresh()
 
     def to_dict(self):
         """ Retrieve a dictionary version of the model.
