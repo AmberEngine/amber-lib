@@ -411,6 +411,8 @@ class Context(object):
         """
         for key, value in kwargs.items():
             if hasattr(self, key):
+                if isinstance(value, str):
+                    value = value.rstrip()
                 setattr(self, key, value)
 
 
@@ -451,10 +453,11 @@ def create_url(context, endpoint, **uri_args):
     """ Create a full URL using the context settings, the desired endpoint,
     and any option URI (keyword) arguments.
     """
-    url = '%s:%s%s' % (context.host, context.port, endpoint)
+    host = context.host.rstrip('/')
+    url = '%s:%s%s' % (host, context.port, endpoint)
 
     if not context.port or context.port == '80':
-        url = '%s%s' % (context.host, endpoint)
+        url = '%s%s' % (host, endpoint)
 
     if len(uri_args) > 0:
         url += '?'
@@ -465,6 +468,8 @@ def create_url(context, endpoint, **uri_args):
             query_params.append('%s=%s' % (key, val))
 
         url += '&'.join(query_params)
+
+    # Returns a validated URL
     return urlparse(url).geturl()
 
 
