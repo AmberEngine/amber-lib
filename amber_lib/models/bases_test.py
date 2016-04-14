@@ -47,91 +47,26 @@ class Model(unittest.TestCase):
         model = bases.Model(ctx)
         self.assertEqual(model._ctx, ctx)
 
-    def test__getattr__(self):
-        model = bases.Model(Context())
-        with self.assertRaises(AttributeError):
-            self.doesNotExist
+    def dunder_getattr_known_attribute_test(self):
+        known_attr = "_ctx"
 
-    def test__getattribute__public(self):
-        model = bases.Model(Context())
-        class Prop(object): value = "bar"
-
-        model.__dict__["foo"] = Prop()
-
-        self.assertEqual(model.__getattribute__("foo"), "bar")
-
-    def test__getattribute__private(self):
-        model = bases.Model(Context())
-        model.__dict__["__foo__"] = "bar"
-
-        self.assertEqual(model.__getattribute__("__foo__"),  "bar")
-
-    def test__getattribute__private(self):
-        model = bases.Model(Context())
-
-        with self.assertRaises(AttributeError):
-            model.__getattribute__("__na__")
-
-    def test__setattr__private(self):
-        model = bases.Model(Context())
-        VALUE = -42
-        model._id = -42
-
-        self.assertEqual(model.__dict__["_id"], VALUE)
-
-    def test__setattr__public(self):
-        model = bases.Model(Context())
-
-        class Prop(object):
-            value = 0
-            def __set__(self, object, value):
-                self.value = value
-
-        model.__dict__["foo"] = Prop()
-        VALUE = -42
-
-        model.foo = VALUE
-
-        self.assertEqual(model.__dict__["foo"].value, VALUE)
-
-    @mock.patch('amber_lib.models.bases.find')
-    def test__setattr__missing_class_attribute(self, mock_find):
-        model = bases.Model(Context())
-        mock_find.return_value = None
-        with self.assertRaises(AttributeError):
-            model.doesNotExist = "foobar"
-
-
-    @mock.patch('amber_lib.models.bases.setattr')
-    @mock.patch('amber_lib.models.bases.Property')
-    @mock.patch('amber_lib.models.bases.find')
-    def test__setattr__class_attribute(self, mock_find, mock_prop, mock_setattr):
-        model = bases.Model(Context())
-        mock_find.return_value = mock.Mock()
-        mock_find.return_value.kind = "int"
-        mock_find.return_value.is_list = False
-
-        model.thing = "fizzbuzz"
-        mock_prop.assert_called_with("int", False)
-        mock_setattr.assert_called_with(model, "thing", "fizzbuzz")
-
-    def test_clear(self):
-        model = bases.Model(Context())
-        model.__dict__['_private'] = 'private_attr'
-        model.__dict__['func'] = lambda x: x
-        model.__dict__['public'] = 'foobar'
-
-        curr_len = len(model.__dict__)
-        public_count = 1
-        
-        model.clear()
-        self.assertEqual(len(model.__dict__), curr_len - public_count)
-
-    def ctx_test(self):
         ctx = Context()
         model = bases.Model(ctx)
 
-        self.assertEqual(model.ctx(), ctx)
+        self.assertEqual(getattr(model, known_attr), ctx)
+
+    def dunder_getattr_unknown_attribute_test(self):
+        known_attr = "this_doesnt_exist"
+
+        ctx = Context()
+        model = bases.Model(ctx)
+
+        self.assertRaises(AttributeError, getattr, *[model, known_attr])
+
+    def test__getattr__(self):
+        model = bases.Model(Context())
+        with self.assertRaises(AttributeError):
+            a = model.doesNotExist
 
     def dunder_getattribute_missing_test(self):
         model = TestModel(Context())
@@ -175,21 +110,27 @@ class Model(unittest.TestCase):
         self.assertEqual(prop, text)
         self.assertTrue(not isinstance(prop, bases.Property))
 
-    def dunder_getattr_known_attribute_test(self):
-        known_attr = "_ctx"
+    def test__getattribute__public(self):
+        model = bases.Model(Context())
 
-        ctx = Context()
-        model = bases.Model(ctx)
+        class Prop(object):
+            value = "bar"
 
-        self.assertEqual(getattr(model, known_attr), ctx)
+        model.__dict__["foo"] = Prop()
 
-    def dunder_getattr_unknown_attribute_test(self):
-        known_attr = "this_doesnt_exist"
+        self.assertEqual(model.__getattribute__("foo"), "bar")
 
-        ctx = Context()
-        model = bases.Model(ctx)
+    def test__getattribute__private(self):
+        model = bases.Model(Context())
+        model.__dict__["__foo__"] = "bar"
 
-        self.assertRaises(AttributeError, getattr, *[model, known_attr])
+        self.assertEqual(model.__getattribute__("__foo__"),  "bar")
+
+    def test__getattribute__invalid_private(self):
+        model = bases.Model(Context())
+
+        with self.assertRaises(AttributeError):
+            model.__getattribute__("__na__")
 
     @mock.patch('amber_lib.models.bases.getattr')
     def dunder_setattr_known_attribute_test(self, mock_getattr):
@@ -238,20 +179,90 @@ class Model(unittest.TestCase):
 
         self.assertEqual(f.third.second, 'test')
 
-    @mock.patch('amber_lib.models.bases.client.Container')
-    @mock.patch('amber_lib.models.bases.Model.endpoint')
-    @mock.patch('amber_lib.models.bases.client.send')
-    def query_test(self, mock_send, mock_endpoint, mock_container):
+    def test__setattr__private(self):
+        model = bases.Model(Context())
+        value = -42
+        model._id = -42
+
+        self.assertEqual(model.__dict__["_id"], value)
+
+    def test__setattr__public(self):
         model = bases.Model(Context())
 
-        model.query()
+        class Prop(object):
+            value = 0
 
-        self.assertTrue(mock_send.called)
-        self.assertTrue(mock_endpoint.called)
-        self.assertTrue(mock_container.called)
+            def __set__(self, object, value):
+                self.value = value
 
-    def endpoint_no_id_test(self):
+        model.__dict__["foo"] = Prop()
+        value = -42
+
+        model.foo = value
+
+        self.assertEqual(model.__dict__["foo"].value, value)
+
+    @mock.patch('amber_lib.models.bases.find')
+    def test__setattr__missing_class_attribute(self, mock_find):
         model = bases.Model(Context())
+        mock_find.return_value = None
+        with self.assertRaises(AttributeError):
+            model.doesNotExist = "foobar"
+
+    @mock.patch('amber_lib.models.bases.setattr')
+    @mock.patch('amber_lib.models.bases.Property')
+    @mock.patch('amber_lib.models.bases.find')
+    def test__setattr__class_attribute(
+        self,
+        mock_find,
+        mock_prop,
+        mock_setattr
+    ):
+        model = bases.Model(Context())
+        mock_find.return_value = mock.Mock()
+        mock_find.return_value.kind = "int"
+        mock_find.return_value.is_list = False
+
+        model.thing = "fizzbuzz"
+        mock_prop.assert_called_with("int", False)
+        mock_setattr.assert_called_with(model, "thing", "fizzbuzz")
+
+    def test_clear(self):
+        model = bases.Model(Context())
+        model.__dict__['_private'] = 'private_attr'
+        model.__dict__['func'] = lambda x: x
+        model.__dict__['public'] = 'foobar'
+
+        curr_len = len(model.__dict__)
+        public_count = 1
+        
+        model.clear()
+        self.assertEqual(len(model.__dict__), curr_len - public_count)
+
+    def test_ctx(self):
+        ctx = Context()
+        model = bases.Model(ctx)
+
+        self.assertEqual(model.ctx(), ctx)
+
+    def test_delete(self):
+        self.assertTrue(False)
+
+    @mock.patch('amber_lib.models.bases.Model.pk')
+    @mock.patch('amber_lib.models.bases.Model.is_valid')
+    def test_endpoint_valid_zero_pk(self, mock_is_valid, mock_pk):
+        model = bases.Model(Context())
+        mock_is_valid.return_value = True
+        mock_pk.return_value = 0
+        with self.assertRaises(TypeError):
+            model.endpoint()
+
+    @mock.patch('amber_lib.models.bases.Model.pk')
+    @mock.patch('amber_lib.models.bases.Model.is_valid')
+    def test_endpoint_invalid_zero_pk(self, mock_is_valid, mock_pk):
+        model = bases.Model(Context())
+        mock_is_valid.return_value = False
+        mock_pk.return_value = 0
         self.assertEqual(model.endpoint(), '/models')
 
     def endpoint_int_id_test(self):
@@ -259,6 +270,9 @@ class Model(unittest.TestCase):
         model.id = 1
 
         self.assertEqual(model.endpoint(), '/testmodels/1')
+
+    def test_form_schema(self):
+        self.assertTrue(False)
 
     def from_dict_test(self):
         dict_ = {
@@ -302,6 +316,61 @@ class Model(unittest.TestCase):
 
         model.from_json(json)
         self.assertTrue(mock_from_dict.called)
+
+    def test_is_valid(self):
+        model = bases.Model(Context())
+        model.__dict__['id'] = 0
+        self.assertEqual(model.is_valid(), False)
+        model.__dict__['id'] = 'bar'
+        self.assertEqual(model.is_valid(), False)
+        model.__dict__['id'] = '42'
+        self.assertEqual(model.is_valid(), True)
+        model.__dict__['id'] = 42
+        self.assertEqual(model.is_valid(), True)
+
+    def test_pk(self):
+        self.assertTrue(False)
+
+    @mock.patch('amber_lib.models.bases.client.Container')
+    @mock.patch('amber_lib.models.bases.Model.endpoint')
+    @mock.patch('amber_lib.models.bases.client.send')
+    def query_test(self, mock_send, mock_endpoint, mock_container):
+        model = bases.Model(Context())
+
+        model.query()
+
+        self.assertTrue(mock_send.called)
+        self.assertTrue(mock_endpoint.called)
+        self.assertTrue(mock_container.called)
+
+    def test_set_relation(self):
+        self.assertTrue(False)
+
+    def test_relate(self):
+        self.assertTrue(False)
+
+    @mock.patch('amber_lib.models.bases.Model.from_dict')
+    @mock.patch('amber_lib.models.bases.Model.endpoint')
+    @mock.patch('amber_lib.models.bases.Model.ctx')
+    @mock.patch('amber_lib.client.send')
+    def retrieve_test(
+            self,
+            mock_send,
+            mock_ctx,
+            mock_endpoint,
+            mock_from_dict
+    ):
+        model = TestModel(Context())
+        model.id = 5
+        model.retrieve(model.id)
+
+        self.assertTrue(mock_send.called)
+        self.assertTrue(mock_endpoint.called)
+        self.assertTrue(mock_from_dict.called)
+        self.assertTrue(mock_ctx.called)
+
+    def test_refresh(self):
+        self.assertTrue(False)
 
     @mock.patch('amber_lib.models.bases.Model.update')
     @mock.patch('amber_lib.models.bases.Model.ctx')
@@ -393,6 +462,9 @@ class Model(unittest.TestCase):
         self.assertTrue(mock_dumps.called)
         self.assertTrue(mock_to_dict.called)
 
+    def test_unrelate(self):
+        self.assertTrue(False)
+
     @mock.patch('amber_lib.models.bases.Model.from_dict')
     def update_dict_test(self, mock_dict):
         model = TestModel(Context())
@@ -410,26 +482,6 @@ class Model(unittest.TestCase):
     def update_invalid_arg_type_test(self):
         model = TestModel(Context())
         self.assertRaises(TypeError, lambda: model.update(3.14159))
-
-    @mock.patch('amber_lib.models.bases.Model.from_dict')
-    @mock.patch('amber_lib.models.bases.Model.endpoint')
-    @mock.patch('amber_lib.models.bases.Model.ctx')
-    @mock.patch('amber_lib.client.send')
-    def retrieve_test(
-            self,
-            mock_send,
-            mock_ctx,
-            mock_endpoint,
-            mock_from_dict
-    ):
-        model = TestModel(Context())
-        model.id = 5
-        model.retrieve(model.id)
-
-        self.assertTrue(mock_send.called)
-        self.assertTrue(mock_endpoint.called)
-        self.assertTrue(mock_from_dict.called)
-        self.assertTrue(mock_ctx.called)
 
 
 class Property(unittest.TestCase):

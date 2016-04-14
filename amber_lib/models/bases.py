@@ -115,6 +115,12 @@ class Model(object):
             return loc + "/%d" % self.pk()
         raise TypeError
 
+    def form_schema(self):
+        """ Retrieve the Schema for the """
+        endpoint = "/form_schemas/%s" % self._resource
+        response = client.send(client.GET, self.ctx(), endpoint, {})
+        return response
+
     def from_dict(self, dict_):
         """ Update the internal dictionary for the instance using the
         key-value pairs contained within the provided dictionary.
@@ -151,6 +157,14 @@ class Model(object):
         """
         dict_ = json.loads(json_)
         return self.from_dict(dict_)
+
+    def is_valid(self):
+        """ Determine if the current model is valid, based on the contents
+        of its primary key.
+        """
+        return hasattr(self, self._pk) and \
+            getattr(self, self._pk) is not None and \
+            int(getattr(self, self._pk)) > 0
 
     def pk(self):
         """ Retrieve the primary key for the current model.
@@ -227,14 +241,6 @@ class Model(object):
         self.from_dict(payload)
 
         return self
-
-    def is_valid(self):
-        """ Determine if the current model is valid, based on the contents
-        of its primary key.
-        """
-        return hasattr(self, self._pk) and \
-            getattr(self, self._pk) is not None and \
-            int(getattr(self, self._pk)) > 0
 
     def refresh(self):
         """ If the current entity is valid, update it by retrieve it's own
@@ -326,12 +332,6 @@ class Model(object):
             return self.from_dict(data)
         else:
             raise TypeError
-
-    def form_schema(self):
-        """ Retrieve the Schema for the """
-        endpoint = "/form_schemas/%s" % self._resource
-        response = client.send(client.GET, self.ctx(), endpoint, {})
-        return response
 
 
 class Property(object):
