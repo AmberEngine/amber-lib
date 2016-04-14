@@ -41,11 +41,91 @@ class TestModel(bases.Model):
 
 
 class Model(unittest.TestCase):
-    def init_test(self):
+    def test__init__(self):
         ctx = Context()
 
         model = bases.Model(ctx)
         self.assertEqual(model._ctx, ctx)
+
+    def test__getattr__(self):
+        model = bases.Model(Context())
+        with self.assertRaises(AttributeError):
+            self.doesNotExist
+
+    def test__getattribute__public(self):
+        model = bases.Model(Context())
+        class Prop(object): value = "bar"
+
+        model.__dict__["foo"] = Prop()
+
+        self.assertEqual(model.__getattribute__("foo"), "bar")
+
+    def test__getattribute__private(self):
+        model = bases.Model(Context())
+        model.__dict__["__foo__"] = "bar"
+
+        self.assertEqual(model.__getattribute__("__foo__"),  "bar")
+
+    def test__getattribute__private(self):
+        model = bases.Model(Context())
+
+        with self.assertRaises(AttributeError):
+            model.__getattribute__("__na__")
+
+    def test__setattr__private(self):
+        model = bases.Model(Context())
+        VALUE = -42
+        model._id = -42
+
+        self.assertEqual(model.__dict__["_id"], VALUE)
+
+    def test__setattr__public(self):
+        model = bases.Model(Context())
+
+        class Prop(object):
+            value = 0
+            def __set__(self, object, value):
+                self.value = value
+
+        model.__dict__["foo"] = Prop()
+        VALUE = -42
+
+        model.foo = VALUE
+
+        self.assertEqual(model.__dict__["foo"].value, VALUE)
+
+    @mock.patch('amber_lib.models.bases.find')
+    def test__setattr__missing_class_attribute(self, mock_find):
+        model = bases.Model(Context())
+        mock_find.return_value = None
+        with self.assertRaises(AttributeError):
+            model.doesNotExist = "foobar"
+
+
+    @mock.patch('amber_lib.models.bases.setattr')
+    @mock.patch('amber_lib.models.bases.Property')
+    @mock.patch('amber_lib.models.bases.find')
+    def test__setattr__class_attribute(self, mock_find, mock_prop, mock_setattr):
+        model = bases.Model(Context())
+        mock_find.return_value = mock.Mock()
+        mock_find.return_value.kind = "int"
+        mock_find.return_value.is_list = False
+
+        model.thing = "fizzbuzz"
+        mock_prop.assert_called_with("int", False)
+        mock_setattr.assert_called_with(model, "thing", "fizzbuzz")
+
+    def test_clear(self):
+        model = bases.Model(Context())
+        model.__dict__['_private'] = 'private_attr'
+        model.__dict__['func'] = lambda x: x
+        model.__dict__['public'] = 'foobar'
+
+        curr_len = len(model.__dict__)
+        public_count = 1
+        
+        model.clear()
+        self.assertEqual(len(model.__dict__), curr_len - public_count)
 
     def ctx_test(self):
         ctx = Context()

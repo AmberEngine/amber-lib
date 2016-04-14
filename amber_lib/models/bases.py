@@ -45,6 +45,8 @@ class Model(object):
             self.__dict__[attr].__set__(self, val)
             return
         else:
+            # Can we find the attribute on a parent class? Then set it in the
+            # local dictionary. Otherwise, raise an exception.
             prop = find(self, attr)
             if not prop:
                 raise AttributeError(
@@ -55,6 +57,10 @@ class Model(object):
             setattr(self, attr, val)
 
     def clear(self):
+        """ clear will remove all public attributes from the model by
+        deleting the respective entries in the object's internal dictionary.
+        Private and callable attributes are not removed.
+        """
         dict_ = self.__dict__.copy()
         for key in dict_:
             if key.startswith('_'):
