@@ -245,8 +245,63 @@ class Model(unittest.TestCase):
 
         self.assertEqual(model.ctx(), ctx)
 
-    def test_delete(self):
-        self.assertTrue(False)
+    @mock.patch('amber_lib.models.bases.Model.is_valid')
+    def test_delete_valid_id_not_none(self, mock_is_valid):
+        model = bases.Model(Context())
+        mock_is_valid.return_value = True
+        with self.assertRaises(ValueError):
+            model.delete(0)
+
+    @mock.patch('amber_lib.models.bases.client.send')
+    @mock.patch('amber_lib.models.bases.Model.is_valid')
+    def test_delete_valid_id_none(self, mock_is_valid, mock_send):
+        ctx = Context()
+        model = bases.Model(ctx)
+
+        class Prop(object):
+            value = 42
+
+        model.__dict__['id'] = Prop()
+        mock_is_valid.return_value = True
+
+        result = model.delete()
+        mock_send.assert_called_with('delete', ctx, '/models/42', None)
+        self.assertDictEqual(result.__dict__, {})
+
+    @mock.patch('amber_lib.models.bases.client.send')
+    def test_delete_not_valid_id_passed(self, mock_send):
+        ctx = Context()
+        model = bases.Model(ctx)
+
+        class Prop(object):
+            value = 0
+
+            def __set__(self, object, value):
+                self.value = value
+
+        model.__dict__['id'] = Prop()
+
+        result = model.delete(42)
+        mock_send.assert_called_with('delete', ctx, '/models/42', None)
+        self.assertDictEqual(result.__dict__, {})
+
+    @mock.patch('amber_lib.models.bases.client.send')
+    @mock.patch('amber_lib.models.bases.Model.is_valid')
+    def test_delete_not_valid_id_none(self, mock_is_valid, mock_send):
+        ctx = Context()
+        model = bases.Model(ctx)
+
+        class Prop(object):
+            value = 0
+
+            def __set__(self, object, value):
+                self.value = value
+
+        model.__dict__['id'] = Prop()
+        mock_is_valid.return_value = False
+
+        with self.assertRaises(ValueError):
+            model.delete()
 
     @mock.patch('amber_lib.models.bases.Model.pk')
     @mock.patch('amber_lib.models.bases.Model.is_valid')
@@ -265,11 +320,13 @@ class Model(unittest.TestCase):
         mock_pk.return_value = 0
         self.assertEqual(model.endpoint(), '/models')
 
-    def endpoint_int_id_test(self):
-        model = TestModel(Context())
-        model.id = 1
-
-        self.assertEqual(model.endpoint(), '/testmodels/1')
+    @mock.patch('amber_lib.models.bases.Model.pk')
+    @mock.patch('amber_lib.models.bases.Model.is_valid')
+    def test_endpoint_valid_non_zero_id(self, mock_is_valid, mock_pk):
+        model = bases.Model(Context())
+        mock_is_valid.return_value = True
+        mock_pk.return_value = 42
+        self.assertEqual(model.endpoint(), '/models/42')
 
     def test_form_schema(self):
         self.assertTrue(False)
@@ -319,17 +376,35 @@ class Model(unittest.TestCase):
 
     def test_is_valid(self):
         model = bases.Model(Context())
-        model.__dict__['id'] = 0
+
+        class Prop(object):
+            value = 0
+
+        p = Prop()
+        p.value = 0
+        model.__dict__['id'] = p
         self.assertEqual(model.is_valid(), False)
-        model.__dict__['id'] = 'bar'
+
+        p.value = 'bar'
+        model.__dict__['id'] = p
         self.assertEqual(model.is_valid(), False)
-        model.__dict__['id'] = '42'
+
+        p.value = '42'
+        model.__dict__['id'] = p
         self.assertEqual(model.is_valid(), True)
-        model.__dict__['id'] = 42
+
+        p.value = 42
+        model.__dict__['id'] = p
         self.assertEqual(model.is_valid(), True)
 
     def test_pk(self):
-        self.assertTrue(False)
+        model = bases.Model(Context())
+
+        class Prop(object):
+            value = 42
+
+        model.__dict__['id'] = Prop()
+        self.assertEqual(model.pk(), 42)
 
     @mock.patch('amber_lib.models.bases.client.Container')
     @mock.patch('amber_lib.models.bases.Model.endpoint')

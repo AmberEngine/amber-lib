@@ -79,6 +79,7 @@ class Model(object):
         error out, depending on the weather conditions.
         """
         if self.is_valid():
+            # Delete current model
             if id_ is not None:
                 raise ValueError(
                     'Cannot delete using an already instantiated model. >:('
@@ -90,6 +91,7 @@ class Model(object):
                 None
             )
         elif id_ is not None:
+            # Delete model by passed id_
             setattr(self, self._pk, id_)
             client.send(
                 client.DELETE,
@@ -162,9 +164,14 @@ class Model(object):
         """ Determine if the current model is valid, based on the contents
         of its primary key.
         """
-        return hasattr(self, self._pk) and \
-            getattr(self, self._pk) is not None and \
-            int(getattr(self, self._pk)) > 0
+        if not hasattr(self, self._pk):
+            return False
+        if getattr(self, self._pk) is None:
+            return False
+        try:
+            return int(getattr(self, self._pk)) > 0
+        except ValueError:
+            return False
 
     def pk(self):
         """ Retrieve the primary key for the current model.
