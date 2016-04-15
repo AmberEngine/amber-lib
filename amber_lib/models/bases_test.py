@@ -478,7 +478,12 @@ class Model(unittest.TestCase):
     @mock.patch('amber_lib.models.bases.Model.pk')
     @mock.patch('amber_lib.models.bases.Model.retrieve')
     @mock.patch('amber_lib.models.bases.Model.is_valid')
-    def test_refresh_invalid_object(self, mock_validity, mock_retrieve, mock_pk):
+    def test_refresh_invalid_object(
+        self,
+        mock_validity,
+        mock_retrieve,
+        mock_pk
+    ):
         model = bases.Model(Context())
         mock_validity.return_value = False
 

@@ -366,7 +366,8 @@ class Property(object):
             if value is None:
                 return None
 
-            if isinstance(value, str) and isinstance(self.kind, str) and not value:
+            if isinstance(value, str) and isinstance(self.kind, str) and \
+                    not value:
                 return None
 
             if type(value).__name__ == 'unicode':
