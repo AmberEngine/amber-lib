@@ -78,7 +78,8 @@ class Product(Model):
             return client.send(
                 client.GET,
                 self.ctx(),
-                endpoint, {},
+                endpoint,
+                {},
                 **uri_params
             )
 
