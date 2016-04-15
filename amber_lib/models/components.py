@@ -48,6 +48,8 @@ class Component(Model):
         if isinstance(self.pk(), int) and self.pk() > 0:
             return loc + "/%d" % self.pk()
 
+        raise ValueError
+
     def retrieve(self, id_):
         """ Retreive a component by ID.
         """
@@ -151,6 +153,7 @@ class Collection(Component):
 class COMCOL(Component):
     com = Property(float)
     col = Property(float)
+
 
 @resource('construction_information')
 class ConstructionInformation(Component):
@@ -359,6 +362,7 @@ class OrderingInformation(Component):
     unit = Property(str)
     stock = Property(float)
     warranty = Property(str)
+
 
 @resource('overall_dimension')
 class OverallDimension(Component):
