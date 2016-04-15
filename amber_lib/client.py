@@ -412,7 +412,7 @@ class Context(object):
         for key, value in kwargs.items():
             if hasattr(self, key):
                 if isinstance(value, str):
-                    value = quote(value.lstrip(), safe='')
+                    value = quote(value.lstrip())
                 setattr(self, key, value)
 
 
