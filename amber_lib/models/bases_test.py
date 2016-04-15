@@ -69,7 +69,7 @@ class Model(unittest.TestCase):
             a = model.doesNotExist
 
     def test__getattribute__missing(self):
-        model = TestModel(Context())
+        model = bases.Model(Context())
         self.assertRaises(AttributeError, model.__getattribute__, 'nope')
 
     def test__getattribute__private(self):
@@ -95,9 +95,9 @@ class Model(unittest.TestCase):
         model = TestModel2(ctx)
         self.assertEqual(model.__getattribute__('my_func')(), 3)
 
-    def dunder_getattribute_existing_property_test(self):
+    def test__getattribute__existing_property(self):
         ctx = Context()
-        model = TestModel(ctx)
+        model = bases.Model(ctx)
 
         prop = bases.Property(str)
         text = 'fubar'
@@ -133,7 +133,7 @@ class Model(unittest.TestCase):
             model.__getattribute__("__na__")
 
     @mock.patch('amber_lib.models.bases.getattr')
-    def dunder_setattr_known_attribute_test(self, mock_getattr):
+    def test__setattr__known_attribute(self, mock_getattr):
         ctx1 = Context()
         ctx2 = Context()
         ctx2.port = "1337"
@@ -144,7 +144,7 @@ class Model(unittest.TestCase):
         self.assertEqual(model._ctx, ctx2)
 
     @mock.patch('amber_lib.models.bases.getattr')
-    def dunder_setattr_known_attribute_test(self, mock_getattr):
+    def test__setattr__known_attribute(self, mock_getattr):
         ctx1 = Context()
         ctx2 = Context()
         ctx2.port = "1337"
@@ -162,7 +162,7 @@ class Model(unittest.TestCase):
         )
 
     @mock.patch('amber_lib.models.bases.getattr')
-    def dunder_setattr_use_parent_attribute_test(self, mock_getattr):
+    def test__setattr__use_parent_attribute(self, mock_getattr):
         class Second(bases.Model):
             second = bases.Property(str)
 
@@ -337,7 +337,7 @@ class Model(unittest.TestCase):
         model.form_schema()
         mock_send.assert_called_with(client.GET, model.ctx(), url, {})
 
-    def from_dict_test(self):
+    def test_from_dict(self):
         dict_ = {
             'foo': 'bar',
             'fizz': [1, 2, 3],
@@ -358,7 +358,7 @@ class Model(unittest.TestCase):
         self.assertEqual(model.model.hey, 'Listen!')
         self.assertEqual(len(model.testchild_list), 2)
 
-    def from_dict_bad_data_test(self):
+    def test_from_dict_bad_data(self):
         dict_ = {
             'foo': 'bar',
             'fizz': [1, 2, 3],
@@ -373,7 +373,7 @@ class Model(unittest.TestCase):
         self.assertRaises(AttributeError, model.from_dict, dict_)
 
     @mock.patch('amber_lib.models.bases.Model.from_dict')
-    def from_json_test(self, mock_from_dict):
+    def test_from_json(self, mock_from_dict):
         json = '{"foo": "bar", "fizz": [1, 2, 3]}'
         model = bases.Model(Context())
 
@@ -415,7 +415,7 @@ class Model(unittest.TestCase):
     @mock.patch('amber_lib.models.bases.client.Container')
     @mock.patch('amber_lib.models.bases.Model.endpoint')
     @mock.patch('amber_lib.models.bases.client.send')
-    def query_test(self, mock_send, mock_endpoint, mock_container):
+    def test_query(self, mock_send, mock_endpoint, mock_container):
         model = bases.Model(Context())
 
         model.query()
@@ -423,29 +423,6 @@ class Model(unittest.TestCase):
         self.assertTrue(mock_send.called)
         self.assertTrue(mock_endpoint.called)
         self.assertTrue(mock_container.called)
-
-    @mock.patch('amber_lib.models.bases.Model.refresh')
-    @mock.patch('amber_lib.models.bases.Model.pk')
-    @mock.patch('amber_lib.client.send')
-    @mock.patch('amber_lib.models.bases.Model.save')
-    def test_set_relation(self, mock_save, mock_send, mock_pk, mock_refresh):
-        model = bases.Model(Context())
-        obj = mock.Mock()
-        obj._resource = "res"
-        obj.pk = mock.Mock()
-
-        model.set_relation(True, obj)
-        mock_save.assert_called_with()
-        mock_send.assert_called_with(
-            client.POST,
-            model.ctx(),
-            "/relations",
-            **{
-                model._resource: mock_pk(),
-                obj._resource: obj.pk()
-            }
-        )
-        mock_refresh.assert_called_with()
 
     @mock.patch('amber_lib.models.bases.Model.set_relation')
     def test_relate(self, mock_relation):
@@ -459,7 +436,7 @@ class Model(unittest.TestCase):
     @mock.patch('amber_lib.models.bases.Model.endpoint')
     @mock.patch('amber_lib.models.bases.Model.ctx')
     @mock.patch('amber_lib.client.send')
-    def retrieve_test(
+    def test_retrieve(
             self,
             mock_send,
             mock_ctx,
@@ -507,7 +484,7 @@ class Model(unittest.TestCase):
     @mock.patch('amber_lib.models.bases.Model.endpoint')
     @mock.patch('amber_lib.models.bases.Model.to_dict')
     @mock.patch('amber_lib.client.send')
-    def save_update_test(
+    def test_save_update(
         self,
         mock_send,
         mock_dict,
@@ -539,7 +516,7 @@ class Model(unittest.TestCase):
     @mock.patch('amber_lib.models.bases.Model.endpoint')
     @mock.patch('amber_lib.models.bases.Model.to_dict')
     @mock.patch('amber_lib.client.send')
-    def save_create_test(
+    def test_save_create(
         self,
         mock_send,
         mock_dict,
@@ -566,7 +543,30 @@ class Model(unittest.TestCase):
             mock_dict()
         )
 
-    def to_dict_test(self):
+    @mock.patch('amber_lib.models.bases.Model.refresh')
+    @mock.patch('amber_lib.models.bases.Model.pk')
+    @mock.patch('amber_lib.client.send')
+    @mock.patch('amber_lib.models.bases.Model.save')
+    def test_set_relation(self, mock_save, mock_send, mock_pk, mock_refresh):
+        model = bases.Model(Context())
+        obj = mock.Mock()
+        obj._resource = "res"
+        obj.pk = mock.Mock()
+
+        model.set_relation(True, obj)
+        mock_save.assert_called_with()
+        mock_send.assert_called_with(
+            client.POST,
+            model.ctx(),
+            "/relations",
+            **{
+                model._resource: mock_pk(),
+                obj._resource: obj.pk()
+            }
+        )
+        mock_refresh.assert_called_with()
+
+    def test_to_dict(self):
         model = TestModel(Context())
 
         model.foo = 'bar'
@@ -585,7 +585,7 @@ class Model(unittest.TestCase):
 
     @mock.patch('amber_lib.models.bases.Model.to_dict')
     @mock.patch('amber_lib.models.bases.json.dumps')
-    def to_json_test(self, mock_dumps, mock_to_dict):
+    def test_to_json(self, mock_dumps, mock_to_dict):
         model = TestModel(Context())
 
         model.to_json()
@@ -601,26 +601,26 @@ class Model(unittest.TestCase):
         mock_relation.assert_called_with(False, obj)
 
     @mock.patch('amber_lib.models.bases.Model.from_dict')
-    def update_dict_test(self, mock_dict):
+    def test_update_dict(self, mock_dict):
         model = TestModel(Context())
         model.update({})
 
         self.assertTrue(mock_dict.called)
 
     @mock.patch('amber_lib.models.bases.Model.from_json')
-    def update_json_test(self, mock_json):
+    def test_update_json(self, mock_json):
         model = TestModel(Context())
         model.update('{}')
 
         self.assertTrue(mock_json.called)
 
-    def update_invalid_arg_type_test(self):
+    def test_update_invalid_arg_type(self):
         model = TestModel(Context())
         self.assertRaises(TypeError, lambda: model.update(3.14159))
 
 
 class Property(unittest.TestCase):
-    def dunder_init_test(self):
+    def test__init__(self):
         kind = str
         is_list = False
 
@@ -629,7 +629,7 @@ class Property(unittest.TestCase):
         self.assertEqual(prop.is_list, is_list)
         self.assertEqual(prop.value, None)
 
-    def dunder_set_none_test(self):
+    def test__set__none(self):
         class TestProp(object):
             prop = bases.Property(str)
 
@@ -640,7 +640,7 @@ class Property(unittest.TestCase):
         test.prop = None
         self.assertEqual(test.prop.value, None)
 
-    def dunder_set_list_not_list_test(self):
+    def test__set__list_not_list(self):
         class TestProp(object):
             prop = bases.Property(str, True)
 
@@ -652,7 +652,7 @@ class Property(unittest.TestCase):
         self.assertRaises(TypeError, set_it)
         self.assertEqual(test.prop.value, [])
 
-    def dunder_set_list_invalid_element_type_test(self):
+    def test__set__list_invalid_element_type(self):
         class TestProp(object):
             prop = bases.Property(int, True)
 
@@ -664,7 +664,7 @@ class Property(unittest.TestCase):
         self.assertRaises(TypeError, set_it)
         self.assertEqual(test.prop.value, [])
 
-    def dunder_set_list_valid_element_type_test(self):
+    def test__set__list_valid_element_type(self):
         class TestProp(object):
             prop = bases.Property(str, True)
 
@@ -675,7 +675,7 @@ class Property(unittest.TestCase):
 
         self.assertEqual(test.prop.value, list_)
 
-    def dunder_set_valid_type_test(self):
+    def test__set__valid_type(self):
         class TestProp(object):
             prop = bases.Property(int)
 
@@ -686,7 +686,7 @@ class Property(unittest.TestCase):
 
         self.assertEqual(test.prop.value, magic_number)
 
-    def dunder_set_unicode_type_for_str_test(self):
+    def test_set__unicode_type_for_str(self):
         class TestProp(object):
             prop = bases.Property(str)
 
@@ -702,7 +702,7 @@ class Property(unittest.TestCase):
         else:
             self.assertEqual(test.prop.value, magic_str)
 
-    def dunder_set_convert_int_for_float_test(self):
+    def test__set__convert_int_for_float(self):
         class testprop(object):
             prop = bases.Property(float)
 
@@ -714,17 +714,29 @@ class Property(unittest.TestCase):
         self.assertTrue(isinstance(test.prop.value, float))
         self.assertEqual(test.prop.value, killed_mobs)
 
-    def dunder_set_invalid_type(self):
+    def test__set__invalid_type(self):
         class testprop(object):
             prop = bases.Property(bool)
 
         test = testprop()
 
-        def set_it():
-            test.prop = 'i am not a bool'
+        with self.assertRaises(TypeError):
+            test.prop = 'I am not a bool'
 
-        self.assertRaises(TypeError, set_it)
 
+class Bases(unittest.TestCase):
+    def test_find(self):
+        class Parent(object):
+            foo = "bar"
+
+        class Child(Parent):
+            fizz = "buzz"
+        p = Parent()
+        c = Child()
+
+        self.assertEqual(bases.find(p, "foo"), "bar")
+        self.assertEqual(bases.find(c, "fizz"), "buzz")
+        self.assertEqual(bases.find(p, "na"), None)
 
 if __name__ == "__main__":
     unittest.main()

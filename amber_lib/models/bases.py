@@ -400,7 +400,7 @@ class Property(object):
             else:
                 try:
                     value = kind(value)
-                except Exception:
+                except:
                     raise TypeError(
                         'Type: \'%s\' for \'%s\' is not \'%s\'' % (
                             type(value), value, kind
