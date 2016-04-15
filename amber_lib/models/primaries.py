@@ -242,6 +242,7 @@ class Option(Model):
         """
         if 'kind' in dict_:
             self.kind = dict_['kind']
+
         def explode_dict(obj, exp_dict):
             for key, val in exp_dict.items():
                 attr = object.__getattribute__(obj, key)
@@ -281,7 +282,6 @@ class Option(Model):
                 setattr(obj, key, val)
             return obj
         return explode_dict(self, dict_)
-
 
 
 @resource('option_sets')
