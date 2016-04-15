@@ -464,7 +464,8 @@ def create_url(context, endpoint, **uri_args):
         query_params = []
         for key in sorted(uri_args.keys()):
             val = str(uri_args[key])
-            val = quote(val)
+            val = quote(val, safe='')
+            key = quote(key, safe='')
             query_params.append('%s=%s' % (key, val))
 
         url += '&'.join(query_params)
