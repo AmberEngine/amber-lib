@@ -340,3 +340,9 @@ class SalesChannelPreference(Model):
     pricing_trade_price = Property(bool)
     pricing_wholesale = Property(bool)
     sales_channel_id = Property(int)
+
+
+@resource('tokens')
+class Token(Model):
+    _pk = "key"
+    key = Property(str)

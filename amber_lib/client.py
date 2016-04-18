@@ -404,6 +404,7 @@ class Context(object):
     private = ""
     public = ""
     request_attempts = 3
+    token = ""
 
     def __init__(self, **kwargs):
         """ Create a new instance of Context, using keyword arguments to
@@ -482,14 +483,45 @@ def send(method, ctx, endpoint, json_data=None, **uri_params):
     """
     method = method.lower()
     if method not in ['get', 'post', 'put', 'delete']:
-        raise AttributeError('Bad method')
+        raise AttributeError('Bad HTTP method provided: %s' % method)
+
+    def dump(data):
+        return json.dumps(data, sort_keys=True, separators=(',', ':'))
 
     url = create_url(ctx, endpoint, **uri_params)
-    payload = create_payload(ctx, url, json_data)
+    payload = dump(json_data)
+    current_timestamp = datetime.isoformat(datetime.utcnow())
 
+
+    auth_string = ""
+
+    # Standard headers that are present for each HTTP request.
+    headers = {
+        'Accept': 'application/hal+json',
+        'Content-Type': 'application/json',
+        'Public-Key': ctx.public_key if ctx.public_key else '',
+        'Timestamp': current_timestamp,
+        'URL': url
+    }
+
+    if ctx.token:
+        # If a token is available, use in-place of signature.
+        auth_string = ctx.token
+    else:
+        # Create a signiture using the request's headers and the payload
+        # data.
+        # Encode/decode is required for the hashing/encrypting functions.
+        sig = "%s%s" % (dump(headers), payload)
+        sig = base64.b64encode(
+            hashlib.sha256(sig.encode('utf-8')).hexdigest().encode('utf-8')
+        ).decode('ascii')
+        auth_string = sig
+
+    headers['Authorization'] = "Bearer %s" % auth_string
+
+    r = None
     retry_on = [408, 419, 500, 502, 504]
     attempts = 0
-    r = None
     while attempts < ctx.request_attempts:
         r = getattr(requests, method)(url, data=payload)
         status = r.status_code
