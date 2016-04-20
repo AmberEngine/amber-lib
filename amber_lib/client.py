@@ -455,7 +455,10 @@ def send(method, ctx, endpoint, json_data=None, **uri_params):
         return json.dumps(data, sort_keys=True, separators=(',', ':'))
 
     url = create_url(ctx, endpoint, **uri_params)
-    payload = dump(json_data)
+    if json_data:
+        payload = dump(json_data)
+    else:
+        payload = '{}'
     current_timestamp = datetime.isoformat(datetime.utcnow())
 
 
@@ -477,7 +480,7 @@ def send(method, ctx, endpoint, json_data=None, **uri_params):
         # Create a signiture using the request's headers and the payload
         # data.
         # Encode/decode is required for the hashing/encrypting functions.
-        sig = "%s%s" % (dump(headers), payload)
+        sig = "%s%s%s" % (dump(headers), payload, ctx.private)
         sig = base64.b64encode(
             hashlib.sha256(sig.encode('utf-8')).hexdigest().encode('utf-8')
         ).decode('ascii')
