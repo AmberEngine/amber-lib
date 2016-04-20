@@ -8,7 +8,7 @@ import hashlib
 import json
 
 import requests
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
 
 import amber_lib.errors as errors
 
@@ -411,6 +411,8 @@ class Context(object):
         """
         for key, value in kwargs.items():
             if hasattr(self, key):
+                if isinstance(value, str):
+                    value = value.strip()
                 setattr(self, key, value)
 
 
@@ -451,21 +453,25 @@ def create_url(context, endpoint, **uri_args):
     """ Create a full URL using the context settings, the desired endpoint,
     and any option URI (keyword) arguments.
     """
-    url = '%s:%s%s' % (context.host, context.port, endpoint)
+    host = context.host.rstrip('/')
+    url = '%s:%s%s' % (host, context.port, endpoint)
 
     if not context.port or context.port == '80':
-        url = '%s%s' % (context.host, endpoint)
+        url = '%s%s' % (host, endpoint)
 
     if len(uri_args) > 0:
         url += '?'
         query_params = []
         for key in sorted(uri_args.keys()):
             val = str(uri_args[key])
-            val = quote(val)
+            val = quote(val, safe='')
+            key = quote(key, safe='')
             query_params.append('%s=%s' % (key, val))
 
         url += '&'.join(query_params)
-    return url
+
+    # Returns a validated URL
+    return urlparse(url).geturl()
 
 
 def send(method, ctx, endpoint, json_data=None, **uri_params):
