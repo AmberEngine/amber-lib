@@ -416,40 +416,6 @@ class Context(object):
                     value = value.strip()
                 setattr(self, key, value)
 
-
-def create_payload(context, url, data):
-    """ Generate a new dictionary payload based on a context, url and data
-    dictionary.
-    """
-    if not data:
-        data = {}
-    payload = {
-        'data': data,
-        'headers': {'Content-Type': 'application/json'},
-        'public_key': context.public,
-        'timestamp': datetime.isoformat(datetime.utcnow()),
-        'url': url
-    }
-
-    jdump = json.dumps(
-        payload,
-        sort_keys=True,
-        separators=(',', ':')
-    ).encode('utf-8')
-
-    hash_ = hashlib.sha256(jdump)
-    hash_.update(context.private.encode('utf-8'))
-    digest = hash_.hexdigest().encode('ascii')
-
-    sig = base64.b64encode(
-        digest
-    )
-
-    payload['signature'] = sig.decode('ascii')
-
-    return json.dumps(payload, sort_keys=True, separators=(',', ':'))
-
-
 def create_url(context, endpoint, **uri_args):
     """ Create a full URL using the context settings, the desired endpoint,
     and any option URI (keyword) arguments.
@@ -499,13 +465,13 @@ def send(method, ctx, endpoint, json_data=None, **uri_params):
     headers = {
         'Accept': 'application/hal+json',
         'Content-Type': 'application/json',
-        'Public-Key': ctx.public_key if ctx.public_key else '',
+        'Public-Key': ctx.public if ctx.public else '',
         'Timestamp': current_timestamp,
         'URL': url
     }
 
     if ctx.token:
-        # If a token is available, use in-place of signature.
+        # If a JWT token is available, use in-place of signature.
         auth_string = ctx.token
     else:
         # Create a signiture using the request's headers and the payload
