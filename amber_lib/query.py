@@ -18,7 +18,7 @@ OR = "||"
 class _Operator(object):
     def __init__(self, type_, *preds):
         self.type_ = type_
-        self.predicates = preds
+        self.predicates = list(preds)
 
     def apply(self, pred):
         self.predicates.append(pred)
