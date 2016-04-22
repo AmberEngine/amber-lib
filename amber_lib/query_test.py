@@ -40,4 +40,38 @@ class Operator(unittest.TestCase):
         self.assertEqual(op.apply(pred), op)
         self.assertTrue(pred in op.predicates)
 
+    def test_to_dict(self):
+        type_ = "foo"
+        pred = query.Predicate("Product.id", {"==", 12})
+        op = query._Operator(type_, pred)
+
+        expected = {type_: [pred.to_dict()]}
+        self.assertEqual(op.to_dict(), expected)
+
+    @mock.patch('amber_lib.query.json.dumps')
+    def test_to_json(self, mock_dumps):
+        type_ = "foo"
+        pred = query.Predicate("Product.id", {"==", 12})
+        op = query._Operator(type_, pred)
+
+        op.to_json()
+        mock_dumps.assert_called_once_with(op.to_dict())
+
+
+class And(unittest.TestCase):
+    @mock.patch('amber_lib.query._Operator.__init__')
+    def  test__init__(self, mock_init):
+        preds = [mock.Mock(), mock.Mock()]
+
+        a = query.And(*preds)
+        mock_init.assert_called_once_with(a, query.AND, *preds)
+
+
+class Or(unittest.TestCase):
+    @mock.patch('amber_lib.query._Operator.__init__')
+    def  test__init__(self, mock_init):
+        preds = [mock.Mock(), mock.Mock()]
+
+        o = query.Or(*preds)
+        mock_init.assert_called_once_with(o, query.OR, *preds)
 
