@@ -1,4 +1,4 @@
-from amber_lib.client import GET, send
+from amber_lib.client import GET, POST, send
 import amber_lib.models.components as components
 import amber_lib.models.primaries as primaries
 import amber_lib.models.product as product
@@ -51,3 +51,20 @@ class Connection(object):
         context.
         """
         send(GET, self.context, '', {})
+
+    def token(self, public='', use_token=False):
+        if not public:
+            public = self.context.public
+        returned_dict = send(
+            POST,
+            self.context,
+            "/tokens",
+            {'public': public},
+        )
+        key = returned_dict['key']
+
+        if use_token:
+            self.context.token = key
+        return key
+
+
