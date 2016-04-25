@@ -397,6 +397,12 @@ class Property(object):
                             type(value), value, kind
                         )
                     )
+            elif kind == bool and not isinstance(value, bool):
+                raise TypeError(
+                    'Type: \'%s\5 for \'%s\' is not \'%s\'' % (
+                        type(value), value, kind
+                    )
+                )
             else:
                 try:
                     value = kind(value)

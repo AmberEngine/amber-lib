@@ -63,7 +63,7 @@ class Model(unittest.TestCase):
 
         self.assertRaises(AttributeError, getattr, *[model, known_attr])
 
-    def test__getattr__(self):
+    def test__getattr__missing(self):
         model = bases.Model(Context())
         with self.assertRaises(AttributeError):
             a = model.doesNotExist
@@ -76,11 +76,11 @@ class Model(unittest.TestCase):
         ctx = Context()
 
         class TestModel2(TestModel):
-            _test = None
+            _test = 'test'
 
         model = TestModel2(ctx)
         self.assertEqual(model.__getattribute__('_ctx'), ctx)
-        self.assertEqual(model.__getattribute__('_test'), None)
+        self.assertEqual(model.__getattribute__('_test'), 'test')
         self.assertNotIn('_test', model.__dict__)
 
     def test__getattribute__callable(self):

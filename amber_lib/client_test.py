@@ -43,8 +43,11 @@ class TestContext(object):
     port = "8080"
     request_attempts = 3
 
-class Context(unittest.TestCase):
+
+class ContextTests(unittest.TestCase):
     def dunder_init_valid_keys_test(self):
+        """Tests instantiating a Context() object with proper arguments.
+        """
         args = {
             'host': 'http://amberlib.example.com',
             'port': '1337'
@@ -55,6 +58,8 @@ class Context(unittest.TestCase):
         self.assertEqual(ctx.port, args['port'])
 
     def dunder_init_invalid_keys_test(self):
+        """Tests instantiating a Context() object with improper arguments.
+        """
         args = {
             'host': 'http://amberlib.example.com',
             'port': '1337',
@@ -68,12 +73,16 @@ class Context(unittest.TestCase):
         self.assertNotIn('fizz', ctx.__dict__)
 
 
-class Container(unittest.TestCase):
+class ContainerTests(unittest.TestCase):
     def all_test(self):
+        """Tests calling all() from a Container object.
+        """
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
         self.assertEqual(ctn[:].values, ctn.all().values)
 
     def append_test(self):
+        """Tests calling append() on a Container object.
+        """
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
 
         model = bases.Model(TestContext())
@@ -85,11 +94,15 @@ class Container(unittest.TestCase):
         self.assertEqual(ctn[-1], model)
 
     def count_test(self):
+        """Tests calling count() from a Container object.
+        """
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
 
         self.assertEqual(ctn.count(), len(ctn))
 
     def delete_invalid_index_test(self):
+        """Tests remove() on a Container with an index that doesn't exist.
+        """
         ctn = client.Container(FAKE_HAL, bases.Model, TestContext())
 
         def delete_index():
@@ -97,6 +110,8 @@ class Container(unittest.TestCase):
         self.assertRaises(ValueError, delete_index)
 
     def delete_test(self):
+        """Tests calling remove() on a Container object.
+        """
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
 
         second = ctn[1]
@@ -108,6 +123,8 @@ class Container(unittest.TestCase):
         self.assertNotIn(second, ctn)
 
     def dunder_add_test(self):
+        """ Tests concatenating two Container objects with +.
+        """
         hal = {
             "_embedded": {
                 "models": [
@@ -130,21 +147,29 @@ class Container(unittest.TestCase):
         self.assertEqual(ctn3[-1]._links, "third")
 
     def dunder_add_wrong_type_test(self):
+        """
+        Tests a proper error is thrown when concatenating a Container with
+            a non-iterable/non-Container object.
+        """
         ctn1 = client.Container(FAKE_HAL, bases.Model, TestContext())
         self.assertRaises(TypeError, lambda: ctn1 + "foobar")
 
     def dunder_append_container_test(self):
+        """Tests extending a Container object with another Container.
+        """
         ctn1 = client.Container(FAKE_HAL, bases.Model, TestContext())
         ctn2 = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
         ctn3 = client.Container({}, bases.Model, TestContext())
 
         expected = len(ctn1) + len(ctn2) + len(ctn3)
 
-        ctn1._Container__append(ctn2)
-        ctn1._Container__append(ctn3)
+        ctn1._Container__extend(ctn2)
+        ctn1._Container__extend(ctn3)
         self.assertEqual(len(ctn1), expected)
 
     def dunder_append_item_test(self):
+        """Tests appending a Model to a Container.
+        """
         ctn = client.Container(FAKE_HAL, bases.Model, TestContext())
 
         expected = len(ctn) + 1
@@ -153,21 +178,27 @@ class Container(unittest.TestCase):
         self.assertEqual(len(ctn), expected)
 
     def dunder_append_list_test(self):
+        """Tests extending a Container object with a list.
+        """
         ctn = client.Container(FAKE_HAL, bases.Model, TestContext())
         models = [bases.Model({}), bases.Model({})]
 
         expected = len(ctn) + len(models)
 
-        ctn._Container__append(models)
+        ctn._Container__extend(models)
         self.assertEqual(len(ctn), expected)
 
     def dunder_contains_test(self):
+        """Tests implicitly checking if a Container contains a specified item.
+        """
         ctn = client.Container(FAKE_HAL, bases.Model, TestContext())
         model = ctn[0]
         self.assertIn(model, ctn)
         self.assertNotIn("foobar", ctn)
 
     def dunder_delitem_test(self):
+        """Tests using built-in del on a Container object to remove an item.
+        """
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
 
         second = ctn[1]
@@ -179,6 +210,8 @@ class Container(unittest.TestCase):
         self.assertNotIn(second, ctn)
 
     def dunder_delitem_invalid_index_test(self):
+        """Tests using del on a Container object with an invalid item index.
+        """
         ctn = client.Container(FAKE_HAL, bases.Model, TestContext())
 
         def delete_index():
@@ -201,6 +234,10 @@ class Container(unittest.TestCase):
     #     mock_all.assert_called_with()
 
     def dunder_get_invalid_negative_index_test(self):
+        """
+        Tests that a proper error is raised when an out of bound negative index
+            is used.
+        """
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
         too_far_under = len(ctn) * -1
         self.assertRaises(
@@ -209,15 +246,23 @@ class Container(unittest.TestCase):
         )
 
     def dunder_get_invalid_positive_index_test(self):
+        """Tests a proper error is raised when an out-of-bounds index is used
+            on a Container.
+        """
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
         self.assertRaises(IndexError, lambda: ctn._Container__get(len(ctn)))
 
     def dunder_get_positive_index_test(self):
+        """Tests getting an item from a Container using a valid index.
+        """
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
         self.assertEqual(ctn._Container__get(0)._links, "first")
 
     @mock.patch('amber_lib.client.Container._Container__next')
     def dunder_get_use_next_test(self, mock_next):
+        """Tests that Container objects properly calls for items outside of
+            its cached segment when attempts are made to access them.
+        """
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
 
         mock_next.return_value = False
@@ -235,6 +280,9 @@ class Container(unittest.TestCase):
 
     @mock.patch('amber_lib.client.Container._Container__previous')
     def dunder_get_use_previous_test(self, mock_previous):
+        """Tests that Container objects properly calls for items outside of
+            its cached segment when attempts are made to access them.
+        """
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
 
         mock_previous.return_value = False
