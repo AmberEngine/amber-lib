@@ -341,11 +341,6 @@ class Manufacturer(Component):
     manufacturer_id = Property(int)
 
 
-# @resource('option_set')
-# class OptionSet(Component):
-#     option_set_id = Property(int)
-#     option_set = Property(primaries.OptionSet)
-
 @resource('option_sets')
 class OptionSets(Component):
     option_set_list = Property(primaries.OptionSet, True)
@@ -519,3 +514,8 @@ class Weight(Component):
 class Visibility(Component):
     active = Property(bool)
     meets_posting_requirements = Property(bool)
+
+
+@resource('rugs')
+class Rug(Model):
+    pass
