@@ -404,6 +404,7 @@ class Context(object):
     private = ""
     public = ""
     request_attempts = 3
+    token = ""
 
     def __init__(self, **kwargs):
         """ Create a new instance of Context, using keyword arguments to
@@ -414,40 +415,6 @@ class Context(object):
                 if isinstance(value, str):
                     value = value.strip()
                 setattr(self, key, value)
-
-
-def create_payload(context, url, data):
-    """ Generate a new dictionary payload based on a context, url and data
-    dictionary.
-    """
-    if not data:
-        data = {}
-    payload = {
-        'data': data,
-        'headers': {'Content-Type': 'application/json'},
-        'public_key': context.public,
-        'timestamp': datetime.isoformat(datetime.utcnow()),
-        'url': url
-    }
-
-    jdump = json.dumps(
-        payload,
-        sort_keys=True,
-        separators=(',', ':')
-    ).encode('utf-8')
-
-    hash_ = hashlib.sha256(jdump)
-    hash_.update(context.private.encode('utf-8'))
-    digest = hash_.hexdigest().encode('ascii')
-
-    sig = base64.b64encode(
-        digest
-    )
-
-    payload['signature'] = sig.decode('ascii')
-
-    return json.dumps(payload, sort_keys=True, separators=(',', ':'))
-
 
 def create_url(context, endpoint, **uri_args):
     """ Create a full URL using the context settings, the desired endpoint,
@@ -482,16 +449,50 @@ def send(method, ctx, endpoint, json_data=None, **uri_params):
     """
     method = method.lower()
     if method not in ['get', 'post', 'put', 'delete']:
-        raise AttributeError('Bad method')
+        raise AttributeError('Bad HTTP method provided: %s' % method)
+
+    def dump(data):
+        return json.dumps(data, sort_keys=True, separators=(',', ':'))
 
     url = create_url(ctx, endpoint, **uri_params)
-    payload = create_payload(ctx, url, json_data)
+    if json_data:
+        payload = dump(json_data)
+    else:
+        payload = '{}'
+    current_timestamp = datetime.isoformat(datetime.utcnow())
 
+
+    auth_string = ""
+
+    # Standard headers that are present for each HTTP request.
+    headers = {
+        'Accept': 'application/hal+json',
+        'Content-Type': 'application/json',
+        'Public-Key': ctx.public if ctx.public else '',
+        'Timestamp': current_timestamp,
+        'URL': url
+    }
+
+    if ctx.token:
+        # If a JWT token is available, use in-place of signature.
+        auth_string = ctx.token
+    else:
+        # Create a signiture using the request's headers and the payload
+        # data.
+        # Encode/decode is required for the hashing/encrypting functions.
+        sig = "%s%s%s" % (dump(headers), payload, ctx.private)
+        sig = base64.b64encode(
+            hashlib.sha256(sig.encode('utf-8')).hexdigest().encode('utf-8')
+        ).decode('ascii')
+        auth_string = sig
+
+    headers['Authorization'] = "Bearer %s" % auth_string
+
+    r = None
     retry_on = [408, 419, 500, 502, 504]
     attempts = 0
-    r = None
     while attempts < ctx.request_attempts:
-        r = getattr(requests, method)(url, data=payload)
+        r = getattr(requests, method)(url, data=payload, headers=headers)
         status = r.status_code
         if status == 200:
             try:
