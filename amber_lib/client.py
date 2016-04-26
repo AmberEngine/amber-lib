@@ -405,6 +405,7 @@ class Context(object):
     public = ""
     request_attempts = 3
     token = ""
+    on_token_refresh = None
 
     def __init__(self, **kwargs):
         """ Create a new instance of Context, using keyword arguments to
@@ -415,6 +416,22 @@ class Context(object):
                 if isinstance(value, str):
                     value = value.strip()
                 setattr(self, key, value)
+
+    def create_token(self, public='', use_token=False):
+        if not public:
+            public = self.public
+        returned_dict = send(
+            POST,
+            self,
+            "/tokens",
+            {'public': public},
+        )
+        key = returned_dict['key']
+
+        if use_token:
+            self.token = key
+        return key
+
 
 def create_url(context, endpoint, **uri_args):
     """ Create a full URL using the context settings, the desired endpoint,
@@ -499,6 +516,15 @@ def send(method, ctx, endpoint, json_data=None, **uri_params):
                 return r.json()
             except ValueError:
                 return {}
+        elif status == 440 and ctx.on_token_refresh:
+            claims = ctx.token.split('.')[1]
+            if 4 - len(claims) % 4 > 0:
+                claims += "=" * (4 - len(claims) % 4)
+            sub = json.loads(base64.b64decode(claims).decode("utf-8"))['sub']
+            ctx.token = ''
+            ctx.token = ctx.create_token(public=sub)
+            ctx.on_token_refresh(ctx.token)
+            return send(method, ctx, endpoint, json_data, **uri_params)
         elif status in retry_on:
             attempts += 1
         else:
