@@ -44,6 +44,8 @@ class Product(Model):
     pillows = Property(components.Pillows)
     promotional_tag = Property(components.PromotionalTag)
     overall_dimension = Property(components.OverallDimension)
+    rug_construction = Property(components.RugConstruction)
+    rug_pattern = Property(components.RugPattern)
     seat = Property(components.Seat)
     shade = Property(components.Shade)
     side_rail = Property(components.SideRail)
