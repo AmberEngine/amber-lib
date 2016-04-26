@@ -354,6 +354,6 @@ class SalesChannelPreference(Model):
     sales_channel_id = Property(int)
 
 
-@resource('mattresses')
+"""@resource('mattresses')
 class Mattress(Model):
-    pass
+    pass"""
