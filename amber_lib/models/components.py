@@ -417,6 +417,21 @@ class PromotionalTag(Component):
     new_product = Property(bool)
 
 
+@resource('rug_construction')
+class RugConstruction(Model):
+    content = Property(str)
+    shape = Property(primaries.MultiValueList)
+    construction = Property(primaries.MultiValueList)
+    material = Property(primaries.MultiValueList)
+
+
+@resource('rug_pattern')
+class RugPattern(Model):
+    custom_size = Property(bool)
+    color = Property(primaries.MultiValueList)
+    style = Property(primaries.MultiValueList)
+
+
 @resource('seat')
 class Seat(Component):
     construction = Property(str)
@@ -514,8 +529,3 @@ class Weight(Component):
 class Visibility(Component):
     active = Property(bool)
     meets_posting_requirements = Property(bool)
-
-
-@resource('rugs')
-class Rug(Model):
-    pass
