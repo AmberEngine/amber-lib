@@ -420,7 +420,7 @@ class PromotionalTag(Component):
 @resource('rug_construction')
 class RugConstruction(Component):
     content = Property(str)
-    shape = Property(primaries.MultiValueList)
+    backing = Property(str)
     construction = Property(primaries.MultiValueList)
     material = Property(primaries.MultiValueList)
 
@@ -428,6 +428,8 @@ class RugConstruction(Component):
 @resource('rug_pattern')
 class RugPattern(Component):
     custom_size = Property(bool)
+    scale = Property(str)
+    shape = Property(primaries.MultiValueList)
     color = Property(primaries.MultiValueList)
     style = Property(primaries.MultiValueList)
 
