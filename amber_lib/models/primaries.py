@@ -352,8 +352,3 @@ class SalesChannelPreference(Model):
     pricing_trade_price = Property(bool)
     pricing_wholesale = Property(bool)
     sales_channel_id = Property(int)
-
-
-"""@resource('mattresses')
-class Mattress(Model):
-    pass"""
