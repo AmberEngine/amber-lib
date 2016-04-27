@@ -13,6 +13,7 @@ class APIKey(Model):
     sales_channel_id = Property(int)
     kind = Property(str)
     role_name = Property(str)
+    token_secret = Property(str)
 
 
 class AssemblageElement(Model):

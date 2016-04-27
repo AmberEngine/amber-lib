@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import sys
 import base64
 import copy
 from datetime import datetime
@@ -8,7 +9,11 @@ import hashlib
 import json
 
 import requests
-from urllib.parse import quote, urlparse
+if sys.version_info >= (3,):
+    from urllib.parse import quote, urlparse
+else:
+    from urllib import quote
+    from urlparse import urlparse
 
 import amber_lib.errors as errors
 
