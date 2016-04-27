@@ -163,8 +163,8 @@ class ContainerTests(unittest.TestCase):
 
         expected = len(ctn1) + len(ctn2) + len(ctn3)
 
-        ctn1._Container__extend(ctn2)
-        ctn1._Container__extend(ctn3)
+        ctn1._Container__append(ctn2)
+        ctn1._Container__append(ctn3)
         self.assertEqual(len(ctn1), expected)
 
     def dunder_append_item_test(self):
@@ -185,7 +185,7 @@ class ContainerTests(unittest.TestCase):
 
         expected = len(ctn) + len(models)
 
-        ctn._Container__extend(models)
+        ctn._Container__append(models)
         self.assertEqual(len(ctn), expected)
 
     def dunder_contains_test(self):

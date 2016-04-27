@@ -136,7 +136,7 @@ class HelperTests(unittest.TestCase):
         expected = {
             '!in': [1337, 42]
         }
-        actual = query.equal([1337, 42])
+        actual = query.not_in([1337, 42])
         self.assertEqual(expected, actual)
 
     def test_not_in_error(self):
@@ -180,7 +180,7 @@ class HelperTests(unittest.TestCase):
         expected = {
             '<': 1337
         }
-        actual = query.equal(1337)
+        actual = query.less_than(1337)
         self.assertEqual(expected, actual)
 
     def test_is_null(self):
@@ -198,5 +198,5 @@ class HelperTests(unittest.TestCase):
         expected = {
             '!null': ''
         }
-        actual = query.is_null()
+        actual = query.is_not_null()
         self.assertEqual(expected, actual)
