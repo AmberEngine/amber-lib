@@ -74,7 +74,7 @@ class Product(Model):
             if self.category.tertiary:
                 uri_params['tertiary'] = self.category.tertiary
 
-            endpoint = "/form_schemas/%s" % self._resource
+            endpoint = '/form_schemas/%s' % self._resource
             return client.send(
                 client.GET,
                 self.ctx(),
@@ -87,8 +87,8 @@ class Product(Model):
         payload = client.send(
             client.GET,
             self._ctx,
-            "/products_search",
-            {"filtering": filtering.to_dict()} if filtering else None,
+            '/products_search',
+            {'filtering': filtering.to_dict()} if filtering else None,
             limit=batch_size,
             offset=offset,
             **kwargs

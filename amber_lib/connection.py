@@ -51,4 +51,3 @@ class Connection(object):
         context.
         """
         client.send(client.GET, self.context, '', {})
-

@@ -14,9 +14,9 @@ from amber_lib import client
 
 class Context(object):
     public = 'mwyclv6bac2lqn9artt1o88laq4muk88483opkp9dnv8289f8olqrxlx7b2s7q8'
-    private = "sn4ikxumkpi5dqb0vwo1ujbi68uv3bvoak1p0xzgbzhg71v9p1sn7a2t49dh2tz"
-    host = "http://example.com"
-    port = "8080"
+    private = 'sn4ikxumkpi5dqb0vwo1ujbi68uv3bvoak1p0xzgbzhg71v9p1sn7a2t49dh2tz'
+    host = 'http://example.com'
+    port = '8080'
 
 
 CONTEXT = Context()
@@ -44,7 +44,7 @@ class Product(unittest.TestCase):
         prod = product.Product(CONTEXT)
         mock_cat.primary = None
 
-        url = "/form_schemas/products"
+        url = '/form_schemas/products'
 
         prod.form_schema()
         mock_form_schema.assert_called_with(prod)
@@ -57,11 +57,11 @@ class Product(unittest.TestCase):
         mock_send
     ):
         prod = product.Product(CONTEXT)
-        mock_cat.primary = "primary"
-        mock_cat.secondary = "secondary"
-        mock_cat.tertiary = "tertiary"
+        mock_cat.primary = 'primary'
+        mock_cat.secondary = 'secondary'
+        mock_cat.tertiary = 'tertiary'
 
-        url = "/form_schemas/%s" % prod._resource
+        url = '/form_schemas/%s' % prod._resource
 
         prod.form_schema()
 
@@ -71,9 +71,9 @@ class Product(unittest.TestCase):
             url,
             {},
             **{
-                "primary": "primary",
-                "secondary": "secondary",
-                "tertiary": "tertiary"
+                'primary': 'primary',
+                'secondary': 'secondary',
+                'tertiary': 'tertiary'
             }
         )
 
@@ -88,15 +88,15 @@ class Product(unittest.TestCase):
         filter_ = mock.Mock()
         batch_size = 250
         offset = 42
-        uri_args = {"foo": "bar", "fizz": "buzz"}
+        uri_args = {'foo': 'bar', 'fizz': 'buzz'}
 
         prod.search(filter_, batch_size, offset, **uri_args)
 
         mock_send.assert_called_with(
             client.GET,
             prod._ctx,
-            "/products_search",
-            {"filtering": filter_.to_dict()},
+            '/products_search',
+            {'filtering': filter_.to_dict()},
             limit=batch_size,
             offset=offset,
             **uri_args

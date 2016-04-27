@@ -14,9 +14,9 @@ from amber_lib import client
 
 class Context(object):
     public = 'mwyclv6bac2lqn9artt1o88laq4muk88483opkp9dnv8289f8olqrxlx7b2s7q8'
-    private = "sn4ikxumkpi5dqb0vwo1ujbi68uv3bvoak1p0xzgbzhg71v9p1sn7a2t49dh2tz"
-    host = "http://example.com"
-    port = "8080"
+    private = 'sn4ikxumkpi5dqb0vwo1ujbi68uv3bvoak1p0xzgbzhg71v9p1sn7a2t49dh2tz'
+    host = 'http://example.com'
+    port = '8080'
 
 
 CONTEXT = Context()
@@ -144,7 +144,7 @@ class Component(unittest.TestCase):
     def test_form_schema(self, mock_send):
         comp = components.Component(CONTEXT)
         comp._resource = 'component'
-        url = "/form_schemas/products?component=%s" % comp._resource
+        url = '/form_schemas/products?component=%s' % comp._resource
 
         comp.form_schema()
         mock_send.assert_called_with(

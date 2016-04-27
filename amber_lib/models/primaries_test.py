@@ -14,9 +14,9 @@ from amber_lib import client
 
 class Context(object):
     public = 'mwyclv6bac2lqn9artt1o88laq4muk88483opkp9dnv8289f8olqrxlx7b2s7q8'
-    private = "sn4ikxumkpi5dqb0vwo1ujbi68uv3bvoak1p0xzgbzhg71v9p1sn7a2t49dh2tz"
-    host = "http://example.com"
-    port = "8080"
+    private = 'sn4ikxumkpi5dqb0vwo1ujbi68uv3bvoak1p0xzgbzhg71v9p1sn7a2t49dh2tz'
+    host = 'http://example.com'
+    port = '8080'
 
 
 CONTEXT = Context()
@@ -45,27 +45,27 @@ class Option(unittest.TestCase):
         opt = primaries.Option(CONTEXT)
 
         no_kind = {
-            "number": "abc123",
-            "default": True,
-            "name": "FizzBuzz"
+            'number': 'abc123',
+            'default': True,
+            'name': 'FizzBuzz'
         }
 
         has_kind = {
-            "number": "abc123",
-            "default": True,
-            "name": "FizzBuzz",
-            "kind": "finish"
+            'number': 'abc123',
+            'default': True,
+            'name': 'FizzBuzz',
+            'kind': 'finish'
         }
 
         is_trim = {
-            "number": "abc123",
-            "default": True,
-            "name": "FizzBuzz",
-            "kind": "trim",
-            "extended_data": {
-                "color": "red",
-                "width": 42.23,
-                "depth": 634.00
+            'number': 'abc123',
+            'default': True,
+            'name': 'FizzBuzz',
+            'kind': 'trim',
+            'extended_data': {
+                'color': 'red',
+                'width': 42.23,
+                'depth': 634.00
             }
         }
 

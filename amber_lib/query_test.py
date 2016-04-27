@@ -9,8 +9,8 @@ class PredicateTests(unittest.TestCase):
     def test__init__(self):
         """Tests instantiating a Predicate object.
         """
-        path = "Product.id"
-        expression = {"==", 42}
+        path = 'Product.id'
+        expression = {'==', 42}
         p = query.Predicate(path, expression)
 
         self.assertEqual(p.path, path)
@@ -19,8 +19,8 @@ class PredicateTests(unittest.TestCase):
     def test_to_dict(self):
         """Tests calling to_dict() on a Predicate object.
         """
-        path = "Product.id"
-        expression = {">", 1337}
+        path = 'Product.id'
+        expression = {'>', 1337}
         p = query.Predicate(path, expression)
 
         print(p.to_dict())
@@ -32,8 +32,8 @@ class OperatorTests(unittest.TestCase):
     def test__init__(self):
         """Tests instantiating an Operator object.
         """
-        type_ = "foo"
-        preds = ["one", "two"]
+        type_ = 'foo'
+        preds = ['one', 'two']
         op = query._Operator(type_, *preds)
 
         self.assertEqual(op.type_, type_)
@@ -42,8 +42,8 @@ class OperatorTests(unittest.TestCase):
     def test_apply(self):
         """Tests calling apply() on an Operator object.
         """
-        type_ = "foo"
-        preds = ["one", "two"]
+        type_ = 'foo'
+        preds = ['one', 'two']
         op = query._Operator(type_, *preds)
 
         pred = mock.Mock()
@@ -53,8 +53,8 @@ class OperatorTests(unittest.TestCase):
     def test_to_dict(self):
         """Tests calling to_dict() on an Operator object.
         """
-        type_ = "foo"
-        pred = query.Predicate("Product.id", {"==", 12})
+        type_ = 'foo'
+        pred = query.Predicate('Product.id', {'==', 12})
         op = query._Operator(type_, pred)
 
         expected = {type_: [pred.to_dict()]}
@@ -64,8 +64,8 @@ class OperatorTests(unittest.TestCase):
     def test_to_json(self, mock_dumps):
         """Tests calling to_json() on an Operator object.
         """
-        type_ = "foo"
-        pred = query.Predicate("Product.id", {"==", 12})
+        type_ = 'foo'
+        pred = query.Predicate('Product.id', {'==', 12})
         op = query._Operator(type_, pred)
 
         op.to_json()

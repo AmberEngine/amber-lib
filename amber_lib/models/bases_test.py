@@ -16,23 +16,23 @@ FAKE_DATE_FORMAT = datetime.isoformat(FAKE_DATE)
 
 class Context(object):
     public = 'mwyclv6bac2lqn9artt1o88laq4muk88483opkp9dnv8289f8olqrxlx7b2s7q8'
-    private = "sn4ikxumkpi5dqb0vwo1ujbi68uv3bvoak1p0xzgbzhg71v9p1sn7a2t49dh2tz"
-    host = "http://example.com"
-    port = "8080"
+    private = 'sn4ikxumkpi5dqb0vwo1ujbi68uv3bvoak1p0xzgbzhg71v9p1sn7a2t49dh2tz'
+    host = 'http://example.com'
+    port = '8080'
 
 
 class TestChild(bases.Model):
-    _resource = "testchild"
+    _resource = 'testchild'
     hey = bases.Property(str)
 
 
 class TestInheritsModel(TestChild):
-    _resource = "testinheritsmodel"
+    _resource = 'testinheritsmodel'
     listen = bases.Property(str)
 
 
 class TestModel(bases.Model):
-    _resource = "testmodels"
+    _resource = 'testmodels'
     id = bases.Property(int)
     foo = bases.Property(str)
     fizz = bases.Property(int, True)
@@ -48,7 +48,7 @@ class Model(unittest.TestCase):
         self.assertEqual(model._ctx, ctx)
 
     def test__getattr__(self):
-        known_attr = "_ctx"
+        known_attr = '_ctx'
 
         ctx = Context()
         model = bases.Model(ctx)
@@ -56,7 +56,7 @@ class Model(unittest.TestCase):
         self.assertEqual(getattr(model, known_attr), ctx)
 
     def test__getattr__missing_attribute(self):
-        known_attr = "this_doesnt_exist"
+        known_attr = 'this_doesnt_exist'
 
         ctx = Context()
         model = bases.Model(ctx)
@@ -72,7 +72,7 @@ class Model(unittest.TestCase):
         model = bases.Model(Context())
         self.assertRaises(AttributeError, model.__getattribute__, 'nope')
 
-    def test__getattribute__private(self):
+    def test__getattribute__protected(self):
         ctx = Context()
 
         class TestModel2(TestModel):
@@ -114,29 +114,29 @@ class Model(unittest.TestCase):
         model = bases.Model(Context())
 
         class Prop(object):
-            value = "bar"
+            value = 'bar'
 
-        model.__dict__["foo"] = Prop()
+        model.__dict__['foo'] = Prop()
 
-        self.assertEqual(model.__getattribute__("foo"), "bar")
+        self.assertEqual(model.__getattribute__('foo'), 'bar')
 
     def test__getattribute__private(self):
         model = bases.Model(Context())
-        model.__dict__["__foo__"] = "bar"
+        model.__dict__['__foo__'] = 'bar'
 
-        self.assertEqual(model.__getattribute__("__foo__"),  "bar")
+        self.assertEqual(model.__getattribute__('__foo__'),  'bar')
 
     def test__getattribute__invalid_private(self):
         model = bases.Model(Context())
 
         with self.assertRaises(AttributeError):
-            model.__getattribute__("__na__")
+            model.__getattribute__('__na__')
 
     @mock.patch('amber_lib.models.bases.getattr')
     def test__setattr__known_attribute(self, mock_getattr):
         ctx1 = Context()
         ctx2 = Context()
-        ctx2.port = "1337"
+        ctx2.port = '1337'
 
         model = bases.Model(ctx1)
         model._ctx = ctx2
@@ -147,7 +147,7 @@ class Model(unittest.TestCase):
     def test__setattr__known_attribute(self, mock_getattr):
         ctx1 = Context()
         ctx2 = Context()
-        ctx2.port = "1337"
+        ctx2.port = '1337'
 
         model = bases.Model(ctx1)
 
@@ -158,7 +158,7 @@ class Model(unittest.TestCase):
         self.assertRaises(
             AttributeError,
             setattr,
-            *[model, "does_not_exist", ctx2]
+            *[model, 'does_not_exist', ctx2]
         )
 
     @mock.patch('amber_lib.models.bases.getattr')
@@ -184,7 +184,7 @@ class Model(unittest.TestCase):
         value = -42
         model._id = -42
 
-        self.assertEqual(model.__dict__["_id"], value)
+        self.assertEqual(model.__dict__['_id'], value)
 
     def test__setattr__public(self):
         model = bases.Model(Context())
@@ -195,19 +195,19 @@ class Model(unittest.TestCase):
             def __set__(self, object, value):
                 self.value = value
 
-        model.__dict__["foo"] = Prop()
+        model.__dict__['foo'] = Prop()
         value = -42
 
         model.foo = value
 
-        self.assertEqual(model.__dict__["foo"].value, value)
+        self.assertEqual(model.__dict__['foo'].value, value)
 
     @mock.patch('amber_lib.models.bases.find')
     def test__setattr__missing_class_attribute(self, mock_find):
         model = bases.Model(Context())
         mock_find.return_value = None
         with self.assertRaises(AttributeError):
-            model.doesNotExist = "foobar"
+            model.doesNotExist = 'foobar'
 
     @mock.patch('amber_lib.models.bases.setattr')
     @mock.patch('amber_lib.models.bases.Property')
@@ -220,12 +220,12 @@ class Model(unittest.TestCase):
     ):
         model = bases.Model(Context())
         mock_find.return_value = mock.Mock()
-        mock_find.return_value.kind = "int"
+        mock_find.return_value.kind = 'int'
         mock_find.return_value.is_list = False
 
-        model.thing = "fizzbuzz"
-        mock_prop.assert_called_with("int", False)
-        mock_setattr.assert_called_with(model, "thing", "fizzbuzz")
+        model.thing = 'fizzbuzz'
+        mock_prop.assert_called_with('int', False)
+        mock_setattr.assert_called_with(model, 'thing', 'fizzbuzz')
 
     def test_clear(self):
         model = bases.Model(Context())
@@ -332,7 +332,7 @@ class Model(unittest.TestCase):
     def test_form_schema(self, mock_send):
         model = bases.Model(Context())
         model._resource = 'model'
-        url = "/form_schemas/%s" % model._resource
+        url = '/form_schemas/%s' % model._resource
 
         model.form_schema()
         mock_send.assert_called_with(client.GET, model.ctx(), url, {})
@@ -550,7 +550,7 @@ class Model(unittest.TestCase):
     def test_set_relation(self, mock_save, mock_send, mock_pk, mock_refresh):
         model = bases.Model(Context())
         obj = mock.Mock()
-        obj._resource = "res"
+        obj._resource = 'res'
         obj.pk = mock.Mock()
 
         model.set_relation(True, obj)
@@ -558,7 +558,7 @@ class Model(unittest.TestCase):
         mock_send.assert_called_with(
             client.POST,
             model.ctx(),
-            "/relations",
+            '/relations',
             **{
                 model._resource: mock_pk(),
                 obj._resource: obj.pk()
@@ -727,16 +727,16 @@ class Property(unittest.TestCase):
 class Bases(unittest.TestCase):
     def test_find(self):
         class Parent(object):
-            foo = "bar"
+            foo = 'bar'
 
         class Child(Parent):
-            fizz = "buzz"
+            fizz = 'buzz'
         p = Parent()
         c = Child()
 
-        self.assertEqual(bases.find(p, "foo"), "bar")
-        self.assertEqual(bases.find(c, "fizz"), "buzz")
-        self.assertEqual(bases.find(p, "na"), None)
+        self.assertEqual(bases.find(p, 'foo'), 'bar')
+        self.assertEqual(bases.find(c, 'fizz'), 'buzz')
+        self.assertEqual(bases.find(p, 'na'), None)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()

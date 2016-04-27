@@ -10,7 +10,7 @@ class Model(object):
     """
     _ctx = None
     _links = {}
-    _pk = "id"
+    _pk = 'id'
     _resource = 'models'
 
     def __init__(self, context):
@@ -50,7 +50,7 @@ class Model(object):
             prop = find(self, attr)
             if not prop:
                 raise AttributeError(
-                    "[%s] %s:%s" % (self.__class__, attr, val)
+                    '[%s] %s:%s' % (self.__class__, attr, val)
                 )
 
             self.__dict__[attr] = Property(prop.kind, prop.is_list)
@@ -108,18 +108,18 @@ class Model(object):
     def endpoint(self):
         """ Generate and retrieve an API URL endpoint for the current model.
         """
-        loc = "/%s" % self._resource
+        loc = '/%s' % self._resource
 
         if not self.is_valid():
             return loc
 
         if isinstance(self.pk(), int) and self.pk() > 0:
-            return loc + "/%d" % self.pk()
+            return loc + '/%d' % self.pk()
         raise TypeError
 
     def form_schema(self):
         """ Retrieve the Schema for the """
-        endpoint = "/form_schemas/%s" % self._resource
+        endpoint = '/form_schemas/%s' % self._resource
         response = client.send(client.GET, self.ctx(), endpoint, {})
         return response
 
@@ -189,7 +189,7 @@ class Model(object):
                 client.GET,
                 self._ctx,
                 self.endpoint(),
-                {"filtering": filtering.to_dict()} if filtering else None,
+                {'filtering': filtering.to_dict()} if filtering else None,
                 limit=batch_size,
                 offset=offset,
                 **kwargs
@@ -275,7 +275,7 @@ class Model(object):
         payload = client.send(
             client.POST if bool_ is True else client.DELETE,
             self.ctx(),
-            "/relations",
+            '/relations',
             **{
                 self._resource: self.pk(),
                 obj._resource: obj.pk()
@@ -431,7 +431,7 @@ def find(obj, key):
     return None
 
 
-def resource(endpoint, pk="id"):
+def resource(endpoint, pk='id'):
     """ This is a decorator for specifying a endpoint and what attribute
     stores the primary key for a model.
     """

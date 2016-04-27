@@ -47,7 +47,7 @@ class Connection(unittest.TestCase):
         conn = connection.Connection(dict_)
         self.assertEqual(conn.context, dict_)
 
-    @mock.patch('amber_lib.connection.send')
+    @mock.patch('amber_lib.connection.client.send')
     def ping_test(self, mock_send):
         conn = connection.Connection({})
         conn.ping()

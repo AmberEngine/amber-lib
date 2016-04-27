@@ -11,8 +11,8 @@ class Predicate(object):
         return {self.path: self.expression}
 
 
-AND = "&&"
-OR = "||"
+AND = '&&'
+OR = '||'
 
 
 class _Operator(object):
@@ -49,44 +49,44 @@ class Or(_Operator):
 
 
 def equal(value):
-    return {"==": value}
+    return {'==': value}
 
 
 def not_equal(value):
-    return {"!=": value}
+    return {'!=': value}
 
 
 def within(value):
     if not isinstance(value, collections.Iterable):
         raise TypeError()
-    return {"in": value}
+    return {'in': value}
 
 
 def not_in(value):
     if not isinstance(value, collections.Iterable):
         raise TypeError()
-    return {"!in": value}
+    return {'!in': value}
 
 
 def min(value):
-    return {">=": value}
+    return {'>=': value}
 
 
 def max(value):
-    return {"<=": value}
+    return {'<=': value}
 
 
 def greater_than(value):
-    return {">": value}
+    return {'>': value}
 
 
 def less_than(value):
-    return {"<": value}
+    return {'<': value}
 
 
 def is_null():
-    return {"null": ""}
+    return {'null': ''}
 
 
 def is_not_null():
-    return {"!null": ""}
+    return {'!null': ''}
