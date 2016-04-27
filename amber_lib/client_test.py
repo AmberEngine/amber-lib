@@ -13,38 +13,42 @@ from amber_lib.models import bases
 FAKE_DATE = datetime(2015, 11, 30, 22, 36, 52, 538755)
 FAKE_DATE_FORMAT = datetime.isoformat(FAKE_DATE)
 FAKE_HAL = {
-    "_embedded": {
-        "models": [
-            {"_links": "first"},
-            {"_links": "second"}
+    '_embedded': {
+        'models': [
+            {'_links': 'first'},
+            {'_links': 'second'}
         ]
     },
-    "_links": {},
-    "total": 2
+    '_links': {},
+    'total': 2
 }
 
 FAKE_HAL_THREE = {
-    "_embedded": {
-        "models": [
-            {"_links": "first"},
-            {"_links": "second"},
-            {"_links": "third"}
+    '_embedded': {
+        'models': [
+            {'_links': 'first'},
+            {'_links': 'second'},
+            {'_links': 'third'}
         ]
     },
-    "_links": {},
-    "total": 3
+    '_links': {},
+    'total': 3
 }
 
 
 class TestContext(object):
     public = 'mwyclv6bac2lqn9artt1o88laq4muk88483opkp9dnv8289f8olqrxlx7b2s7q8'
-    private = "sn4ikxumkpi5dqb0vwo1ujbi68uv3bvoak1p0xzgbzhg71v9p1sn7a2t49dh2tz"
-    host = "http://example.com"
-    port = "8080"
+    private = 'sn4ikxumkpi5dqb0vwo1ujbi68uv3bvoak1p0xzgbzhg71v9p1sn7a2t49dh2tz'
+    host = 'http://example.com'
+    port = '8080'
+    token = ''
     request_attempts = 3
 
-class Context(unittest.TestCase):
+
+class ContextTests(unittest.TestCase):
     def dunder_init_valid_keys_test(self):
+        """Tests instantiating a Context() object with proper arguments.
+        """
         args = {
             'host': 'http://amberlib.example.com',
             'port': '1337'
@@ -55,6 +59,8 @@ class Context(unittest.TestCase):
         self.assertEqual(ctx.port, args['port'])
 
     def dunder_init_invalid_keys_test(self):
+        """Tests instantiating a Context() object with improper arguments.
+        """
         args = {
             'host': 'http://amberlib.example.com',
             'port': '1337',
@@ -68,12 +74,16 @@ class Context(unittest.TestCase):
         self.assertNotIn('fizz', ctx.__dict__)
 
 
-class Container(unittest.TestCase):
+class ContainerTests(unittest.TestCase):
     def all_test(self):
+        """Tests calling all() from a Container object.
+        """
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
-        self.assertEqual(ctn[:].values, ctn._Container__all().values)
+        self.assertEqual(ctn[:].values, ctn.all().values)
 
     def append_test(self):
+        """Tests calling append() on a Container object.
+        """
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
 
         model = bases.Model(TestContext())
@@ -85,18 +95,24 @@ class Container(unittest.TestCase):
         self.assertEqual(ctn[-1], model)
 
     def count_test(self):
+        """Tests calling count() from a Container object.
+        """
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
 
         self.assertEqual(ctn.count(), len(ctn))
 
     def delete_invalid_index_test(self):
+        """Tests remove() on a Container with an index that doesn't exist.
+        """
         ctn = client.Container(FAKE_HAL, bases.Model, TestContext())
 
         def delete_index():
-            ctn.remove("foobar")
+            ctn.remove('foobar')
         self.assertRaises(ValueError, delete_index)
 
     def delete_test(self):
+        """Tests calling remove() on a Container object.
+        """
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
 
         second = ctn[1]
@@ -104,18 +120,20 @@ class Container(unittest.TestCase):
         ctn.remove(second)
 
         self.assertEqual(len(ctn), 2)
-        self.assertEqual(ctn[1]._links, "third")
+        self.assertEqual(ctn[1]._links, 'third')
         self.assertNotIn(second, ctn)
 
     def dunder_add_test(self):
+        """ Tests concatenating two Container objects with +.
+        """
         hal = {
-            "_embedded": {
-                "models": [
-                    {"_links": "third"},
+            '_embedded': {
+                'models': [
+                    {'_links': 'third'},
                 ]
             },
-            "_links": {},
-            "total": 1
+            '_links': {},
+            'total': 1
         }
 
         ctn1 = client.Container(FAKE_HAL, bases.Model, TestContext())
@@ -127,13 +145,19 @@ class Container(unittest.TestCase):
         self.assertEqual(len(ctn2.values), 1)
 
         self.assertEqual(len(ctn3.values), 3)
-        self.assertEqual(ctn3[-1]._links, "third")
+        self.assertEqual(ctn3[-1]._links, 'third')
 
     def dunder_add_wrong_type_test(self):
+        """
+        Tests a proper error is thrown when concatenating a Container with
+            a non-iterable/non-Container object.
+        """
         ctn1 = client.Container(FAKE_HAL, bases.Model, TestContext())
-        self.assertRaises(TypeError, lambda: ctn1 + "foobar")
+        self.assertRaises(TypeError, lambda: ctn1 + 'foobar')
 
     def dunder_append_container_test(self):
+        """Tests extending a Container object with another Container.
+        """
         ctn1 = client.Container(FAKE_HAL, bases.Model, TestContext())
         ctn2 = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
         ctn3 = client.Container({}, bases.Model, TestContext())
@@ -145,6 +169,8 @@ class Container(unittest.TestCase):
         self.assertEqual(len(ctn1), expected)
 
     def dunder_append_item_test(self):
+        """Tests appending a Model to a Container.
+        """
         ctn = client.Container(FAKE_HAL, bases.Model, TestContext())
 
         expected = len(ctn) + 1
@@ -153,6 +179,8 @@ class Container(unittest.TestCase):
         self.assertEqual(len(ctn), expected)
 
     def dunder_append_list_test(self):
+        """Tests extending a Container object with a list.
+        """
         ctn = client.Container(FAKE_HAL, bases.Model, TestContext())
         models = [bases.Model({}), bases.Model({})]
 
@@ -162,12 +190,16 @@ class Container(unittest.TestCase):
         self.assertEqual(len(ctn), expected)
 
     def dunder_contains_test(self):
+        """Tests implicitly checking if a Container contains a specified item.
+        """
         ctn = client.Container(FAKE_HAL, bases.Model, TestContext())
         model = ctn[0]
         self.assertIn(model, ctn)
-        self.assertNotIn("foobar", ctn)
+        self.assertNotIn('foobar', ctn)
 
     def dunder_delitem_test(self):
+        """Tests using built-in del on a Container object to remove an item.
+        """
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
 
         second = ctn[1]
@@ -175,32 +207,23 @@ class Container(unittest.TestCase):
         del ctn[1]
 
         self.assertEqual(len(ctn), 2)
-        self.assertEqual(ctn[1]._links, "third")
+        self.assertEqual(ctn[1]._links, 'third')
         self.assertNotIn(second, ctn)
 
     def dunder_delitem_invalid_index_test(self):
+        """Tests using del on a Container object with an invalid item index.
+        """
         ctn = client.Container(FAKE_HAL, bases.Model, TestContext())
 
         def delete_index():
             del ctn[100]
         self.assertRaises(IndexError, delete_index)
 
-    @mock.patch('amber_lib.client.Container._Container__all')
-    def dunder_finish_it_ignored_test(self, mock_all):
-        ctn = client.Container(FAKE_HAL, bases.Model, TestContext())
-        ctn._Container__finish_it()
-
-        mock_all.assert_not_called()
-
-    @mock.patch('amber_lib.client.Container._Container__all')
-    def dunder_finish_it_test(self, mock_all):
-        ctn = client.Container(FAKE_HAL, bases.Model, TestContext())
-        ctn.total = 500
-        ctn._Container__finish_it()
-
-        mock_all.assert_called_with()
-
     def dunder_get_invalid_negative_index_test(self):
+        """
+        Tests that a proper error is raised when an out of bound negative index
+            is used.
+        """
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
         too_far_under = len(ctn) * -1
         self.assertRaises(
@@ -209,15 +232,23 @@ class Container(unittest.TestCase):
         )
 
     def dunder_get_invalid_positive_index_test(self):
+        """Tests a proper error is raised when an out-of-bounds index is used
+            on a Container.
+        """
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
         self.assertRaises(IndexError, lambda: ctn._Container__get(len(ctn)))
 
     def dunder_get_positive_index_test(self):
+        """Tests getting an item from a Container using a valid index.
+        """
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
-        self.assertEqual(ctn._Container__get(0)._links, "first")
+        self.assertEqual(ctn._Container__get(0)._links, 'first')
 
     @mock.patch('amber_lib.client.Container._Container__next')
     def dunder_get_use_next_test(self, mock_next):
+        """Tests that Container objects properly calls for items outside of
+            its cached segment when attempts are made to access them.
+        """
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
 
         mock_next.return_value = False
@@ -225,16 +256,19 @@ class Container(unittest.TestCase):
         ctn.total = 5
 
         def next_values():
-            ctn.values[3] = "fourth"
-            ctn.values[4] = "fifth"
+            ctn.values[3] = 'fourth'
+            ctn.values[4] = 'fifth'
 
         mock_next.side_effect = next_values
 
-        self.assertEqual(ctn._Container__get(4), "fifth")
+        self.assertEqual(ctn._Container__get(4), 'fifth')
         mock_next.assert_called_with()
 
     @mock.patch('amber_lib.client.Container._Container__previous')
     def dunder_get_use_previous_test(self, mock_previous):
+        """Tests that Container objects properly calls for items outside of
+            its cached segment when attempts are made to access them.
+        """
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
 
         mock_previous.return_value = False
@@ -244,13 +278,13 @@ class Container(unittest.TestCase):
         ctn.total = 5
 
         def prev_values():
-            ctn.values[0] = "first index"
-            ctn.values[1] = "second"
+            ctn.values[0] = 'first index'
+            ctn.values[1] = 'second'
             ctn.offset = 0
 
         mock_previous.side_effect = prev_values
 
-        self.assertEqual(ctn._Container__get(0), "first index")
+        self.assertEqual(ctn._Container__get(0), 'first index')
         mock_previous.assert_called_with()
 
     def dunder_get_valid_negative_index_test(self):
@@ -262,9 +296,9 @@ class Container(unittest.TestCase):
     def dunder_getitem_index_test(self):
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
 
-        self.assertEqual(ctn[0]._links, "first")
-        self.assertEqual(ctn[1]._links, "second")
-        self.assertEqual(ctn[-1]._links, "third")
+        self.assertEqual(ctn[0]._links, 'first')
+        self.assertEqual(ctn[1]._links, 'second')
+        self.assertEqual(ctn[-1]._links, 'third')
 
     def dunder_getitem_invalid_index_test(self):
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
@@ -275,7 +309,7 @@ class Container(unittest.TestCase):
     def dunder_getitem_invalid_index_type_test(self):
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
 
-        self.assertRaises(TypeError, lambda: ctn["one"])
+        self.assertRaises(TypeError, lambda: ctn['one'])
         self.assertRaises(TypeError, lambda: ctn[3.14159])
 
     def dunder_getitem_invalid_slice_test(self):
@@ -290,7 +324,7 @@ class Container(unittest.TestCase):
         self.assertEqual(len(ctn[0:2]), 2)
         self.assertEqual(len(ctn[0:3:2]), 2)
 
-        self.assertEqual(ctn[0:2][1]._links, "second")
+        self.assertEqual(ctn[0:2][1]._links, 'second')
 
     def dunder_iter_no_items_test(self):
         ctn = client.Container({}, bases.Model, TestContext())
@@ -326,10 +360,10 @@ class Container(unittest.TestCase):
     @mock.patch('amber_lib.client.Container._Container__append')
     def dunder_next_test(self, mock_append, mock_send):
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
-        ctn.hal = {"next": {"href": "http://example.com/next"}}
+        ctn.hal = {'next': {'href': 'http://example.com/next'}}
 
-        embedded = {"models": [0, 1, 2, 3]}
-        hal_return = {"_embedded": embedded}
+        embedded = {'models': [0, 1, 2, 3]}
+        hal_return = {'_embedded': embedded}
 
         mock_send.return_value = hal_return
 
@@ -379,10 +413,10 @@ class Container(unittest.TestCase):
     @mock.patch('amber_lib.client.Container._Container__prepend')
     def dunder_previous_test(self, mock_prepend, mock_send):
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
-        ctn.hal = {"previous": {"href": "http://example.com/previous"}}
+        ctn.hal = {'previous': {'href': 'http://example.com/previous'}}
 
-        embedded = {"models": [0, 1, 2, 3]}
-        hal_return = {"_embedded": embedded}
+        embedded = {'models': [0, 1, 2, 3]}
+        hal_return = {'_embedded': embedded}
 
         mock_send.return_value = hal_return
 
@@ -394,7 +428,7 @@ class Container(unittest.TestCase):
     def dunder_setitem_invalid_range_test(self):
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
         new_model = bases.Model({})
-        new_model._links = "fourth"
+        new_model._links = 'fourth'
 
         def temp():
             ctn[42] = new_model
@@ -403,12 +437,12 @@ class Container(unittest.TestCase):
     def dunder_setitem_test(self):
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
         new_model = bases.Model({})
-        new_model._links = "fourth"
+        new_model._links = 'fourth'
 
         ctn[2] = new_model
 
         self.assertEqual(len(ctn), 3)
-        self.assertEqual(ctn[-1]._links, "fourth")
+        self.assertEqual(ctn[-1]._links, 'fourth')
 
     def extend_test(self):
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
@@ -424,7 +458,7 @@ class Container(unittest.TestCase):
     def index_non_existant_test(self):
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
 
-        self.assertRaises(ValueError, lambda: ctn.index("foobar"))
+        self.assertRaises(ValueError, lambda: ctn.index('foobar'))
 
     def index_test(self):
         ctn = client.Container(FAKE_HAL_THREE, bases.Model, TestContext())
@@ -443,10 +477,6 @@ class Container(unittest.TestCase):
         self.assertEqual(len(ctn), expected)
         self.assertEqual(ctn[1], model)
         self.assertEqual(ctn[2], second)
-
-    def le_api_test(self):
-        ctn = client.Container({}, bases.Model, TestContext())
-        self.assertTrue((ctn <= ctn).startswith("le"))
 
     def len_empty_test(self):
         ctn = client.Container({}, bases.Model, TestContext())
@@ -488,10 +518,6 @@ class Container(unittest.TestCase):
         ctn.pop()
         self.assertEqual(len(ctn), length - 1)
 
-    def pow_test(self):
-        ctn = client.Container({}, bases.Model, TestContext())
-        self.assertTrue('Mario' in ctn ** 42)
-
     def reverse_test(self):
         ctn = client.Container(FAKE_HAL, bases.Model, TestContext())
         reversed_ctn = reversed(ctn)
@@ -509,7 +535,7 @@ class Container(unittest.TestCase):
 
     @mock.patch('amber_lib.client.send')
     def set_relation_relate_test(self, mock_send):
-        type_ = "GET"
+        type_ = 'GET'
         tupperwear = client.Container({}, mock.Mock(), {}, None)
         m = mock.Mock()
         m.id = 5
@@ -521,7 +547,7 @@ class Container(unittest.TestCase):
 
     @mock.patch('amber_lib.client.send')
     def set_relation_with_container_test(self, mock_send):
-        type_ = "GET"
+        type_ = 'GET'
         tupperwear = client.Container({}, mock.Mock(), TestContext(), None)
         m = mock.Mock()
         m.id = 5
@@ -552,33 +578,21 @@ class Container(unittest.TestCase):
         self.assertTrue(mock_relation.called_once_with(client.DELETE, obj))
 
 
-
-class CreatePayload(unittest.TestCase):
-    def create_payload_test(self):
-        ctx = TestContext()
-        url = "http://example.com/test"
-        data = {"foo": "bar", "fizz": "buzz"}
-
-        payload = client.create_payload(ctx, url, data)
-
-        self.assertTrue('signature' in payload)
-
-
 class CreateURL(unittest.TestCase):
     def create_url_test(self):
-        endpoint = "/products/42"
+        endpoint = '/products/42'
 
         self.assertEqual(
             client.create_url(TestContext(), endpoint),
-            "http://example.com:8080%s" % endpoint
+            'http://example.com:8080%s' % endpoint
         )
 
     def create_url_with_uri_test(self):
-        endpoint = "/products/24"
+        endpoint = '/products/24'
 
         self.assertEqual(
             client.create_url(TestContext(), endpoint, limit=50, offset=3),
-            "http://example.com:8080%s?limit=50&offset=3" % endpoint
+            'http://example.com:8080%s?limit=50&offset=3' % endpoint
         )
 
 
@@ -586,7 +600,7 @@ class Send(unittest.TestCase):
     @mock.patch('amber_lib.client.requests')
     def send_200_request_test(self, mock_requests):
         method = client.GET
-        endpoint = "/products/1337"
+        endpoint = '/products/1337'
         json_data = {}
 
         r = mock.MagicMock(status_code=200)
@@ -599,7 +613,7 @@ class Send(unittest.TestCase):
     @mock.patch('amber_lib.client.requests')
     def send_200_request_no_json_test(self, mock_requests):
         method = client.GET
-        endpoint = "/products/1337"
+        endpoint = '/products/1337'
         json_data = {}
 
         r = mock.MagicMock(status_code=200)
@@ -614,7 +628,7 @@ class Send(unittest.TestCase):
     @mock.patch('amber_lib.client.requests')
     def send_500_request_test(self, mock_requests):
         method = client.GET
-        endpoint = "/products/1337"
+        endpoint = '/products/1337'
         json_data = {}
 
         r = mock.Mock()
@@ -629,7 +643,7 @@ class Send(unittest.TestCase):
     @mock.patch('amber_lib.client.requests')
     def send_404_request_test(self, mock_requests):
         method = client.GET
-        endpoint = "/products/1337"
+        endpoint = '/products/1337'
         json_data = {}
 
         r = mock.Mock()
@@ -645,7 +659,7 @@ class Send(unittest.TestCase):
     @mock.patch('amber_lib.client.requests')
     def send_500_request_no_json_test(self, mock_requests):
         method = client.GET
-        endpoint = "/products/1337"
+        endpoint = '/products/1337'
         json_data = {}
 
         r = mock.Mock(status_code=500)
@@ -663,7 +677,7 @@ class Send(unittest.TestCase):
     @mock.patch('amber_lib.client.requests')
     def send_invalid_request_test(self, mock_requests):
         method = 'leet_haxors'
-        endpoint = "/products/1337"
+        endpoint = '/products/1337'
         json_data = {}
 
         self.assertRaises(
@@ -672,5 +686,5 @@ class Send(unittest.TestCase):
         )
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()
