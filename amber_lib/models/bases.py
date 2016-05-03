@@ -391,6 +391,8 @@ class Property(object):
             elif kind == int and isinstance(value, str):
                 if value.isdigit():
                     value = int(value)
+                elif value == '':
+                    return None
                 else:
                     raise TypeError(
                         'Type: \'%s\' for \'%s\' is not \'%s\'' % (

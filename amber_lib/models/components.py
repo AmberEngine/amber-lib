@@ -341,11 +341,6 @@ class Manufacturer(Component):
     manufacturer_id = Property(int)
 
 
-# @resource('option_set')
-# class OptionSet(Component):
-#     option_set_id = Property(int)
-#     option_set = Property(primaries.OptionSet)
-
 @resource('option_sets')
 class OptionSets(Component):
     option_set_list = Property(primaries.OptionSet, True)
@@ -420,6 +415,23 @@ class PromotionalTag(Component):
     discontinued = Property(bool)
     limited_stock = Property(bool)
     new_product = Property(bool)
+
+
+@resource('rug_construction')
+class RugConstruction(Component):
+    content = Property(str)
+    backing = Property(str)
+    construction = Property(primaries.MultiValueList)
+    material = Property(primaries.MultiValueList)
+
+
+@resource('rug_pattern')
+class RugPattern(Component):
+    custom_size = Property(bool)
+    scale = Property(str)
+    shape = Property(primaries.MultiValueList)
+    color = Property(primaries.MultiValueList)
+    style = Property(primaries.MultiValueList)
 
 
 @resource('seat')
