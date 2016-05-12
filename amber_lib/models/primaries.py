@@ -13,6 +13,7 @@ class APIKey(Model):
     sales_channel_id = Property(int)
     kind = Property(str)
     role_name = Property(str)
+    token_secret = Property(str)
 
 
 class AssemblageElement(Model):
@@ -72,6 +73,17 @@ class Event(Model):
     name = Property(str)
     object_id = Property(int)
     object_type = Property(str)
+
+
+@resource('moments')
+class Moment(Model):
+    id = Property(int)
+    resource_name = Property(str)
+    resource_action = Property(str)
+    resource_id = Property(int)
+    created_by_api_key = Property(str)
+    date_created = Property(str)
+    ip = Property(str)
 
 
 @resource('exports')
@@ -231,6 +243,7 @@ class Option(Model):
         """
         if 'kind' in dict_:
             self.kind = dict_['kind']
+
         def explode_dict(obj, exp_dict):
             for key, val in exp_dict.items():
                 attr = object.__getattribute__(obj, key)
@@ -241,17 +254,17 @@ class Option(Model):
                         if not getattr(obj, key):
                             inst = None
 
-                            if type_ == "nailhead":
+                            if type_ == 'nailhead':
                                 inst = Option.Nailhead(obj.ctx())
-                            elif type_ == "leather":
+                            elif type_ == 'leather':
                                 inst = Option.Leather(obj.ctx())
-                            elif type_ == "hardware":
+                            elif type_ == 'hardware':
                                 inst = Option.Hardware(obj.ctx())
-                            elif type_ == "textile":
+                            elif type_ == 'textile':
                                 inst = Option.Textile(obj.ctx())
-                            elif type_ == "trim":
+                            elif type_ == 'trim':
                                 inst = Option.Trim(obj.ctx())
-                            elif type_ == "finish":
+                            elif type_ == 'finish':
                                 pass  # because finish has no extra fields
                             if inst is None:
                                 val = None
@@ -270,7 +283,6 @@ class Option(Model):
                 setattr(obj, key, val)
             return obj
         return explode_dict(self, dict_)
-
 
 
 @resource('option_sets')
@@ -314,7 +326,7 @@ class SalesChannel(Model):
         the total number of product IDs returned.
         """
         if not self.is_valid():
-            raise Exception("Sales Channel is not valid")
+            raise Exception('Sales Channel is not valid')
 
         payload = client.send(
             client.GET,

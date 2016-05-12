@@ -1,4 +1,4 @@
-from amber_lib.client import GET, send
+import amber_lib.client as client
 import amber_lib.models.components as components
 import amber_lib.models.primaries as primaries
 import amber_lib.models.product as product
@@ -50,4 +50,4 @@ class Connection(object):
         """ Attempt to ping the API server using the current Connection's
         context.
         """
-        send(GET, self.context, '', {})
+        client.send(client.GET, self.context, '', {})

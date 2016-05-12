@@ -8,7 +8,7 @@ class Component(Model):
     Component models.
     """
 
-    _pk = "component_data_id"
+    _pk = 'component_data_id'
     _resource = 'component'
     component_data_id = Property(int)
     parent_id = Property(int)
@@ -40,13 +40,15 @@ class Component(Model):
     def endpoint(self):
         """ Retrieve the endpoint URL for the current component.
         """
-        loc = "/components/%s" % self._resource
+        loc = '/components/%s' % self._resource
 
         if not self.is_valid():
             return loc
 
         if isinstance(self.pk(), int) and self.pk() > 0:
-            return loc + "/%d" % self.pk()
+            return loc + '/%d' % self.pk()
+
+        raise ValueError
 
     def retrieve(self, id_):
         """ Retreive a component by ID.
@@ -90,7 +92,7 @@ class Component(Model):
 
     def form_schema(self):
         """ Retrieve the Schema for the """
-        endpoint = "/form_schemas/products?component=%s" % self._resource
+        endpoint = '/form_schemas/products?component=%s' % self._resource
         response = client.send(client.GET, self.ctx(), endpoint, {})
         return response
 
@@ -151,6 +153,7 @@ class Collection(Component):
 class COMCOL(Component):
     com = Property(float)
     col = Property(float)
+
 
 @resource('construction_information')
 class ConstructionInformation(Component):
@@ -338,11 +341,6 @@ class Manufacturer(Component):
     manufacturer_id = Property(int)
 
 
-# @resource('option_set')
-# class OptionSet(Component):
-#     option_set_id = Property(int)
-#     option_set = Property(primaries.OptionSet)
-
 @resource('option_sets')
 class OptionSets(Component):
     option_set_list = Property(primaries.OptionSet, True)
@@ -359,6 +357,7 @@ class OrderingInformation(Component):
     unit = Property(str)
     stock = Property(float)
     warranty = Property(str)
+
 
 @resource('overall_dimension')
 class OverallDimension(Component):
@@ -416,6 +415,23 @@ class PromotionalTag(Component):
     discontinued = Property(bool)
     limited_stock = Property(bool)
     new_product = Property(bool)
+
+
+@resource('rug_construction')
+class RugConstruction(Component):
+    content = Property(str)
+    backing = Property(str)
+    construction = Property(primaries.MultiValueList)
+    material = Property(primaries.MultiValueList)
+
+
+@resource('rug_pattern')
+class RugPattern(Component):
+    custom_size = Property(bool)
+    scale = Property(str)
+    shape = Property(primaries.MultiValueList)
+    color = Property(primaries.MultiValueList)
+    style = Property(primaries.MultiValueList)
 
 
 @resource('seat')

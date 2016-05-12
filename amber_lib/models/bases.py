@@ -10,7 +10,7 @@ class Model(object):
     """
     _ctx = None
     _links = {}
-    _pk = "id"
+    _pk = 'id'
     _resource = 'models'
 
     def __init__(self, context):
@@ -45,16 +45,22 @@ class Model(object):
             self.__dict__[attr].__set__(self, val)
             return
         else:
+            # Can we find the attribute on a parent class? Then set it in the
+            # local dictionary. Otherwise, raise an exception.
             prop = find(self, attr)
             if not prop:
                 raise AttributeError(
-                    "[%s] %s:%s" % (self.__class__, attr, val)
+                    '[%s] %s:%s' % (self.__class__, attr, val)
                 )
 
             self.__dict__[attr] = Property(prop.kind, prop.is_list)
             setattr(self, attr, val)
 
     def clear(self):
+        """ clear will remove all public attributes from the model by
+        deleting the respective entries in the object's internal dictionary.
+        Private and callable attributes are not removed.
+        """
         dict_ = self.__dict__.copy()
         for key in dict_:
             if key.startswith('_'):
@@ -73,6 +79,7 @@ class Model(object):
         error out, depending on the weather conditions.
         """
         if self.is_valid():
+            # Delete current model
             if id_ is not None:
                 raise ValueError(
                     'Cannot delete using an already instantiated model. >:('
@@ -84,6 +91,7 @@ class Model(object):
                 None
             )
         elif id_ is not None:
+            # Delete model by passed id_
             setattr(self, self._pk, id_)
             client.send(
                 client.DELETE,
@@ -100,14 +108,20 @@ class Model(object):
     def endpoint(self):
         """ Generate and retrieve an API URL endpoint for the current model.
         """
-        loc = "/%s" % self._resource
+        loc = '/%s' % self._resource
 
         if not self.is_valid():
             return loc
 
         if isinstance(self.pk(), int) and self.pk() > 0:
-            return loc + "/%d" % self.pk()
+            return loc + '/%d' % self.pk()
         raise TypeError
+
+    def form_schema(self):
+        """ Retrieve the Schema for the """
+        endpoint = '/form_schemas/%s' % self._resource
+        response = client.send(client.GET, self.ctx(), endpoint, {})
+        return response
 
     def from_dict(self, dict_):
         """ Update the internal dictionary for the instance using the
@@ -146,6 +160,19 @@ class Model(object):
         dict_ = json.loads(json_)
         return self.from_dict(dict_)
 
+    def is_valid(self):
+        """ Determine if the current model is valid, based on the contents
+        of its primary key.
+        """
+        if not hasattr(self, self._pk):
+            return False
+        if getattr(self, self._pk) is None:
+            return False
+        try:
+            return int(getattr(self, self._pk)) > 0
+        except ValueError:
+            return False
+
     def pk(self):
         """ Retrieve the primary key for the current model.
         """
@@ -162,7 +189,7 @@ class Model(object):
                 client.GET,
                 self._ctx,
                 self.endpoint(),
-                {"filtering": filtering.to_dict()} if filtering else None,
+                {'filtering': filtering.to_dict()} if filtering else None,
                 limit=batch_size,
                 offset=offset,
                 **kwargs
@@ -178,25 +205,6 @@ class Model(object):
             collection = client.Container({}, self.__class__, self._ctx, 0)
 
         return collection
-
-    def set_relation(self, bool_, obj):
-        """ Create or remove a relation between the current model and a
-        different model.
-        """
-        self.save()
-        payload = client.send(
-            client.POST if bool_ is True else client.DELETE,
-            self.ctx(),
-            "/relations",
-            **{
-                self._resource: self.pk(),
-                obj._resource: obj.pk()
-            }
-        )
-        # Dear Future Dev, if you're wondering why changes are disappearing
-        # when relate/unrelate calls are made then this line is why, but
-        # without it then relate/unrelate changes disappear on save calls.
-        self.refresh()
 
     def relate(self, obj):
         """ Create a relation between this object and another.
@@ -221,14 +229,6 @@ class Model(object):
         self.from_dict(payload)
 
         return self
-
-    def is_valid(self):
-        """ Determine if the current model is valid, based on the contents
-        of its primary key.
-        """
-        return hasattr(self, self._pk) and \
-            getattr(self, self._pk) is not None and \
-            int(getattr(self, self._pk)) > 0
 
     def refresh(self):
         """ If the current entity is valid, update it by retrieve it's own
@@ -266,6 +266,25 @@ class Model(object):
         self.clear()
         self.update(returned_dict)
         return self
+
+    def set_relation(self, bool_, obj):
+        """ Create or remove a relation between the current model and a
+        different model.
+        """
+        self.save()
+        payload = client.send(
+            client.POST if bool_ is True else client.DELETE,
+            self.ctx(),
+            '/relations',
+            **{
+                self._resource: self.pk(),
+                obj._resource: obj.pk()
+            }
+        )
+        # Dear Future Dev, if you're wondering why changes are disappearing
+        # when relate/unrelate calls are made then this line is why, but
+        # without it then relate/unrelate changes disappear on save calls.
+        self.refresh()
 
     def to_dict(self):
         """ Retrieve a dictionary version of the model.
@@ -321,12 +340,6 @@ class Model(object):
         else:
             raise TypeError
 
-    def form_schema(self):
-        """ Retrieve the Schema for the """
-        endpoint = "/form_schemas/%s" % self._resource
-        response = client.send(client.GET, self.ctx(), endpoint, {})
-        return response
-
 
 class Property(object):
     """ Enable enforcing static-typing in the dynamic langaugage Python. This
@@ -353,7 +366,8 @@ class Property(object):
             if value is None:
                 return None
 
-            if isinstance(value, str) and isinstance(self.kind, str) and not value:
+            if isinstance(value, str) and isinstance(self.kind, str) and \
+                    not value:
                 return None
 
             if type(value).__name__ == 'unicode':
@@ -377,14 +391,28 @@ class Property(object):
             elif kind == int and isinstance(value, str):
                 if value.isdigit():
                     value = int(value)
+                elif value == '':
+                    return None
                 else:
-                    value = None
+                    raise TypeError(
+                        'Type: \'%s\' for \'%s\' is not \'%s\'' % (
+                            type(value), value, kind
+                        )
+                    )
+            elif kind == bool and not isinstance(value, bool):
+                raise TypeError(
+                    'Type: \'%s\5 for \'%s\' is not \'%s\'' % (
+                        type(value), value, kind
+                    )
+                )
             else:
                 try:
                     value = kind(value)
-                except Exception:
+                except:
                     raise TypeError(
-                        'Type: \'%s\' for \'%s\' is not \'%s\'' % (type(value), value, kind)
+                        'Type: \'%s\' for \'%s\' is not \'%s\'' % (
+                            type(value), value, kind
+                        )
                     )
             return value
 
@@ -405,7 +433,7 @@ def find(obj, key):
     return None
 
 
-def resource(endpoint, pk="id"):
+def resource(endpoint, pk='id'):
     """ This is a decorator for specifying a endpoint and what attribute
     stores the primary key for a model.
     """

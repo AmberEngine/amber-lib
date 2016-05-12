@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import sys
 import base64
 import copy
 from datetime import datetime
@@ -8,7 +9,11 @@ import hashlib
 import json
 
 import requests
-from urllib.parse import quote
+if sys.version_info >= (3,):
+    from urllib.parse import quote, urlparse
+else:
+    from urllib import quote
+    from urlparse import urlparse
 
 import amber_lib.errors as errors
 
@@ -330,7 +335,6 @@ class Container(object):
 
         return list_
 
-
     def pop(self, index=None):
         """ Retrieve and remove the last index from the Collection.
         """
@@ -361,11 +365,11 @@ class Container(object):
         payload = send(
             type_,
             self.ctx,
-            "/relations",
+            '/relations',
             None,
             **{
-                res1: ",".join(first),
-                res2: ",".join(second)
+                res1: ','.join(first),
+                res2: ','.join(second)
             }
         )
 
@@ -399,11 +403,13 @@ class Context(object):
     API. Used for determining which API is being hit, contains authentication
     information, and optional parameters.
     """
-    host = ""
-    port = ""
-    private = ""
-    public = ""
+    host = ''
+    port = ''
+    private = ''
+    public = ''
     request_attempts = 3
+    token = ''
+    on_token_refresh = None
 
     def __init__(self, **kwargs):
         """ Create a new instance of Context, using keyword arguments to
@@ -411,61 +417,49 @@ class Context(object):
         """
         for key, value in kwargs.items():
             if hasattr(self, key):
+                if isinstance(value, str):
+                    value = value.strip()
                 setattr(self, key, value)
 
+    def create_token(self, public='', use_token=False):
+        if not public:
+            public = self.public
+        returned_dict = send(
+            POST,
+            self,
+            '/tokens',
+            {'public': public},
+        )
+        key = returned_dict['key']
 
-def create_payload(context, url, data):
-    """ Generate a new dictionary payload based on a context, url and data
-    dictionary.
-    """
-    if not data:
-        data = {}
-    payload = {
-        'data': data,
-        'headers': {'Content-Type': 'application/json'},
-        'public_key': context.public,
-        'timestamp': datetime.isoformat(datetime.utcnow()),
-        'url': url
-    }
-
-    jdump = json.dumps(
-        payload,
-        sort_keys=True,
-        separators=(',', ':')
-    ).encode('utf-8')
-
-    hash_ = hashlib.sha256(jdump)
-    hash_.update(context.private.encode('utf-8'))
-    digest = hash_.hexdigest().encode('ascii')
-
-    sig = base64.b64encode(
-        digest
-    )
-
-    payload['signature'] = sig.decode('ascii')
-
-    return json.dumps(payload, sort_keys=True, separators=(',', ':'))
+        if use_token:
+            self.token = key
+        return key
 
 
 def create_url(context, endpoint, **uri_args):
     """ Create a full URL using the context settings, the desired endpoint,
     and any option URI (keyword) arguments.
     """
-    url = '%s:%s%s' % (context.host, context.port, endpoint)
+    host = context.host.rstrip('/')
+    url = '%s:%s%s' % (host, context.port, endpoint)
 
     if not context.port or context.port == '80':
-        url = '%s%s' % (context.host, endpoint)
+        url = '%s%s' % (host, endpoint)
 
     if len(uri_args) > 0:
         url += '?'
         query_params = []
         for key in sorted(uri_args.keys()):
             val = str(uri_args[key])
-            val = quote(val)
+            val = quote(val, safe='')
+            key = quote(key, safe='')
             query_params.append('%s=%s' % (key, val))
 
         url += '&'.join(query_params)
-    return url
+
+    # Returns a validated URL
+    return urlparse(url).geturl()
 
 
 def send(method, ctx, endpoint, json_data=None, **uri_params):
@@ -476,22 +470,65 @@ def send(method, ctx, endpoint, json_data=None, **uri_params):
     """
     method = method.lower()
     if method not in ['get', 'post', 'put', 'delete']:
-        raise AttributeError('Bad method')
+        raise AttributeError('Bad HTTP method provided: %s' % method)
+
+    def dump(data):
+        return json.dumps(data, sort_keys=True, separators=(',', ':'))
 
     url = create_url(ctx, endpoint, **uri_params)
-    payload = create_payload(ctx, url, json_data)
+    if json_data:
+        payload = dump(json_data)
+    else:
+        payload = '{}'
+    current_timestamp = datetime.isoformat(datetime.utcnow())
 
+
+    auth_string = ''
+
+    # Standard headers that are present for each HTTP request.
+    headers = {
+        'Accept': 'application/hal+json',
+        'Content-Type': 'application/json',
+        'Public-Key': ctx.public if ctx.public else '',
+        'Timestamp': current_timestamp,
+        'URL': url
+    }
+
+    if ctx.token:
+        # If a JWT token is available, use in-place of signature.
+        auth_string = ctx.token
+    else:
+        # Create a signiture using the request's headers and the payload
+        # data.
+        # Encode/decode is required for the hashing/encrypting functions.
+        sig = '%s%s%s' % (dump(headers), payload, ctx.private)
+        sig = base64.b64encode(
+            hashlib.sha256(sig.encode('utf-8')).hexdigest().encode('utf-8')
+        ).decode('ascii')
+        auth_string = sig
+
+    headers['Authorization'] = 'Bearer %s' % auth_string
+
+    r = None
     retry_on = [408, 419, 500, 502, 504]
     attempts = 0
-    r = None
     while attempts < ctx.request_attempts:
-        r = getattr(requests, method)(url, data=payload)
+        r = getattr(requests, method)(url, data=payload, headers=headers)
         status = r.status_code
         if status == 200:
             try:
                 return r.json()
             except ValueError:
                 return {}
+        elif status == 440 and ctx.on_token_refresh:
+            claims = ctx.token.split('.')[1]
+            if 4 - len(claims) % 4 > 0:
+                claims += '=' * (4 - len(claims) % 4)
+            sub = json.loads(base64.b64decode(claims).decode('utf-8'))['sub']
+            ctx.token = ''
+            ctx.token = ctx.create_token(public=sub)
+            ctx.on_token_refresh(ctx.token)
+            return send(method, ctx, endpoint, json_data, **uri_params)
         elif status in retry_on:
             attempts += 1
         else:

@@ -44,6 +44,8 @@ class Product(Model):
     pillows = Property(components.Pillows)
     promotional_tag = Property(components.PromotionalTag)
     overall_dimension = Property(components.OverallDimension)
+    rug_construction = Property(components.RugConstruction)
+    rug_pattern = Property(components.RugPattern)
     seat = Property(components.Seat)
     shade = Property(components.Shade)
     side_rail = Property(components.SideRail)
@@ -74,11 +76,12 @@ class Product(Model):
             if self.category.tertiary:
                 uri_params['tertiary'] = self.category.tertiary
 
-            endpoint = "/form_schemas/%s" % self._resource
+            endpoint = '/form_schemas/%s' % self._resource
             return client.send(
                 client.GET,
                 self.ctx(),
-                endpoint, {},
+                endpoint,
+                {},
                 **uri_params
             )
 
@@ -86,8 +89,8 @@ class Product(Model):
         payload = client.send(
             client.GET,
             self._ctx,
-            "/products_search",
-            {"filtering": filtering.to_dict()} if filtering else None,
+            '/products_search',
+            {'filtering': filtering.to_dict()} if filtering else None,
             limit=batch_size,
             offset=offset,
             **kwargs
