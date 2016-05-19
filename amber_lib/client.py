@@ -514,7 +514,6 @@ def send(method, ctx, endpoint, json_data=None, **uri_params):
     attempts = 0
     while attempts < ctx.request_attempts:
         r = getattr(requests, method)(url, data=payload, headers=headers)
-        print(payload)
         status = r.status_code
         if status == 200:
             try:
