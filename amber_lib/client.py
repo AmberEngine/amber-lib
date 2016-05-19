@@ -219,7 +219,7 @@ class Container(object):
         if self.hal is None or 'next' not in self.hal:
             return False
 
-        more_data = send(GET, self.ctx, self.hal['next']['href'], None)
+        more_data = send(GET, self.ctx, self.hal['next']['href'], self.hal['next']['params'])
         self.hal = more_data.get('_links', {})
         embedded = more_data.get('_embedded', {}).get(self.kind, [])
 
@@ -254,7 +254,7 @@ class Container(object):
         if self.hal is None or 'previous' not in self.hal:
             return False
 
-        moar_data = send(GET, self.ctx, self.hal['previous']['href'], None)
+        moar_data = send(GET, self.ctx, self.hal['previous']['href'], self.hal['previous']['params'])
         self.hal = moar_data.get('_links', {})
         embedded = moar_data.get('_embedded', {}).get(self.kind, [])
 
@@ -514,6 +514,7 @@ def send(method, ctx, endpoint, json_data=None, **uri_params):
     attempts = 0
     while attempts < ctx.request_attempts:
         r = getattr(requests, method)(url, data=payload, headers=headers)
+        print(payload)
         status = r.status_code
         if status == 200:
             try:
