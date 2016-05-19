@@ -219,7 +219,7 @@ class Container(object):
         if self.hal is None or 'next' not in self.hal:
             return False
 
-        more_data = send(GET, self.ctx, self.hal['next']['href'], self.hal['next']['params'])
+        more_data = send(GET, self.ctx, self.hal['next']['href'], self.hal['next'].get('params', None))
         self.hal = more_data.get('_links', {})
         embedded = more_data.get('_embedded', {}).get(self.kind, [])
 
@@ -254,7 +254,7 @@ class Container(object):
         if self.hal is None or 'previous' not in self.hal:
             return False
 
-        moar_data = send(GET, self.ctx, self.hal['previous']['href'], self.hal['previous']['params'])
+        moar_data = send(GET, self.ctx, self.hal['previous']['href'], self.hal['previous'].get('params', None))
         self.hal = moar_data.get('_links', {})
         embedded = moar_data.get('_embedded', {}).get(self.kind, [])
 
