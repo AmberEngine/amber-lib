@@ -22,42 +22,30 @@ class KitPiece(Model):
         }
 
     def form_schema(self):
-      if not self.category.primary:
-          return Model.form_schema(self)
-      else:
-          uri_params = {}
-          if self.category.primary:
-              uri_params['primary'] = self.category.primary
-          if self.category.secondary:
-              uri_params['secondary'] = self.category.secondary
-          if self.category.tertiary:
-              uri_params['tertiary'] = self.category.tertiary
+        endpoint = '/form_schemas/%s' % self._resource
+        return client.send(
+            client.GET,
+            self.ctx(),
+            endpoint,
+            {}
+        )
 
-          endpoint = '/form_schemas/%s' % self._resource
-          return client.send(
-              client.GET,
-              self.ctx(),
-              endpoint,
-              {},
-              **uri_params
-          )
+    def search(self, filtering=None, batch_size=500, offset=0, **kwargs):
+        payload = client.send(
+            client.GET,
+            self._ctx,
+            '/kit_pieces_search',
+            {'filtering': filtering.to_dict()} if filtering else None,
+            limit=batch_size,
+            offset=offset,
+            **kwargs
+        )
 
-      def search(self, filtering=None, batch_size=500, offset=0, **kwargs):
-          payload = client.send(
-              client.GET,
-              self._ctx,
-              '/kit_pieces_search',
-              {'filtering': filtering.to_dict()} if filtering else None,
-              limit=batch_size,
-              offset=offset,
-              **kwargs
-          )
+        collection = client.Container(
+            payload,
+            self.__class__,
+            self._ctx,
+            offset
+        )
 
-          collection = client.Container(
-              payload,
-              self.__class__,
-              self._ctx,
-              offset
-          )
-
-          return collection
+        return collection
