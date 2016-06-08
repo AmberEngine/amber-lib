@@ -517,7 +517,6 @@ def send(method, ctx, endpoint, json_data=None, **uri_params):
         status = r.status_code
         if status == 200:
             try:
-                print(r.json())
                 return r.json()
             except ValueError:
                 return {}
