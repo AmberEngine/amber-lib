@@ -235,14 +235,14 @@ class Drawer(Component):
     height = Property(float)
     width = Property(float)
     quantity = Property(int)
+    construction = Property(str)
+    glide_type = Property(str)
 
 
 @resource('drawers')
 class Drawers(Component):
     drawer_list = Property(Drawer, True)
     quantity = Property(int)
-    construction = Property(str)
-    glide_type = Property(str)
 
 
 @resource('electrical')
