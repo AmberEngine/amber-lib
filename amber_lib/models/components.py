@@ -305,6 +305,7 @@ class Identity(Component):
     manufacturer_sku = Property(str)
     name = Property(str)
     source_url = Property(str)
+    prod_type = Property(str)
     upc = Property(str)
 
 
