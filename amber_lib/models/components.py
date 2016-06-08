@@ -104,6 +104,13 @@ class Audit(Component):
     updated_by_api_key = Property(str)
 
 
+@resource('apron')
+class Apron(Component):
+    clearance = Property(float)
+    style = Property(str)
+    edge_style = Property(str)
+
+
 @resource('arm')
 class Arm(Component):
     height = Property(float)
@@ -153,6 +160,8 @@ class Collection(Component):
 class COMCOL(Component):
     com = Property(float)
     col = Property(float)
+    contrast_welt = Property(str)
+    contrast_leather = Property(str)
 
 
 @resource('construction_information')
@@ -161,6 +170,9 @@ class ConstructionInformation(Component):
     joinery_type = Property(str)
     finish = Property(str)
     assembly_required = Property(bool)
+    cover = Property(str)
+    hardware = Property(str)
+    nail_type = Property(str)
 
 
 @resource('cushion')
@@ -191,6 +203,8 @@ class Description(Component):
     feature_list = Property(Feature, True)
     primary = Property(str)
     retail = Property(str)
+    color = Property(str)
+    style = Property(str)
 
 
 @resource('door')
@@ -227,6 +241,8 @@ class Drawer(Component):
 class Drawers(Component):
     drawer_list = Property(Drawer, True)
     quantity = Property(int)
+    construction = Property(str)
+    glide_type = Property(str)
 
 
 @resource('electrical')
@@ -356,7 +372,8 @@ class OrderingInformation(Component):
     quick_ship = Property(bool)
     unit = Property(str)
     stock = Property(float)
-    warranty = Property(str)
+    warranty_terms = Property(str)
+    warranty_length = Property(str)
 
 
 @resource('overall_dimension')
@@ -384,6 +401,12 @@ class Pedestal(Component):
     depth = Property(float)
     height = Property(float)
     width = Property(float)
+    pedestal_type = Property(str)
+    clearance_between_legs = Property(str)
+    clearance_between_bases = Property(str)
+    crossbands = Property(str)
+    leg_style = Property(str)
+    stretcher_style = Property(str)
 
 
 @resource('pillow')
@@ -504,6 +527,7 @@ class TableLeaf(Component):
     depth = Property(float)
     width = Property(float)
     quantity = Property(int)
+    leaf_notes = Property(str)
 
 
 @resource('table_leaves')

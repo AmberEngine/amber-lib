@@ -8,6 +8,7 @@ from amber_lib.models.primaries import Assemblage
 class Product(Model):
     id = Property(int)
     assemblage = Property(Assemblage)
+    apron = Property(components.Apron)
     arm = Property(components.Arm)
     audit = Property(components.Audit)
     base = Property(components.Base)
