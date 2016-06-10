@@ -6,7 +6,9 @@ from amber_lib.models.primaries import Assemblage
 @resource('kit_pieces')
 class KitPiece(Model):
     id = Property(int)
+    product_type = Property(str)
     assemblage = Property(Assemblage)
+    audit = Property(components.Audit)
     identity = Property(components.Identity)
     collection = Property(components.Collection)
     description = Property(components.Description)
