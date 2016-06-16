@@ -272,13 +272,19 @@ class Model(object):
         different model.
         """
         self.save()
+        res1 = self._resource
+        res2 = obj._resource
+
+        if res2 == res1:
+            res2 = "other_%s" % res1
+
         payload = client.send(
             client.POST if bool_ is True else client.DELETE,
             self.ctx(),
             '/relations',
             **{
-                self._resource: self.pk(),
-                obj._resource: obj.pk()
+                res1: self.pk(),
+                res2: obj.pk()
             }
         )
         # Dear Future Dev, if you're wondering why changes are disappearing
