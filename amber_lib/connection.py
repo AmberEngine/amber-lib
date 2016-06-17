@@ -41,7 +41,7 @@ class Connection(object):
                 self.use_components = False
                 return getattr(components, attr)(self.context)
         else:
-            look_in = [primaries, product, kit_piece]
+            look_in = [primaries, product]
             for module in look_in:
                 if hasattr(module, attr):
                     return getattr(module, attr)(self.context)
