@@ -2,7 +2,6 @@ import amber_lib.client as client
 import amber_lib.models.components as components
 import amber_lib.models.primaries as primaries
 import amber_lib.models.product as product
-import amber_lib.models.kit_piece as kit_piece
 
 
 class Connection(object):
