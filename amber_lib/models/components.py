@@ -1,4 +1,4 @@
-from amber_lib import client
+from amber_lib import client, query
 from amber_lib.models import primaries
 from amber_lib.models.bases import Model, Property, resource
 
@@ -291,6 +291,35 @@ class Glass(Component):
     kind = Property(str)
 
 
+@resource('group')
+class Group(Component):
+    other_product_id = Property(int)
+
+
+@resource('groups')
+class Groups(Component):
+    group_list = Property(Group, True)
+
+    def children(self, specific_kind=''):
+       ids = [g.other_product_id for g in self.group_list]
+       where = query.Predicate('id', query.within(ids))
+
+       if specific_kind:
+            specific_kind = specific_kind.lower()
+            if specific_kind in ['kit', 'group', 'kit_piece', 'product']:
+                where = query.And(
+                    where,
+                    query.Predicate(
+                        'type',
+                        query.equal(specific_kind)
+                    )
+                )
+            else:
+                raise Exception('Cannot use that specified kind of child')
+
+       return Product(self.ctx()).query(filtering=where)
+
+
 @resource('headboard')
 class Headboard(Component):
     depth = Property(float)
@@ -305,7 +334,6 @@ class Identity(Component):
     manufacturer_sku = Property(str)
     name = Property(str)
     source_url = Property(str)
-    prod_type = Property(str)
     upc = Property(str)
 
 
