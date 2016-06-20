@@ -184,6 +184,8 @@ class Model(object):
         """
         # TODO: Limit the total returned results.
         # TODO: Accept fields to pass on to client.send as a kwarg
+        if filtering and isinstance(query.Predicate):
+            filtering = query.WhereItem(pred=filtering)
         try:
             payload = client.send(
                 client.GET,
