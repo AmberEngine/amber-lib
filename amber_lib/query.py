@@ -10,7 +10,11 @@ class WhereItem(object):
         self.items = items if items else []
 
     def to_dict(self):
-        return {"operand": self.operand, "pred": self.pred, "items": self.items}
+        pred = self.pred.to_dict() if self.pred else None
+        items = [item.to_dict() for item in self.items]
+
+        return {"operand": self.operand, "pred": pred, "items": items}
+
 
     def to_json(self):
         return json.dumps(self.to_dict())
@@ -18,9 +22,9 @@ class WhereItem(object):
 
 class Predicate(object):
     def __init__(self, subject, operand=None, value=None):
-        self.subject = None
-        self.operand = None
-        self.value = None
+        self.subject = subject
+        self.operand = operand
+        self.value = value
 
     def to_dict(self):
         return {"subject": self.subject, "operand": self.operand, "value": self.value}
