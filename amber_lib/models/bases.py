@@ -1,6 +1,6 @@
 import json
 
-from amber_lib import client, errors
+from amber_lib import client, errors, query
 
 
 class Model(object):
@@ -184,7 +184,7 @@ class Model(object):
         """
         # TODO: Limit the total returned results.
         # TODO: Accept fields to pass on to client.send as a kwarg
-        if filtering and isinstance(query.Predicate):
+        if filtering and isinstance(filtering, query.Predicate):
             filtering = query.WhereItem(pred=filtering)
         try:
             payload = client.send(
