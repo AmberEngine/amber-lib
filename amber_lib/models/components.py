@@ -436,12 +436,13 @@ class Pricing(Component):
     wholesale = Property(int)
 
 
-@resource('promotional_tag')
-class PromotionalTag(Component):
-    best_seller = Property(bool)
-    discontinued = Property(bool)
+@resource('inventory')
+class Inventory(Component):
+    in_stock = Property(bool)
     limited_stock = Property(bool)
-    new_product = Property(bool)
+    planned_discontinued = Property(bool)
+    discontinued = Property(bool)
+    out_of_stock = Property(bool)
 
 
 @resource('rug_construction')

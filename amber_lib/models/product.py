@@ -43,7 +43,7 @@ class Product(Model):
     pricing = Property(components.Pricing)
     pedestal = Property(components.Pedestal)
     pillows = Property(components.Pillows)
-    promotional_tag = Property(components.PromotionalTag)
+    inventory = Property(components.Inventory)
     overall_dimension = Property(components.OverallDimension)
     rug_construction = Property(components.RugConstruction)
     rug_pattern = Property(components.RugPattern)
