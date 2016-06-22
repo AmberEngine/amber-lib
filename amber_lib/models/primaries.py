@@ -45,14 +45,54 @@ class Collection(Model):
     name = Property(str)
 
 
-@resource('events')
-class Event(Model):
-    date_time = Property(str)
+@resource('kit_pieces')
+class KitPiece(Model):
+    assemblage = Property(Assemblage)
+    audit = Property(components.Audit)
+    collection = Property(components.Collection)
+    description = Property(components.Description)
     id = Property(int)
-    message = Property(str)
-    name = Property(str)
-    object_id = Property(int)
-    object_type = Property(str)
+    identity = Property(components.Identity)
+    images = Property(components.Images)
+    manufacturer = Property(components.Manufacturer)
+    overall_dimension = Property(components.OverallDimension)
+    pricing = Property(components.Pricing)
+    product_type = Property(str)
+
+    def get_components(self):
+        return {
+            key: val for key, val in self.__dict__.items()
+            if key != 'id' and not key.startswith('_')
+        }
+
+    def form_schema(self):
+        endpoint = '/form_schemas/%s' % self._resource
+        return client.send(
+            client.GET,
+            self.ctx(),
+            endpoint,
+            {}
+        )
+
+    def search(self, filtering=None, batch_size=500, offset=0, **kwargs):
+        payload = client.send(
+            client.GET,
+            self._ctx,
+            '/kit_pieces_search',
+            {'filtering': filtering.to_dict()} if filtering else None,
+            limit=batch_size,
+            offset=offset,
+            **kwargs
+        )
+
+        collection = client.Container(
+            payload,
+            self.__class__,
+            self._ctx,
+            offset
+        )
+
+        return collection
 
 
 @resource('events')
