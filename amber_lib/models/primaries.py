@@ -1,7 +1,7 @@
 from amber_lib.models.bases import Model, Property, resource
 from amber_lib import client
 from amber_lib.errors import MethodNotAllowed
-import amber_lib.models.components
+import amber_lib.models.components as components
 
 @resource('api_keys')
 class APIKey(Model):
