@@ -181,7 +181,6 @@ class MultiValueList(Model):
     multi_values = Property(int, True)
     accepted_values = Property(MultiValue, True)
 
-
 @resource('options')
 class Option(Model):
     class Nailhead(Model):
