@@ -215,54 +215,12 @@ class Option(Model):
     image = Property(str)
     surcharge = Property(int)
     kind = Property(str)
-    extended_data = Property((Nailhead, Leather, Hardware, Textile, Trim))
 
-    def from_dict(self, dict_):
-        """ Update the internal dictionary for the instance using the
-        key-value pairs contained within the provided dictionary.
-        """
-        if 'kind' in dict_:
-            self.kind = dict_['kind']
-
-        def explode_dict(obj, exp_dict):
-            for key, val in exp_dict.items():
-                attr = object.__getattribute__(obj, key)
-
-                if isinstance(val, dict):
-                    if not isinstance(attr, dict):
-                        type_ = obj.kind
-                        if not getattr(obj, key):
-                            inst = None
-
-                            if type_ == 'nailhead':
-                                inst = Option.Nailhead(obj.ctx())
-                            elif type_ == 'leather':
-                                inst = Option.Leather(obj.ctx())
-                            elif type_ == 'hardware':
-                                inst = Option.Hardware(obj.ctx())
-                            elif type_ == 'textile':
-                                inst = Option.Textile(obj.ctx())
-                            elif type_ == 'trim':
-                                inst = Option.Trim(obj.ctx())
-                            elif type_ == 'finish':
-                                pass  # because finish has no extra fields
-                            if inst is None:
-                                val = None
-                            else:
-                                val = inst.from_dict(val)
-                        else:
-                            val = getattr(obj, key).from_dict(val)
-                elif isinstance(val, list):
-                    list_ = []
-                    for el in val:
-                        if isinstance(el, dict):
-                            inst = attr.kind(obj.ctx())
-                            el = inst.from_dict(el)
-                        list_.append(el)
-                    val = list_
-                setattr(obj, key, val)
-            return obj
-        return explode_dict(self, dict_)
+    nail_head = Property(Nailhead)
+    leather = Property(Leather)
+    hardware = Property(Hardware)
+    textile = Property(Textile)
+    trim = Property(Trim)
 
 
 @resource('option_sets')
