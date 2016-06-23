@@ -253,17 +253,6 @@ class Option(Model):
     image = Property(str)
     surcharge = Property(int)
     kind = Property(str)
-    extended_data = Property((
-        Nailhead,
-        Leather,
-        Hardware,
-        Textile,
-        Trim,
-        Arm,
-        Cushion,
-        Leg,
-        Skirt
-    ))
 
     def from_dict(self, dict_):
         """ Update the internal dictionary for the instance using the
@@ -319,6 +308,16 @@ class Option(Model):
                 setattr(obj, key, val)
             return obj
         return explode_dict(self, dict_)
+
+    arm = Property(Arm)
+    cushion = Property(Cushion)
+    hardware = Property(Hardware)
+    leather = Property(Leather)
+    leg = Property(Leg)
+    nail_head = Property(Nailhead)
+    skirt = Property()
+    textile = Property(Textile)
+    trim = Property(Trim)
 
 
 @resource('option_sets')
