@@ -1,5 +1,4 @@
 from amber_lib.models.bases import Model, Property, resource
-from amber_lib.models import components
 from amber_lib import client
 from amber_lib.errors import MethodNotAllowed
 
@@ -15,26 +14,6 @@ class APIKey(Model):
     kind = Property(str)
     role_name = Property(str)
     token_secret = Property(str)
-
-
-class AssemblageElement(Model):
-    class_name = Property(str)
-    description = Property(str)
-    id = Property(int)
-    name = Property(str)
-    table_name = Property(str)
-    parent_name = Property(str)
-
-
-AssemblageElement.child_component = Property(AssemblageElement)
-
-
-@resource('assemblage')
-class Assemblage(Model):
-    assemblage_element_list = Property(AssemblageElement, True)
-    id = Property(int)
-    name = Property(str)
-    description = Property(str)
 
 
 @resource('categories')
