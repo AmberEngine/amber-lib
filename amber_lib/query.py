@@ -46,8 +46,10 @@ def And(first, second):
     second.operand = "and"
 
     if not isinstance(first, WhereItem):
-        first = WhereItem("", first, second)
+        first = WhereItem("", first, [second])
     else:
+        if not first.items:
+            first.items = []
         first.items.append(second)
 
     return first
@@ -66,8 +68,10 @@ def Or(first, second):
     second.operand = "or"
 
     if not isinstance(first, WhereItem):
-        first = WhereItem("", first, second)
+        first = WhereItem("", first, [second])
     else:
+        if not first.items:
+            first.items = []
         first.items.append(second)
 
     return first
