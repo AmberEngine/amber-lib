@@ -1,4 +1,4 @@
-from amber_lib import client
+from amber_lib import client, query
 from amber_lib.models import components
 from amber_lib.models.bases import Model, Property, resource
 
@@ -272,6 +272,8 @@ class KitPiece(Model):
         )
 
     def search(self, filtering=None, batch_size=500, offset=0, **kwargs):
+        if filtering and isinstance(filtering, query.Predicate):
+            filtering = query.WhereItem(pred=filtering)
         payload = client.send(
             client.GET,
             self._ctx,
