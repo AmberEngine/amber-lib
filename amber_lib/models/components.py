@@ -169,6 +169,7 @@ class ConstructionInformation(Component):
     material = Property(str)
     joinery_type = Property(str)
     finish = Property(str)
+    distressed_finish = Property(str)
     assembly_required = Property(bool)
     cover = Property(str)
     hardware = Property(str)
