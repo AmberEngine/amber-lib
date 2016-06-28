@@ -113,6 +113,8 @@ class Product(Model):
             )
 
     def search(self, filtering=None, batch_size=500, offset=0,  **kwargs):
+        if filtering and isinstance(filtering, query.Predicate):
+            filtering = query.WhereItem(pred=filtering)
         payload = client.send(
             client.GET,
             self._ctx,
