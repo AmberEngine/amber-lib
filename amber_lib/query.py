@@ -35,7 +35,7 @@ class Predicate(object):
 
 def And(first, second):
     if not isinstance(second, WhereItem):
-        second = WhereItem(items=[second])
+        second = WhereItem(pred=second)
     if second.operand and second.operand != "and":
         raise Exception(
             'Second WhereItem has operand: %s, must be empty or "%s"' % (
@@ -57,7 +57,7 @@ def And(first, second):
 
 def Or(first, second):
     if not isinstance(second, WhereItem):
-        second = WhereItem(items=[second])
+        second = WhereItem(pred=second)
     if second.operand and second.operand != "or":
         raise Exception(
             'Second WhereItem has operand: %s, must be empty or "%s"' % (
