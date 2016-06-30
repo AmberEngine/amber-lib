@@ -92,7 +92,7 @@ class Product(Model):
 
     def form_schema(self):
         """ Retrieve the Schema for the """
-        if not self.category.primary:
+        if self.category and not self.category.primary:
             return Model.form_schema(self)
         else:
             uri_params = {}
@@ -169,7 +169,7 @@ class Group(Model):
 
     def form_schema(self):
         """ Retrieve the Schema for the """
-        if not self.category.primary:
+        if self.category and not self.category.primary:
             return Model.form_schema(self)
         else:
             uri_params = {}
@@ -223,7 +223,7 @@ class Kit(Model):
 
     def form_schema(self):
         """ Retrieve the Schema for the """
-        if not self.category.primary:
+        if self.category and not self.category.primary:
             return Model.form_schema(self)
         else:
             uri_params = {}
