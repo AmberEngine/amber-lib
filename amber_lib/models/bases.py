@@ -303,6 +303,8 @@ class Model(object):
             dict_ = {}
             for key in dir(obj):
                 value = getattr(obj, key)
+                if value == None:
+                    continue
                 if key.startswith('_'):
                     continue
                 if hasattr(value, '__call__'):
