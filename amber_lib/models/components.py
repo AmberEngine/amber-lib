@@ -379,9 +379,13 @@ class OrderingInformation(Component):
 @resource('overall_dimension')
 class OverallDimension(Component):
     depth = Property(float)
+    max_depth = Property(float)
     diameter = Property(float)
+    max_diameter = Property(float)
     height = Property(float)
+    max_height = Property(float)
     width = Property(float)
+    max_width = Property(float)
 
 
 @resource('pattern')
