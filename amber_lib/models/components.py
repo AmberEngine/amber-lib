@@ -293,7 +293,8 @@ class Glass(Component):
 
 @resource('group')
 class Group(Component):
-    other_product_id = Property(int)
+    child_id = Property(int)
+    quantity = Property(int)
 
 
 @resource('groups')

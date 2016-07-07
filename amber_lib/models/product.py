@@ -139,6 +139,33 @@ class Product(Model):
 
         return collection
 
+    def set_relation(self, bool_, obj):
+        """ Create or remove a relation between the current model and a
+        different model.
+        """
+        self.save()
+        res1 = self._resource
+        res2 = obj._resource
+
+        if res2 == res1:
+            res1 = "groups"
+            res2 = "products"
+
+        payload = client.send(
+            client.POST if bool_ is True else client.DELETE,
+            self.ctx(),
+            '/relations',
+            **{
+                res1: self.pk(),
+                res2: obj.pk()
+            }
+        )
+        # Dear Future Dev, if you're wondering why changes are disappearing
+        # when relate/unrelate calls are made then this line is why, but
+        # without it then relate/unrelate changes disappear on save calls.
+        obj.refresh()
+        self.refresh()
+
 
 @resource('products')
 class Group(Model):
