@@ -103,7 +103,12 @@ class Product(Model):
             if self.category.tertiary:
                 uri_params['tertiary'] = self.category.tertiary
 
-            endpoint = '/form_schemas/%s' % self._resource
+            res_type = self._resource
+            if self.product_type == 'kit':
+                res_type = 'kits'
+            if self.product_type == 'group':
+                res_type = 'groups'
+            endpoint = '/form_schemas/%s' % res_type
             return client.send(
                 client.GET,
                 self.ctx(),
