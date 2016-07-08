@@ -167,6 +167,43 @@ class Product(Model):
         self.refresh()
 
 
+    def set_relation_multiple(self, bool_, objs):
+        """ Create or remove a relation between the current model and a
+        different model.
+        """
+        self.save()
+        res1 = self._resource
+        if len(objs) == 0:
+            raise Exception("Must provide at least one object to relate to.")
+        if not isinstance(objs, list):
+            raise Exception("Must provide a list of objects to relate to.")
+
+        res2 = objs[0]._resource
+
+        if res2 == res1:
+            res1 = "groups"
+            res2 = "products"
+
+        payload = client.send(
+            client.POST if bool_ is True else client.DELETE,
+            self.ctx(),
+            '/relations',
+            **{
+                res1: self.pk(),
+                res2: ",".join([str(obj.pk()) for obj in objs])
+            }
+        )
+        # Dear Future Dev, if you're wondering why changes are disappearing
+        # when relate/unrelate calls are made then this line is why, but
+        # without it then relate/unrelate changes disappear on save calls.
+        for obj in objs:
+            obj.refresh()
+        self.refresh()
+
+
+
+
+
 @resource('products')
 class Group(Model):
     assemblage = Property(Assemblage)

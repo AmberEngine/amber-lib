@@ -213,6 +213,12 @@ class Model(object):
         """
         self.set_relation(True, obj, refresh=refresh)
 
+    def relate_many(self, objs):
+        """ Create a relation between this object and another.
+        """
+        self.set_relation(True, objs)
+
+
     def retrieve(self, id_=None):
         """ Retrieve the data for a database entry constrained by the
         specified ID, and udpate the current instance using the retrieved
@@ -296,6 +302,42 @@ class Model(object):
             obj.refresh()
             self.refresh()
 
+    def set_relation_multiple(self, bool_, objs):
+        """ Create or remove a relation between the current model and a
+        different model.
+        """
+        self.save()
+        res1 = self._resource
+        if len(objs) == 0:
+            raise Exception("Must provide at least one object to relate to.")
+        if not isinstance(objs, list):
+            raise Exception("Must provide a list of objects to relate to.")
+
+        res2 = objs[0]._resource
+
+        if res2 == res1:
+            res2 = "other_%s" % res1
+
+        payload = client.send(
+            client.POST if bool_ is True else client.DELETE,
+            self.ctx(),
+            '/relations',
+            **{
+                res1: self.pk(),
+                res2: ",".join([str(obj.pk()) for obj in objs])
+            }
+        )
+        # Dear Future Dev, if you're wondering why changes are disappearing
+        # when relate/unrelate calls are made then this line is why, but
+        # without it then relate/unrelate changes disappear on save calls.
+        for obj in objs:
+            obj.refresh()
+        self.refresh()
+
+
+
+
+
     def to_dict(self):
         """ Retrieve a dictionary version of the model.
         """
@@ -340,6 +382,11 @@ class Model(object):
         """ Unrelate this object and another object.
         """
         self.set_relation(False, obj)
+
+    def unrelate_many(self, objs):
+        """ Unrelate this object and another object.
+        """
+        self.set_relation_multiple(False, objs)
 
     def update(self, data):
         """ Update the internal data of the class instance using either
