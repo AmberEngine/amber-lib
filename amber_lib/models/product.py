@@ -1,4 +1,4 @@
-from amber_lib import client, query
+from amber_lib import client, errors, query
 from amber_lib.models import components
 from amber_lib.models.bases import Model, Property, resource
 
@@ -120,22 +120,26 @@ class Product(Model):
     def search(self, filtering=None, batch_size=500, offset=0,  **kwargs):
         if filtering and isinstance(filtering, query.Predicate):
             filtering = query.WhereItem(pred=filtering)
-        payload = client.send(
-            client.GET,
-            self._ctx,
-            '/products_search',
-            {'filtering': filtering.to_dict()} if filtering else None,
-            limit=batch_size,
-            offset=offset,
-            **kwargs
-        )
+        try:
+            payload = client.send(
+                client.GET,
+                self._ctx,
+                '/products_search',
+                {'filtering': filtering.to_dict()} if filtering else None,
+                limit=batch_size,
+                offset=offset,
+                **kwargs
+            )
 
-        collection = client.Container(
-            payload,
-            self.__class__,
-            self._ctx,
-            offset
-        )
+            collection = client.Container(
+                payload,
+                self.__class__,
+                self._ctx,
+                offset
+            )
+        except errors.NotFound:
+            collection = client.Container({}, self.__class__, self._ctx, 0)
+
 
         return collection
 
