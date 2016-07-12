@@ -184,6 +184,7 @@ class Option(Model):
         performance = Property(str)
         flammability = Property(str)
         cleaning_instructions = Property(str)
+        grade = Property(str)
 
     class Hardware(Model):
         id = Property(int)
@@ -226,6 +227,43 @@ class Option(Model):
         diameter = Property(float)
         trim_type = Property(str)
 
+    class Arm(Model):
+        id = Property(int)
+        option_id = Property(int)
+        height = Property(float)
+        width = Property(float)
+        depth = Property(float)
+        diameter = Property(float)
+        style = Property(str)
+
+    class Cushion(Model):
+        id = Property(int)
+        option_id = Property(int)
+        height = Property(float)
+        width = Property(float)
+        depth = Property(float)
+        diameter = Property(float)
+        fill = Property(str)
+        style = Property(str)
+        kind = Property(str)
+
+    class Leg(Model):
+        id = Property(int)
+        option_id = Property(int)
+        height = Property(float)
+        width = Property(float)
+        depth = Property(float)
+        diameter = Property(float)
+        style = Property(str)
+        finish = Property(str)
+        material = Property(str)
+
+    class Skirt(Model):
+        id = Property(int)
+        option_id = Property(int)
+        height = Property(float)
+        style = Property(str)
+
     id = Property(int)
     option_set_id = Property(int)
     number = Property(str)
@@ -235,7 +273,17 @@ class Option(Model):
     image = Property(str)
     surcharge = Property(int)
     kind = Property(str)
-    extended_data = Property((Nailhead, Leather, Hardware, Textile, Trim))
+    extended_data = Property((
+        Nailhead,
+        Leather,
+        Hardware,
+        Textile,
+        Trim,
+        Arm,
+        Cushion,
+        Leg,
+        Skirt
+    ))
 
     def from_dict(self, dict_):
         """ Update the internal dictionary for the instance using the
