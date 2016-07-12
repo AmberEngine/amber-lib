@@ -312,6 +312,14 @@ class Option(Model):
                                 inst = Option.Textile(obj.ctx())
                             elif type_ == 'trim':
                                 inst = Option.Trim(obj.ctx())
+                            elif type_ == 'arm':
+                                inst = Option.Trim(obj.ctx())
+                            elif type_ == 'cushion':
+                                inst = Option.Trim(obj.ctx())
+                            elif type_ == 'leg':
+                                inst = Option.Trim(obj.ctx())
+                            elif type_ == 'skirt':
+                                inst = Option.Trim(obj.ctx())
                             elif type_ == 'finish':
                                 pass  # because finish has no extra fields
                             if inst is None:
