@@ -1,7 +1,6 @@
 from amber_lib.models.bases import Model, Property, resource
 from amber_lib import client
 from amber_lib.errors import MethodNotAllowed
-from amber_lib.models import components
 
 @resource('api_keys')
 class APIKey(Model):
@@ -14,6 +13,38 @@ class APIKey(Model):
     kind = Property(str)
     role_name = Property(str)
     token_secret = Property(str)
+
+
+@resource('brands')
+class Brand(Model):
+    bio = Property(str)
+    city = Property(str)
+    date_added = Property(str)
+    date_updated = Property(str)
+    email = Property(str)
+    facebook_url = Property(str)
+    featured = Property(bool)
+    google_plus_url = Property(str)
+    id = Property(int)
+    legal = Property(str)
+    linkedin_url = Property(str)
+    logo_url = Property(str)
+    name = Property(str)
+    phone = Property(str)
+    phone_extension = Property(str)
+    pinterest_url = Property(str)
+    restock_fee = Property(float)
+    return_period = Property(int)
+    returnable = Property(bool)
+    state = Property(str)
+    street_address_1 = Property(str)
+    street_address_2 = Property(str)
+    province = Property(str)
+    country = Property(str)
+    twitter_url = Property(str)
+    updated_by_api_key = Property(str)
+    url = Property(str)
+    zipcode = Property(str)
 
 
 @resource('categories')
@@ -43,56 +74,6 @@ class Collection(Model):
     id = Property(int)
     manufacturer_id = Property(int)
     name = Property(str)
-
-
-@resource('kit_pieces')
-class KitPiece(Model):
-    assemblage = Property(Assemblage)
-    audit = Property(components.Audit)
-    collection = Property(components.Collection)
-    description = Property(components.Description)
-    id = Property(int)
-    identity = Property(components.Identity)
-    images = Property(components.Images)
-    manufacturer = Property(components.Manufacturer)
-    overall_dimension = Property(components.OverallDimension)
-    pricing = Property(components.Pricing)
-    product_type = Property(str)
-
-    def get_components(self):
-        return {
-            key: val for key, val in self.__dict__.items()
-            if key != 'id' and not key.startswith('_')
-        }
-
-    def form_schema(self):
-        endpoint = '/form_schemas/%s' % self._resource
-        return client.send(
-            client.GET,
-            self.ctx(),
-            endpoint,
-            {}
-        )
-
-    def search(self, filtering=None, batch_size=500, offset=0, **kwargs):
-        payload = client.send(
-            client.GET,
-            self._ctx,
-            '/kit_pieces_search',
-            {'filtering': filtering.to_dict()} if filtering else None,
-            limit=batch_size,
-            offset=offset,
-            **kwargs
-        )
-
-        collection = client.Container(
-            payload,
-            self.__class__,
-            self._ctx,
-            offset
-        )
-
-        return collection
 
 
 @resource('events')
