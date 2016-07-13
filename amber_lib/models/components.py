@@ -467,6 +467,7 @@ class Pillows(Component):
 @resource('pricing')
 class Pricing(Component):
     dealer_price = Property(int)
+    internal_cost = Property(int)
     minimum_internet_price = Property(int)
     msrp = Property(int)
     trade_price = Property(int)
