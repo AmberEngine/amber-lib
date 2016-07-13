@@ -245,7 +245,7 @@ class Option(Model):
         diameter = Property(float)
         fill = Property(str)
         style = Property(str)
-        kind = Property(str)
+        cushion_type = Property(str)
 
     class Leg(Model):
         id = Property(int)
