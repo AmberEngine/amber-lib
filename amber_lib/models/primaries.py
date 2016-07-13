@@ -313,13 +313,13 @@ class Option(Model):
                             elif type_ == 'trim':
                                 inst = Option.Trim(obj.ctx())
                             elif type_ == 'arm':
-                                inst = Option.Trim(obj.ctx())
+                                inst = Option.Arm(obj.ctx())
                             elif type_ == 'cushion':
-                                inst = Option.Trim(obj.ctx())
+                                inst = Option.Cushion(obj.ctx())
                             elif type_ == 'leg':
-                                inst = Option.Trim(obj.ctx())
+                                inst = Option.Leg(obj.ctx())
                             elif type_ == 'skirt':
-                                inst = Option.Trim(obj.ctx())
+                                inst = Option.Skirt(obj.ctx())
                             elif type_ == 'finish':
                                 pass  # because finish has no extra fields
                             if inst is None:
