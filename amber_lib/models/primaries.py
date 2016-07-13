@@ -29,6 +29,7 @@ class Brand(Model):
     legal = Property(str)
     linkedin_url = Property(str)
     logo_url = Property(str)
+    manufacturer_id = Property(int)
     name = Property(str)
     phone = Property(str)
     phone_extension = Property(str)
