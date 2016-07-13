@@ -206,10 +206,10 @@ class Model(object):
 
         return collection
 
-    def relate(self, obj):
+    def relate(self, obj, refresh=True):
         """ Create a relation between this object and another.
         """
-        self.set_relation(True, obj)
+        self.set_relation(True, obj, refresh=refresh)
 
     def retrieve(self, id_=None):
         """ Retrieve the data for a database entry constrained by the
@@ -267,7 +267,7 @@ class Model(object):
         self.update(returned_dict)
         return self
 
-    def set_relation(self, bool_, obj):
+    def set_relation(self, bool_, obj, refresh=True):
         """ Create or remove a relation between the current model and a
         different model.
         """
@@ -284,7 +284,8 @@ class Model(object):
         # Dear Future Dev, if you're wondering why changes are disappearing
         # when relate/unrelate calls are made then this line is why, but
         # without it then relate/unrelate changes disappear on save calls.
-        self.refresh()
+        if refresh:
+            self.refresh()
 
     def to_dict(self):
         """ Retrieve a dictionary version of the model.
