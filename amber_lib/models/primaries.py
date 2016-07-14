@@ -336,7 +336,7 @@ class Option(Model):
     leather = Property(Leather)
     leg = Property(Leg)
     nail_head = Property(Nailhead)
-    skirt = Property()
+    skirt = Property(Skirt)
     textile = Property(Textile)
     trim = Property(Trim)
 
