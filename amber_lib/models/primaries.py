@@ -184,6 +184,7 @@ class Option(Model):
         performance = Property(str)
         flammability = Property(str)
         cleaning_instructions = Property(str)
+        grade = Property(str)
 
     class Hardware(Model):
         id = Property(int)
@@ -226,6 +227,43 @@ class Option(Model):
         diameter = Property(float)
         trim_type = Property(str)
 
+    class Arm(Model):
+        id = Property(int)
+        option_id = Property(int)
+        height = Property(float)
+        width = Property(float)
+        depth = Property(float)
+        diameter = Property(float)
+        style = Property(str)
+
+    class Cushion(Model):
+        id = Property(int)
+        option_id = Property(int)
+        height = Property(float)
+        width = Property(float)
+        depth = Property(float)
+        diameter = Property(float)
+        fill = Property(str)
+        style = Property(str)
+        cushion_type = Property(str)
+
+    class Leg(Model):
+        id = Property(int)
+        option_id = Property(int)
+        height = Property(float)
+        width = Property(float)
+        depth = Property(float)
+        diameter = Property(float)
+        style = Property(str)
+        finish = Property(str)
+        material = Property(str)
+
+    class Skirt(Model):
+        id = Property(int)
+        option_id = Property(int)
+        height = Property(float)
+        style = Property(str)
+
     id = Property(int)
     option_set_id = Property(int)
     number = Property(str)
@@ -235,7 +273,17 @@ class Option(Model):
     image = Property(str)
     surcharge = Property(int)
     kind = Property(str)
-    extended_data = Property((Nailhead, Leather, Hardware, Textile, Trim))
+    extended_data = Property((
+        Nailhead,
+        Leather,
+        Hardware,
+        Textile,
+        Trim,
+        Arm,
+        Cushion,
+        Leg,
+        Skirt
+    ))
 
     def from_dict(self, dict_):
         """ Update the internal dictionary for the instance using the
@@ -264,6 +312,14 @@ class Option(Model):
                                 inst = Option.Textile(obj.ctx())
                             elif type_ == 'trim':
                                 inst = Option.Trim(obj.ctx())
+                            elif type_ == 'arm':
+                                inst = Option.Arm(obj.ctx())
+                            elif type_ == 'cushion':
+                                inst = Option.Cushion(obj.ctx())
+                            elif type_ == 'leg':
+                                inst = Option.Leg(obj.ctx())
+                            elif type_ == 'skirt':
+                                inst = Option.Skirt(obj.ctx())
                             elif type_ == 'finish':
                                 pass  # because finish has no extra fields
                             if inst is None:
