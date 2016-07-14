@@ -35,6 +35,7 @@ class Product(Model):
     assemblage_id = Property(int)
     audit = Property(components.Audit)
     base = Property(components.Base)
+    brand = Property(components.Brand)
     bulb = Property(components.Bulb)
     category = Property(components.Category)
     collection = Property(components.Collection)

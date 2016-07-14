@@ -135,6 +135,12 @@ class Box(Component):
     volume = Property(float)
 
 
+@resource('brand')
+class Brand(Component):
+    brand = Property(primaries.Brand)
+    brand_id = Property(int)
+
+
 @resource('bulb')
 class Bulb(Component):
     base = Property(str)

@@ -188,13 +188,13 @@ class Option(Model):
         grade = Property(str)
 
     class Hardware(Model):
-        id = Property(int)
-        option_id = Property(int)
-        finish = Property(str)
-        height = Property(float)
-        width = Property(float)
         depth = Property(float)
         diameter = Property(float)
+        finish = Property(str)
+        height = Property(float)
+        id = Property(int)
+        option_id = Property(int)
+        width = Property(float)
 
     class Textile(Model):
         id = Property(int)
@@ -265,78 +265,22 @@ class Option(Model):
         height = Property(float)
         style = Property(str)
 
-    id = Property(int)
-    option_set_id = Property(int)
-    number = Property(str)
-    name = Property(str)
-    description = Property(str)
-    default = Property(bool)
-    image = Property(str)
-    surcharge = Property(int)
-    kind = Property(str)
-
-    def from_dict(self, dict_):
-        """ Update the internal dictionary for the instance using the
-        key-value pairs contained within the provided dictionary.
-        """
-        if 'kind' in dict_:
-            self.kind = dict_['kind']
-
-        def explode_dict(obj, exp_dict):
-            for key, val in exp_dict.items():
-                attr = object.__getattribute__(obj, key)
-
-                if isinstance(val, dict):
-                    if not isinstance(attr, dict):
-                        type_ = obj.kind
-                        if not getattr(obj, key):
-                            inst = None
-
-                            if type_ == 'nailhead':
-                                inst = Option.Nailhead(obj.ctx())
-                            elif type_ == 'leather':
-                                inst = Option.Leather(obj.ctx())
-                            elif type_ == 'hardware':
-                                inst = Option.Hardware(obj.ctx())
-                            elif type_ == 'textile':
-                                inst = Option.Textile(obj.ctx())
-                            elif type_ == 'trim':
-                                inst = Option.Trim(obj.ctx())
-                            elif type_ == 'arm':
-                                inst = Option.Arm(obj.ctx())
-                            elif type_ == 'cushion':
-                                inst = Option.Cushion(obj.ctx())
-                            elif type_ == 'leg':
-                                inst = Option.Leg(obj.ctx())
-                            elif type_ == 'skirt':
-                                inst = Option.Skirt(obj.ctx())
-                            elif type_ == 'finish':
-                                pass  # because finish has no extra fields
-                            if inst is None:
-                                val = None
-                            else:
-                                val = inst.from_dict(val)
-                        else:
-                            val = getattr(obj, key).from_dict(val)
-                elif isinstance(val, list):
-                    list_ = []
-                    for el in val:
-                        if isinstance(el, dict):
-                            inst = attr.kind(obj.ctx())
-                            el = inst.from_dict(el)
-                        list_.append(el)
-                    val = list_
-                setattr(obj, key, val)
-            return obj
-        return explode_dict(self, dict_)
-
     arm = Property(Arm)
     cushion = Property(Cushion)
+    default = Property(bool)
+    description = Property(str)
     hardware = Property(Hardware)
+    id = Property(int)
+    image = Property(str)
+    kind = Property(str)
     leather = Property(Leather)
     leg = Property(Leg)
     nail_head = Property(Nailhead)
+    name = Property(str)
+    number = Property(str)
+    option_set_id = Property(int)
     skirt = Property(Skirt)
+    surcharge = Property(int)
     textile = Property(Textile)
     trim = Property(Trim)
 
