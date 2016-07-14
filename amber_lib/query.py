@@ -2,91 +2,76 @@ import collections
 import json
 
 
-class Predicate(object):
-    def __init__(self, path, expression):
-        self.path = path
-        self.expression = expression
+
+class WhereItem(object):
+    def __init__(self, operand="", pred=None, items=None):
+        self.operand = operand
+        self.pred = pred
+        self.items = items if items else []
 
     def to_dict(self):
-        return {self.path: self.expression}
+        pred = self.pred.to_dict() if self.pred else None
+        items = [item.to_dict() for item in self.items]
 
+        return {"operand": self.operand, "pred": pred, "items": items}
 
-AND = '&&'
-OR = '||'
-
-
-class _Operator(object):
-    def __init__(self, type_, *preds):
-        self.type_ = type_
-        self.predicates = list(preds)
-
-    def apply(self, pred):
-        self.predicates.append(pred)
-        return self
-
-    def to_dict(self):
-        list_ = []
-        for pred in self.predicates:
-            if isinstance(pred, (Predicate, And, Or)):
-                list_.append(pred.to_dict())
-            else:
-                raise TypeError()
-
-        return {self.type_: list_}
 
     def to_json(self):
         return json.dumps(self.to_dict())
 
 
-class And(_Operator):
-    def __init__(self, *preds):
-        _Operator.__init__(self, AND, *preds)
+class Predicate(object):
+    def __init__(self, subject, operand=None, value=None):
+        self.subject = subject
+        self.operand = operand
+        self.value = value
+
+    def to_dict(self):
+        return {"subject": self.subject, "operand": self.operand, "value": self.value}
+
+    def to_json(self):
+        return json.dumps(self.to_dict())
 
 
-class Or(_Operator):
-    def __init__(self, *preds):
-        _Operator.__init__(self, OR, *preds)
+def And(first, second):
+    if not isinstance(second, WhereItem):
+        second = WhereItem(pred=second)
+    if second.operand and second.operand != "and":
+        raise Exception(
+            'Second WhereItem has operand: %s, must be empty or "%s"' % (
+                second.operand,
+                'and'
+            )
+        )
+    second.operand = "and"
+
+    if not isinstance(first, WhereItem):
+        first = WhereItem("", first, [second])
+    else:
+        if not first.items:
+            first.items = []
+        first.items.append(second)
+
+    return first
 
 
-def equal(value):
-    return {'==': value}
+def Or(first, second):
+    if not isinstance(second, WhereItem):
+        second = WhereItem(pred=second)
+    if second.operand and second.operand != "or":
+        raise Exception(
+            'Second WhereItem has operand: %s, must be empty or "%s"' % (
+                second.operand,
+                'or'
+            )
+        )
+    second.operand = "or"
 
+    if not isinstance(first, WhereItem):
+        first = WhereItem("", first, [second])
+    else:
+        if not first.items:
+            first.items = []
+        first.items.append(second)
 
-def not_equal(value):
-    return {'!=': value}
-
-
-def within(value):
-    if not isinstance(value, collections.Iterable):
-        raise TypeError()
-    return {'in': value}
-
-
-def not_in(value):
-    if not isinstance(value, collections.Iterable):
-        raise TypeError()
-    return {'!in': value}
-
-
-def min(value):
-    return {'>=': value}
-
-
-def max(value):
-    return {'<=': value}
-
-
-def greater_than(value):
-    return {'>': value}
-
-
-def less_than(value):
-    return {'<': value}
-
-
-def is_null():
-    return {'null': ''}
-
-
-def is_not_null():
-    return {'!null': ''}
+    return first

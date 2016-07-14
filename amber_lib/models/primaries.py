@@ -2,7 +2,6 @@ from amber_lib.models.bases import Model, Property, resource
 from amber_lib import client
 from amber_lib.errors import MethodNotAllowed
 
-
 @resource('api_keys')
 class APIKey(Model):
     id = Property(int)
@@ -16,24 +15,37 @@ class APIKey(Model):
     token_secret = Property(str)
 
 
-class AssemblageElement(Model):
-    class_name = Property(str)
-    description = Property(str)
+@resource('brands')
+class Brand(Model):
+    bio = Property(str)
+    city = Property(str)
+    date_added = Property(str)
+    date_updated = Property(str)
+    email = Property(str)
+    facebook_url = Property(str)
+    featured = Property(bool)
+    google_plus_url = Property(str)
     id = Property(int)
+    legal = Property(str)
+    linkedin_url = Property(str)
+    logo_url = Property(str)
+    manufacturer_id = Property(int)
     name = Property(str)
-    table_name = Property(str)
-    parent_name = Property(str)
-
-
-AssemblageElement.child_component = Property(AssemblageElement)
-
-
-@resource('assemblage')
-class Assemblage(Model):
-    assemblage_element_list = Property(AssemblageElement, True)
-    id = Property(int)
-    name = Property(str)
-    description = Property(str)
+    phone = Property(str)
+    phone_extension = Property(str)
+    pinterest_url = Property(str)
+    restock_fee = Property(float)
+    return_period = Property(int)
+    returnable = Property(bool)
+    state = Property(str)
+    street_address_1 = Property(str)
+    street_address_2 = Property(str)
+    province = Property(str)
+    country = Property(str)
+    twitter_url = Property(str)
+    updated_by_api_key = Property(str)
+    url = Property(str)
+    zipcode = Property(str)
 
 
 @resource('categories')
@@ -67,16 +79,6 @@ class Collection(Model):
 
 @resource('events')
 class Event(Model):
-    date_time = Property(str)
-    id = Property(int)
-    message = Property(str)
-    name = Property(str)
-    object_id = Property(int)
-    object_type = Property(str)
-
-
-@resource('moments')
-class Moment(Model):
     id = Property(int)
     resource_name = Property(str)
     resource_action = Property(str)
@@ -161,7 +163,6 @@ class MultiValueList(Model):
     multi_values = Property(int, True)
     accepted_values = Property(MultiValue, True)
 
-
 @resource('options')
 class Option(Model):
     class Nailhead(Model):
@@ -187,13 +188,13 @@ class Option(Model):
         grade = Property(str)
 
     class Hardware(Model):
-        id = Property(int)
-        option_id = Property(int)
-        finish = Property(str)
-        height = Property(float)
-        width = Property(float)
         depth = Property(float)
         diameter = Property(float)
+        finish = Property(str)
+        height = Property(float)
+        id = Property(int)
+        option_id = Property(int)
+        width = Property(float)
 
     class Textile(Model):
         id = Property(int)
@@ -264,81 +265,24 @@ class Option(Model):
         height = Property(float)
         style = Property(str)
 
-    id = Property(int)
-    option_set_id = Property(int)
-    number = Property(str)
-    name = Property(str)
-    description = Property(str)
+    arm = Property(Arm)
+    cushion = Property(Cushion)
     default = Property(bool)
+    description = Property(str)
+    hardware = Property(Hardware)
+    id = Property(int)
     image = Property(str)
-    surcharge = Property(int)
     kind = Property(str)
-    extended_data = Property((
-        Nailhead,
-        Leather,
-        Hardware,
-        Textile,
-        Trim,
-        Arm,
-        Cushion,
-        Leg,
-        Skirt
-    ))
-
-    def from_dict(self, dict_):
-        """ Update the internal dictionary for the instance using the
-        key-value pairs contained within the provided dictionary.
-        """
-        if 'kind' in dict_:
-            self.kind = dict_['kind']
-
-        def explode_dict(obj, exp_dict):
-            for key, val in exp_dict.items():
-                attr = object.__getattribute__(obj, key)
-
-                if isinstance(val, dict):
-                    if not isinstance(attr, dict):
-                        type_ = obj.kind
-                        if not getattr(obj, key):
-                            inst = None
-
-                            if type_ == 'nailhead':
-                                inst = Option.Nailhead(obj.ctx())
-                            elif type_ == 'leather':
-                                inst = Option.Leather(obj.ctx())
-                            elif type_ == 'hardware':
-                                inst = Option.Hardware(obj.ctx())
-                            elif type_ == 'textile':
-                                inst = Option.Textile(obj.ctx())
-                            elif type_ == 'trim':
-                                inst = Option.Trim(obj.ctx())
-                            elif type_ == 'arm':
-                                inst = Option.Arm(obj.ctx())
-                            elif type_ == 'cushion':
-                                inst = Option.Cushion(obj.ctx())
-                            elif type_ == 'leg':
-                                inst = Option.Leg(obj.ctx())
-                            elif type_ == 'skirt':
-                                inst = Option.Skirt(obj.ctx())
-                            elif type_ == 'finish':
-                                pass  # because finish has no extra fields
-                            if inst is None:
-                                val = None
-                            else:
-                                val = inst.from_dict(val)
-                        else:
-                            val = getattr(obj, key).from_dict(val)
-                elif isinstance(val, list):
-                    list_ = []
-                    for el in val:
-                        if isinstance(el, dict):
-                            inst = attr.kind(obj.ctx())
-                            el = inst.from_dict(el)
-                        list_.append(el)
-                    val = list_
-                setattr(obj, key, val)
-            return obj
-        return explode_dict(self, dict_)
+    leather = Property(Leather)
+    leg = Property(Leg)
+    nail_head = Property(Nailhead)
+    name = Property(str)
+    number = Property(str)
+    option_set_id = Property(int)
+    skirt = Property(Skirt)
+    surcharge = Property(int)
+    textile = Property(Textile)
+    trim = Property(Trim)
 
 
 @resource('option_sets')

@@ -1,6 +1,6 @@
 import json
 
-from amber_lib import client, errors
+from amber_lib import client, errors, query
 
 
 class Model(object):
@@ -184,6 +184,8 @@ class Model(object):
         """
         # TODO: Limit the total returned results.
         # TODO: Accept fields to pass on to client.send as a kwarg
+        if filtering and isinstance(filtering, query.Predicate):
+            filtering = query.WhereItem(pred=filtering)
         try:
             payload = client.send(
                 client.GET,
@@ -210,6 +212,12 @@ class Model(object):
         """ Create a relation between this object and another.
         """
         self.set_relation(True, obj, refresh=refresh)
+
+    def relate_many(self, objs):
+        """ Create a relation between this object and another.
+        """
+        self.set_relation(True, objs)
+
 
     def retrieve(self, id_=None):
         """ Retrieve the data for a database entry constrained by the
@@ -272,20 +280,64 @@ class Model(object):
         different model.
         """
         self.save()
+        res1 = self._resource
+        res2 = obj._resource
+
+        if res2 == res1:
+            res2 = "other_%s" % res1
+
         payload = client.send(
             client.POST if bool_ is True else client.DELETE,
             self.ctx(),
             '/relations',
             **{
-                self._resource: self.pk(),
-                obj._resource: obj.pk()
+                res1: self.pk(),
+                res2: obj.pk()
             }
         )
         # Dear Future Dev, if you're wondering why changes are disappearing
         # when relate/unrelate calls are made then this line is why, but
         # without it then relate/unrelate changes disappear on save calls.
         if refresh:
+            obj.refresh()
             self.refresh()
+
+    def set_relation_multiple(self, bool_, objs, refresh=True):
+        """ Create or remove a relation between the current model and a
+        different model.
+        """
+        self.save()
+        res1 = self._resource
+        if len(objs) == 0:
+            raise Exception("Must provide at least one object to relate to.")
+        if not isinstance(objs, list):
+            raise Exception("Must provide a list of objects to relate to.")
+
+        res2 = objs[0]._resource
+
+        if res2 == res1:
+            res2 = "other_%s" % res1
+
+        payload = client.send(
+            client.POST if bool_ is True else client.DELETE,
+            self.ctx(),
+            '/relations',
+            **{
+                res1: self.pk(),
+                res2: ",".join([str(obj.pk()) for obj in objs])
+            }
+        )
+        # Dear Future Dev, if you're wondering why changes are disappearing
+        # when relate/unrelate calls are made then this line is why, but
+        # without it then relate/unrelate changes disappear on save calls.
+        if refresh:
+            for obj in objs:
+                obj.refresh()
+            self.refresh()
+
+
+
+
 
     def to_dict(self):
         """ Retrieve a dictionary version of the model.
@@ -294,6 +346,8 @@ class Model(object):
             dict_ = {}
             for key in dir(obj):
                 value = getattr(obj, key)
+                if value == None:
+                    continue
                 if key.startswith('_'):
                     continue
                 if hasattr(value, '__call__'):
@@ -329,6 +383,11 @@ class Model(object):
         """ Unrelate this object and another object.
         """
         self.set_relation(False, obj)
+
+    def unrelate_many(self, objs):
+        """ Unrelate this object and another object.
+        """
+        self.set_relation_multiple(False, objs)
 
     def update(self, data):
         """ Update the internal data of the class instance using either
