@@ -129,7 +129,6 @@ class Model(object):
         """
         def explode_dict(obj, exp_dict):
             for key, val in exp_dict.items():
-                print(obj)
                 attr = object.__getattribute__(obj, key)
 
                 if isinstance(val, dict):
