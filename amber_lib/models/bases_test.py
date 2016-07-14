@@ -430,7 +430,15 @@ class Model(unittest.TestCase):
         obj = mock.Mock()
         model.relate(obj)
 
-        mock_relation.assert_called_with(True, obj)
+        mock_relation.assert_called_with(True, obj, refresh=True)
+
+    @mock.patch('amber_lib.models.bases.Model.set_relation')
+    def test_relate_no_refresh(self, mock_relation):
+        model = bases.Model(Context())
+        obj = mock.Mock()
+        model.relate(obj, refresh=False)
+
+        mock_relation.assert_called_with(True, obj, refresh=False)
 
     @mock.patch('amber_lib.models.bases.Model.from_dict')
     @mock.patch('amber_lib.models.bases.Model.endpoint')
@@ -565,6 +573,30 @@ class Model(unittest.TestCase):
             }
         )
         mock_refresh.assert_called_with()
+
+    @mock.patch('amber_lib.models.bases.Model.refresh')
+    @mock.patch('amber_lib.models.bases.Model.pk')
+    @mock.patch('amber_lib.client.send')
+    @mock.patch('amber_lib.models.bases.Model.save')
+    def test_set_relation_no_refresh(
+            self, mock_save, mock_send, mock_pk, mock_refresh):
+        model = bases.Model(Context())
+        obj = mock.Mock()
+        obj._resource = 'res'
+        obj.pk = mock.Mock()
+
+        model.set_relation(True, obj, refresh=False)
+        mock_save.assert_called_with()
+        mock_send.assert_called_with(
+            client.POST,
+            model.ctx(),
+            '/relations',
+            **{
+                model._resource: mock_pk(),
+                obj._resource: obj.pk()
+            }
+        )
+        self.assertFalse(mock_refresh.called)
 
     def test_to_dict(self):
         model = TestModel(Context())
