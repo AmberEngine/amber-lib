@@ -420,6 +420,11 @@ class OrderingInformation(Component):
     warranty_length = Property(str)
 
 
+@resource('output')
+class Output(Component):
+    output_id = Property(int)
+
+
 @resource('overall_dimension')
 class OverallDimension(Component):
     depth = Property(float)

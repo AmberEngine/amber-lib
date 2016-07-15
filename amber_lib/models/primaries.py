@@ -294,6 +294,63 @@ class OptionSet(Model):
     option_list = Property(Option, True)
 
 
+@resource('retailers')
+class Retailer(Model):
+    bio = Property(str)
+    city = Property(str)
+    country = Property(str)
+    date_added = Property(str)
+    date_updated = Property(str)
+    email = Property(str)
+    facebook_url = Property(str)
+    google_plus_url = Property(str)
+    id = Property(int)
+    legal = Property(str)
+    linkedin_url = Property(str)
+    logo_url = Property(str)
+    name = Property(str)
+    phone = Property(str)
+    phone_extension = Property(str)
+    pinterest_url = Property(str)
+    province = Property(str)
+    state = Property(str)
+    street_address_1 = Property(str)
+    street_address_2 = Property(str)
+    twitter_url = Property(str)
+    updated_by_api_key = Property(str)
+    url = Property(str)
+    zipcode = Property(str)
+
+@resource('channels')
+class Channel(Model):
+    id = Property(int)
+    channel_type = Property(str)
+    variety = Property(str)
+    retailer_id = Property(int)
+    name = Property(str)
+
+@resource('outputs')
+class Outputs(Model):
+    id = Property(int)
+    name = Property(str)
+    last_update_sent = Property(str)
+    manufacturer_id = Property(int)
+    brand_id = Property(int)
+    msrp = Property(int)
+    msrp_enabled = Property(bool)
+    trade_price = Property(int)
+    trade_price_enabled = Property(bool)
+    wholesale_price = Property(int)
+    wholesale_price_enabled = Property(bool)
+    minimum_internet_price = Property(int)
+    minimum_internet_price_enabled = Property(bool)
+    dealer_price = Property(int)
+    dealer_price_enabled = Property(bool)
+
+
+
+
+
 @resource('sales_channels')
 class SalesChannel(Model):
     api_key_id = Property(int)
