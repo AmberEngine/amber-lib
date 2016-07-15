@@ -174,7 +174,7 @@ class COMCOL(Component):
 class ConstructionInformation(Component):
     assembly_required = Property(bool)
     cover = Property(str)
-    distressed_finish = Property(str)
+    distressed_finish = Property(bool)
     finish = Property(str)
     hardware = Property(str)
     joinery_type = Property(str)
