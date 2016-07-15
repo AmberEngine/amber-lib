@@ -172,12 +172,13 @@ class COMCOL(Component):
 
 @resource('construction_information')
 class ConstructionInformation(Component):
-    material = Property(str)
-    joinery_type = Property(str)
-    finish = Property(str)
     assembly_required = Property(bool)
     cover = Property(str)
+    distressed_finish = Property(str)
+    finish = Property(str)
     hardware = Property(str)
+    joinery_type = Property(str)
+    material = Property(str)
     nail_type = Property(str)
 
 
