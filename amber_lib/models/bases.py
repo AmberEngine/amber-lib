@@ -216,7 +216,7 @@ class Model(object):
     def relate_many(self, objs):
         """ Create a relation between this object and another.
         """
-        self.set_relation(True, objs)
+        self.set_relation_multiple(True, objs)
 
 
     def retrieve(self, id_=None):
