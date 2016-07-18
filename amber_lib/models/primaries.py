@@ -321,6 +321,7 @@ class Retailer(Model):
     url = Property(str)
     zipcode = Property(str)
 
+
 @resource('channels')
 class Channel(Model):
     id = Property(int)
@@ -328,6 +329,7 @@ class Channel(Model):
     variety = Property(str)
     retailer_id = Property(int)
     name = Property(str)
+
 
 @resource('channel_set')
 class ChannelSet(Model):
@@ -346,9 +348,6 @@ class ChannelSet(Model):
     minimum_internet_price_enabled = Property(bool)
     dealer_price = Property(int)
     dealer_price_enabled = Property(bool)
-
-
-
 
 
 @resource('sales_channels')
