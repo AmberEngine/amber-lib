@@ -330,6 +330,7 @@ class KitPiece(Model):
     identity = Property(components.Identity)
     images = Property(components.Images)
     manufacturer = Property(components.Manufacturer)
+    brand = Property(components.Brand)
     overall_dimension = Property(components.OverallDimension)
     pricing = Property(components.Pricing)
     product_type = Property(str)
