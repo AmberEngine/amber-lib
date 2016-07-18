@@ -12,6 +12,7 @@ class Component(Model):
     _resource = 'component'
     component_data_id = Property(int)
     parent_id = Property(int)
+    product_guid = Property(str)
     parent_name = Property(str)
     product_id = Property(int)
 
