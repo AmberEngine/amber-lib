@@ -1,4 +1,4 @@
-import json
+import json, random, string
 
 from amber_lib import client, errors, query
 
@@ -6,15 +6,12 @@ from amber_lib import client, errors, query
 
 
 def randStr(length):
-    import random, string
     return ''.join(random.choice(string.ascii_letters) for i in range(length))
 
 def randInt():
-    import random
     return int(random.random()*100000) + 1
 
 def randWords(amt):
-    import random
     words = []
     for i in range(amt):
         words.append(
@@ -87,12 +84,31 @@ class Model(object):
             prop = self.__dict__[key]
             if not isinstance(prop, Property):
                 continue
-            if prop.kind == int:
-                setattr(self, key, randInt())
-            elif prop.kind == str:
-                setattr(self, key, randStr(randInt() % 10))
-            elif prop.kind == bool:
-                setattr(self, key, 2 == random.random()*2)
+            if not prop.is_list:
+                if prop.kind == int:
+                    setattr(self, key, randInt())
+                elif prop.kind == str:
+                    setattr(self, key, randStr(4 + (randInt() % 10)))
+                elif prop.kind == bool:
+                    setattr(self, key, 2 == random.random()*2)
+                elif hasattr(prop.kind, '_randomize'):
+                    new_instance = prop.kind(self.ctx())
+                    new_instance._randomize()
+                    setattr(self, key, new_instance)
+            else:
+                list_ = []
+                for i in range((randInt() % 10) + 2):
+                    if prop.kind == int:
+                        list_.append(randInt())
+                    elif prop.kind == str:
+                        list_.append(randStr(4 + (randInt() % 10)))
+                    elif prop.kind == bool:
+                        list_.append(2 == random.random()*2)
+                    elif hasattr(prop.kind, '_randomize'):
+                        new_instance = prop.kind(self.ctx())
+                        new_instance._randomize()
+                        list_.append(new_instance)
+                setattr(self, key, list_)
 
 
     def clear(self):

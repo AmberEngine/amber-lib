@@ -31,7 +31,6 @@ class Assemblage(Model):
 class Product(Model):
     apron = Property(components.Apron)
     arm = Property(components.Arm)
-    assemblage = Property(Assemblage)
     assemblage_id = Property(int)
     audit = Property(components.Audit)
     base = Property(components.Base)
