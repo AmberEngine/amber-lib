@@ -329,8 +329,8 @@ class Channel(Model):
     retailer_id = Property(int)
     name = Property(str)
 
-@resource('outputs')
-class Outputs(Model):
+@resource('channel_set')
+class ChannelSet(Model):
     id = Property(int)
     name = Property(str)
     last_update_sent = Property(str)
