@@ -334,6 +334,7 @@ class Channel(Model):
 @resource('channel_set')
 class ChannelSet(Model):
     id = Property(int)
+    date_added = Property(str)
     name = Property(str)
     last_update_sent = Property(str)
     manufacturer_id = Property(int)
