@@ -70,7 +70,7 @@ class Product(Model):
     ordering_information = Property(components.OrderingInformation)
     overall_dimension = Property(components.OverallDimension)
     owner_id = Property(int)
-    owner_type = Property(int)
+    owner_type = Property(str)
     pattern = Property(components.Pattern)
     pedestal = Property(components.Pedestal)
     pillows = Property(components.Pillows)
