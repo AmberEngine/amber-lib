@@ -93,7 +93,7 @@ class Component(Model):
 
     def form_schema(self):
         """ Retrieve the Schema for the """
-        endpoint = '/form_schemas/products?component=%s' % self._resource
+        endpoint = '/form_schemas/components?name=%s' % self._resource
         response = client.send(client.GET, self.ctx(), endpoint, {})
         return response
 
