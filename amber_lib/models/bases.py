@@ -295,7 +295,7 @@ class Model(object):
     def mock_relate_many(self, objs):
         self.mock_set_relation(True, objs)
 
-    def retrieve(self, id_=None):
+    def retrieve(self, id_=None, **kwargs):
         """ Retrieve the data for a database entry constrained by the
         specified ID, and udpate the current instance using the retrieved
         data.
@@ -308,6 +308,7 @@ class Model(object):
             self.ctx(),
             self.endpoint(),
             None,
+            **kwargs
         )
         self.clear()
         self.from_dict(payload)
