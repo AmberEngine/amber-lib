@@ -319,6 +319,7 @@ class Retailer(Model):
     twitter_url = Property(str)
     updated_by_api_key = Property(str)
     url = Property(str)
+    website = Property(str)
     zipcode = Property(str)
 
 
