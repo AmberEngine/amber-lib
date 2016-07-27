@@ -325,6 +325,7 @@ class Kit(Model):
 class KitPiece(Model):
     assemblage = Property(Assemblage)
     audit = Property(components.Audit)
+    brand = Property(components.Brand)
     collection = Property(components.Collection)
     description = Property(components.Description)
     id = Property(int)
