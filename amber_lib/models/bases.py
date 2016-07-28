@@ -406,7 +406,7 @@ class Model(object):
         res1 = self._resource
         if len(objs) == 0:
             raise Exception("Must provide at least one object to relate to.")
-        if not isinstance(objs, list):
+        if not isinstance(objs, (list, client.Container)):
             raise Exception("Must provide a list of objects to relate to.")
 
         res2 = objs[0]._resource
