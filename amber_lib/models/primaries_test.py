@@ -3,10 +3,10 @@
 
 from datetime import datetime
 import os
-import unittest
 import sys
 
-import mock
+import unittest
+import unittest.mock as mock
 
 from . import primaries
 from amber_lib import client
