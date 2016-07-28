@@ -287,13 +287,13 @@ class Model(object):
     def mock_relate(self, obj, refresh=True):
         self.mock_set_relation(True, obj, refresh=refresh)
 
-    def relate_many(self, objs):
+    def relate_many(self, objs, refresh=True):
         """ Create a relation between this object and another.
         """
-        self.set_relation_multiple(True, objs)
+        self.set_relation_multiple(True, objs, refresh=refresh)
 
-    def mock_relate_many(self, objs):
-        self.mock_set_relation(True, objs)
+    def mock_relate_many(self, objs, refresh=True):
+        self.mock_set_relation(True, objs, refresh=refresh)
 
     def retrieve(self, id_=None, **kwargs):
         """ Retrieve the data for a database entry constrained by the
