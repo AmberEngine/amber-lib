@@ -1,10 +1,10 @@
 from datetime import datetime
 import math
 import os
-import unittest
 import sys
 
-import mock
+import unittest
+import unittest.mock as mock
 
 from amber_lib import client
 from amber_lib.models import bases

@@ -3,9 +3,9 @@
 
 from datetime import datetime
 import sys
-import unittest
 
-import mock
+import unittest
+import unittest.mock as mock
 
 from amber_lib.models import bases
 from amber_lib import client

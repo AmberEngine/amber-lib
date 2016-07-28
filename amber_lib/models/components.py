@@ -12,6 +12,7 @@ class Component(Model):
     _resource = 'component'
     component_data_id = Property(int)
     parent_id = Property(int)
+    product_guid = Property(str)
     parent_name = Property(str)
     product_id = Property(int)
 
@@ -92,7 +93,7 @@ class Component(Model):
 
     def form_schema(self):
         """ Retrieve the Schema for the """
-        endpoint = '/form_schemas/products?component=%s' % self._resource
+        endpoint = '/form_schemas/components?name=%s' % self._resource
         response = client.send(client.GET, self.ctx(), endpoint, {})
         return response
 
@@ -418,6 +419,11 @@ class OrderingInformation(Component):
     stock = Property(float)
     warranty_terms = Property(str)
     warranty_length = Property(str)
+
+
+@resource('output')
+class Output(Component):
+    output_id = Property(int)
 
 
 @resource('overall_dimension')

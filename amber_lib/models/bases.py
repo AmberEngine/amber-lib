@@ -1,6 +1,28 @@
-import json
+import json, random, string
 
 from amber_lib import client, errors, query
+
+
+
+
+def randStr(length):
+    return ''.join(random.choice(string.ascii_letters) for i in range(length))
+
+def randInt():
+    return int(random.random()*100000) + 1
+
+def randWords(amt):
+    words = []
+    for i in range(amt):
+        words.append(
+            randStr(
+                int(
+                    random.random()*7
+                ) + 1
+            )
+        )
+    return " ".join(words)
+
 
 
 class Model(object):
@@ -56,6 +78,39 @@ class Model(object):
             self.__dict__[attr] = Property(prop.kind, prop.is_list)
             setattr(self, attr, val)
 
+    def _randomize(self):
+        for key in self.__class__.__dict__:
+            self.__dict__[key] = self.__class__.__dict__[key]
+            prop = self.__dict__[key]
+            if not isinstance(prop, Property):
+                continue
+            if not prop.is_list:
+                if prop.kind == int:
+                    setattr(self, key, randInt())
+                elif prop.kind == str:
+                    setattr(self, key, randStr(4 + (randInt() % 10)))
+                elif prop.kind == bool:
+                    setattr(self, key, 2 == random.random()*2)
+                elif hasattr(prop.kind, '_randomize'):
+                    new_instance = prop.kind(self.ctx())
+                    new_instance._randomize()
+                    setattr(self, key, new_instance)
+            else:
+                list_ = []
+                for i in range((randInt() % 10) + 2):
+                    if prop.kind == int:
+                        list_.append(randInt())
+                    elif prop.kind == str:
+                        list_.append(randStr(4 + (randInt() % 10)))
+                    elif prop.kind == bool:
+                        list_.append(2 == random.random()*2)
+                    elif hasattr(prop.kind, '_randomize'):
+                        new_instance = prop.kind(self.ctx())
+                        new_instance._randomize()
+                        list_.append(new_instance)
+                setattr(self, key, list_)
+
+
     def clear(self):
         """ clear will remove all public attributes from the model by
         deleting the respective entries in the object's internal dictionary.
@@ -104,6 +159,13 @@ class Model(object):
 
         self.__dict__.clear()
         return self
+
+    def mock_delete(self, id_=None):
+        if self.is_valid() and id_ is not None:
+            raise ValueError('Cannot delete using an already instantiated model.')
+        self.__dict__.clear()
+        return self
+
 
     def endpoint(self):
         """ Generate and retrieve an API URL endpoint for the current model.
@@ -208,18 +270,32 @@ class Model(object):
 
         return collection
 
+    def mock_query(self, filtering=None, batch_size=500, offset=0, amount=10, **kwargs):
+        import copy
+        array = []
+        for i in range(amount):
+            t = copy.deepcopy(self)
+            t._randomize()
+            array.append(t)
+        return array
+
     def relate(self, obj, refresh=True):
         """ Create a relation between this object and another.
         """
         self.set_relation(True, obj, refresh=refresh)
+
+    def mock_relate(self, obj, refresh=True):
+        self.mock_set_relation(True, obj, refresh=refresh)
 
     def relate_many(self, objs):
         """ Create a relation between this object and another.
         """
         self.set_relation_multiple(True, objs)
 
+    def mock_relate_many(self, objs):
+        self.mock_set_relation(True, objs)
 
-    def retrieve(self, id_=None):
+    def retrieve(self, id_=None, **kwargs):
         """ Retrieve the data for a database entry constrained by the
         specified ID, and udpate the current instance using the retrieved
         data.
@@ -232,10 +308,16 @@ class Model(object):
             self.ctx(),
             self.endpoint(),
             None,
+            **kwargs
         )
         self.clear()
         self.from_dict(payload)
 
+        return self
+
+    def mock_retrieve(self, id_=None):
+        self.clear()
+        self._randomize()
         return self
 
     def refresh(self):
@@ -244,6 +326,12 @@ class Model(object):
         """
         if self.is_valid():
             self.retrieve(self.pk())
+        else:
+            raise Exception
+
+    def mock_refresh(self):
+        if self.is_valid():
+            self.mock_retrieve(self.pk())
         else:
             raise Exception
 
@@ -275,6 +363,11 @@ class Model(object):
         self.update(returned_dict)
         return self
 
+    def mock_save(data=None):
+        self.clear()
+        self._randomize()
+        return self
+
     def set_relation(self, bool_, obj, refresh=True):
         """ Create or remove a relation between the current model and a
         different model.
@@ -301,6 +394,9 @@ class Model(object):
         if refresh:
             obj.refresh()
             self.refresh()
+
+    def mock_set_relation(self, bool_, obj, refresh=True):
+        self.mock_save()
 
     def set_relation_multiple(self, bool_, objs, refresh=True):
         """ Create or remove a relation between the current model and a
@@ -335,9 +431,8 @@ class Model(object):
                 obj.refresh()
             self.refresh()
 
-
-
-
+    def mock_set_relation_multiple(self, bool_, objs, refresh=True):
+        self.mock_save()
 
     def to_dict(self):
         """ Retrieve a dictionary version of the model.
@@ -384,10 +479,16 @@ class Model(object):
         """
         self.set_relation(False, obj)
 
+    def mock_unrelate(self, obj):
+        self.mock_set_relation(False, obj)
+
     def unrelate_many(self, objs):
         """ Unrelate this object and another object.
         """
         self.set_relation_multiple(False, objs)
+
+    def mock_unnrelate_many(self, objs):
+        self.mock_set_relation_multiple(False, objs)
 
     def update(self, data):
         """ Update the internal data of the class instance using either

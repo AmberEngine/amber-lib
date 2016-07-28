@@ -1,6 +1,5 @@
 import unittest
-
-import mock
+import unittest.mock as mock
 
 import amber_lib.connection as connection
 import amber_lib.models.bases as bases
