@@ -11,6 +11,7 @@ class APIKey(Model):
     name = Property(str)
     private = Property(str)
     public = Property(str)
+    retailer_id = Property(int)
     role_name = Property(str)
     sales_channel_id = Property(int)
     token_secret = Property(str)
