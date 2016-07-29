@@ -335,7 +335,7 @@ class Model(object):
         else:
             raise Exception
 
-    def save(self, data=None):
+    def save(self, data=None, **kwargs):
         """ Save the current state of the model into the database, either
         creating a new entry or updating an existing database entry. It
         is dependent on whether a valid ID is present (which is required
@@ -349,21 +349,23 @@ class Model(object):
                 client.PUT,
                 self.ctx(),
                 self.endpoint(),
-                self.to_dict()
+                self.to_dict(),
+                **kwargs
             )
         else:
             returned_dict = client.send(
                 client.POST,
                 self.ctx(),
                 self.endpoint(),
-                self.to_dict()
+                self.to_dict(),
+                **kwargs
             )
 
         self.clear()
         self.update(returned_dict)
         return self
 
-    def mock_save(data=None):
+    def mock_save(data=None, **kwargs):
         self.clear()
         self._randomize()
         return self
