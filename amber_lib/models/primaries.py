@@ -4,14 +4,15 @@ from amber_lib.errors import MethodNotAllowed
 
 @resource('api_keys')
 class APIKey(Model):
+    brand_id = Property(int)
     id = Property(int)
+    kind = Property(str)
     manufacturer_id = Property(int)
     name = Property(str)
     private = Property(str)
     public = Property(str)
-    sales_channel_id = Property(int)
-    kind = Property(str)
     role_name = Property(str)
+    sales_channel_id = Property(int)
     token_secret = Property(str)
 
 
