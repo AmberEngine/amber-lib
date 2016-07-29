@@ -62,6 +62,7 @@ class Product(Model):
     instruction = Property(components.Instruction)
     interior_dimension = Property(components.InteriorDimension)
     inventory = Property(components.Inventory)
+    is_dirty = Property(bool)
     keyword = Property(components.Keyword)
     leather = Property(components.Leather)
     live_version = Property(int)
