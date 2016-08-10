@@ -294,6 +294,7 @@ class Option(Model):
 @resource('option_sets')
 class OptionSet(Model):
     id = Property(int)
+    brand_id = Property(int)
     manufacturer_id = Property(int)
     name = Property(str)
     kind = Property(str)
