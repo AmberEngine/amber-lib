@@ -19,6 +19,7 @@ class APIKey(Model):
 
 @resource('brands')
 class Brand(Model):
+    active = Property(str)
     bio = Property(str)
     city = Property(str)
     date_added = Property(str)
