@@ -102,6 +102,7 @@ class Export(Model):
     mapping_id = Property(int)
     mapping_name = Property(str)
     message = Property(str)
+    parent = Property(bool)
     status = Property(str)
 
 
