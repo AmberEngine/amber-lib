@@ -335,6 +335,32 @@ class Model(object):
         else:
             raise Exception
 
+
+    def partial_save(self, data=None, **kwargs):
+        """ Save the current state of the model into the database, either
+        creating a new entry or updating an existing database entry. It
+        is dependent on whether a valid ID is present (which is required
+        for updates).
+        """
+        if data is not None:
+            self.update(data)
+
+        if self.is_valid():
+            returned_dict = client.send(
+                client.PATCH,
+                self.ctx(),
+                self.endpoint(),
+                self.to_dict(),
+                **kwargs
+            )
+        else:
+            raise Exception("Cannot perform partial save without valid primary key")
+
+        self.clear()
+        self.update(returned_dict)
+        return self
+
+
     def save(self, data=None, **kwargs):
         """ Save the current state of the model into the database, either
         creating a new entry or updating an existing database entry. It
