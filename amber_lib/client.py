@@ -19,7 +19,7 @@ import amber_lib.errors as errors
 
 DELETE = 'delete'
 GET = 'get'
-PATCH= 'patch'
+PATCH = 'patch'
 POST = 'post'
 PUT = 'put'
 
