@@ -342,6 +342,10 @@ class Model(object):
         is dependent on whether a valid ID is present (which is required
         for updates).
         """
+        temp = self.to_dict()
+        if 'guid' in temp:
+            kwargs['guid'] = temp['guid']
+
         if data is not None:
             self.update(data)
 
@@ -367,6 +371,10 @@ class Model(object):
         is dependent on whether a valid ID is present (which is required
         for updates).
         """
+        temp = self.to_dict()
+        if 'guid' in temp:
+            kwargs['guid'] = temp['guid']
+
         if data is not None:
             self.update(data)
 
