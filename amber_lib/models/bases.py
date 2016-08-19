@@ -342,9 +342,9 @@ class Model(object):
         is dependent on whether a valid ID is present (which is required
         for updates).
         """
-        temp = self.to_dict()
-        if 'guid' in temp:
-            kwargs['guid'] = temp['guid']
+        self_dict = self.to_dict()
+        if 'guid' in self_dict:
+            kwargs['guid'] = self_dict['guid']
 
         if data is not None:
             self.update(data)
@@ -354,7 +354,7 @@ class Model(object):
                 client.PATCH,
                 self.ctx(),
                 self.endpoint(),
-                self.to_dict(),
+                self_dict,
                 **kwargs
             )
         else:
@@ -371,9 +371,9 @@ class Model(object):
         is dependent on whether a valid ID is present (which is required
         for updates).
         """
-        temp = self.to_dict()
-        if 'guid' in temp:
-            kwargs['guid'] = temp['guid']
+        self_dict = self.to_dict()
+        if 'guid' in self_dict:
+            kwargs['guid'] = self_dict['guid']
 
         if data is not None:
             self.update(data)
@@ -383,7 +383,7 @@ class Model(object):
                 client.PUT,
                 self.ctx(),
                 self.endpoint(),
-                self.to_dict(),
+                self_dict,
                 **kwargs
             )
         else:
@@ -391,7 +391,7 @@ class Model(object):
                 client.POST,
                 self.ctx(),
                 self.endpoint(),
-                self.to_dict(),
+                self_dict,
                 **kwargs
             )
 
