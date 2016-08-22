@@ -332,6 +332,7 @@ class Retailer(Model):
 class Channel(Model):
     id = Property(int)
     channel_type = Property(str)
+    export_id = Property(int)
     variety = Property(str)
     retailer_id = Property(int)
     name = Property(str)
