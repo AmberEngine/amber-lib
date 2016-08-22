@@ -148,6 +148,7 @@ class Bulb(Component):
     quantity = Property(int)
     kind = Property(str)
     wattage = Property(int)
+    shape = Property(str)
 
 
 @resource('category')
