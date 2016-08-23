@@ -175,13 +175,22 @@ class COMCOL(Component):
 @resource('construction_information')
 class ConstructionInformation(Component):
     assembly_required = Property(bool)
-    cover = Property(str)
     distressed_finish = Property(bool)
     finish = Property(str)
     hardware = Property(str)
     joinery_type = Property(str)
     material = Property(str)
     nail_type = Property(str)
+
+
+@resource('cover')
+class Cover(Component):
+    contents = Property(str)
+    name = Property(str)
+    location = Property(str)
+    color = Property(str)
+    cover_type = Property(str)
+    cleaning_code = Property(str)
 
 
 @resource('cushion')
