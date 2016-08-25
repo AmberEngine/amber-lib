@@ -446,6 +446,7 @@ class OverallDimension(Component):
     max_height = Property(float)
     width = Property(float)
     max_width = Property(float)
+    volume = Property(float)
 
 
 @resource('pattern')
