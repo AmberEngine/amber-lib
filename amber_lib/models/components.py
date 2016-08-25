@@ -186,7 +186,7 @@ class ConstructionInformation(Component):
 @resource('cover')
 class Cover(Component):
     contents = Property(str)
-    name = Property(str)
+    cover_name = Property(str)
     location = Property(str)
     color = Property(str)
     cover_type = Property(str)
