@@ -39,7 +39,6 @@ class Product(Model):
     collection = Property(components.Collection)
     com_col = Property(components.COMCOL)
     construction_information = Property(components.ConstructionInformation)
-    cover = Property(components.Cover)
     cushions = Property(components.Cushions)
     description = Property(components.Description)
     doors = Property(components.Doors)
@@ -217,7 +216,6 @@ class Group(Model):
     category = Property(components.Category)
     collection = Property(components.Collection)
     construction_information = Property(components.ConstructionInformation)
-    cover = Property(components.Cover)
     description = Property(components.Description)
     groups = Property(components.Groups)
     id = Property(int)
@@ -272,7 +270,6 @@ class Kit(Model):
     category = Property(components.Category)
     collection = Property(components.Collection)
     construction_information = Property(components.ConstructionInformation)
-    cover = Property(components.Cover)
     description = Property(components.Description)
     groups = Property(components.Groups)
     id = Property(int)
@@ -372,5 +369,3 @@ class KitPiece(Model):
         )
 
         return collection
-
-

@@ -183,16 +183,6 @@ class ConstructionInformation(Component):
     nail_type = Property(str)
 
 
-@resource('cover')
-class Cover(Component):
-    content = Property(str)
-    cover_name = Property(str)
-    location = Property(str)
-    color = Property(str)
-    cover_type = Property(str)
-    cleaning_code = Property(str)
-
-
 @resource('cushion')
 class Cushion(Component):
     depth = Property(float)
