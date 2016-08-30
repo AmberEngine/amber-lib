@@ -279,18 +279,18 @@ class Model(object):
             array.append(t)
         return array
 
-    def relate(self, obj, refresh=True):
+    def relate(self, obj, refresh=True, **kwargs):
         """ Create a relation between this object and another.
         """
-        self.set_relation(True, obj, refresh=refresh)
+        self.set_relation(True, obj, refresh=refresh, **kwargs)
 
     def mock_relate(self, obj, refresh=True):
         self.mock_set_relation(True, obj, refresh=refresh)
 
-    def relate_many(self, objs, refresh=True):
+    def relate_many(self, objs, refresh=True, **kwargs):
         """ Create a relation between this object and another.
         """
-        self.set_relation_multiple(True, objs, refresh=refresh)
+        self.set_relation_multiple(True, objs, refresh=refresh, **kwargs)
 
     def mock_relate_many(self, objs, refresh=True):
         self.mock_set_relation(True, objs, refresh=refresh)
