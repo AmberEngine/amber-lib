@@ -148,6 +148,7 @@ class Bulb(Component):
     quantity = Property(int)
     kind = Property(str)
     wattage = Property(int)
+    shape = Property(str)
 
 
 @resource('category')
@@ -174,7 +175,6 @@ class COMCOL(Component):
 @resource('construction_information')
 class ConstructionInformation(Component):
     assembly_required = Property(bool)
-    cover = Property(str)
     distressed_finish = Property(bool)
     finish = Property(str)
     hardware = Property(str)
@@ -436,6 +436,7 @@ class OverallDimension(Component):
     max_height = Property(float)
     width = Property(float)
     max_width = Property(float)
+    volume = Property(float)
 
 
 @resource('pattern')

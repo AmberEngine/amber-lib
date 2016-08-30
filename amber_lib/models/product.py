@@ -25,8 +25,6 @@ class Assemblage(Model):
     description = Property(str)
 
 
-
-
 @resource('products')
 class Product(Model):
     apron = Property(components.Apron)
@@ -210,9 +208,6 @@ class Product(Model):
             self.refresh()
 
 
-
-
-
 @resource('products')
 class Group(Model):
     assemblage = Property(Assemblage)
@@ -374,5 +369,3 @@ class KitPiece(Model):
         )
 
         return collection
-
-
