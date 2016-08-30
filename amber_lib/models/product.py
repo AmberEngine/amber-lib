@@ -171,7 +171,8 @@ class Product(Model):
         # when relate/unrelate calls are made then this line is why, but
         # without it then relate/unrelate changes disappear on save calls.
         if refresh:
-            pass
+            obj.refresh()
+            self.refresh()
 
 
     def set_relation_multiple(self, bool_, objs, refresh=True):
