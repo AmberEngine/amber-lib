@@ -146,7 +146,7 @@ class Product(Model):
 
         return collection
 
-    def set_relation(self, bool_, obj, refresh=True):
+    def set_relation(self, bool_, obj, refresh=True, **kwargs):
         """ Create or remove a relation between the current model and a
         different model.
         """
@@ -158,14 +158,14 @@ class Product(Model):
             res1 = "groups"
             res2 = "products"
 
+        kwargs[res1] = self.pk()
+        kwargs[res2] = obj.pk()
+
         payload = client.send(
             client.POST if bool_ is True else client.DELETE,
             self.ctx(),
             '/relations',
-            **{
-                res1: self.pk(),
-                res2: obj.pk()
-            }
+            **kwargs
         )
         # Dear Future Dev, if you're wondering why changes are disappearing
         # when relate/unrelate calls are made then this line is why, but
