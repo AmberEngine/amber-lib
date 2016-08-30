@@ -146,6 +146,101 @@ class Product(Model):
 
         return collection
 
+    def delete(self, id_=None, **kwargs):
+        """ Delete the current model, delete the model as specified by ID, or
+        error out, depending on the weather conditions.
+        """
+        if self.owner_type != 'brand':
+            kwargs['owner_type'] = self.owner_type
+            kwargs['owner_id'] = self.owner_id
+
+        if self.is_valid():
+            # Delete current model
+            if id_ is not None:
+                raise ValueError(
+                    'Cannot delete using an already instantiated model. >:('
+                )
+            client.send(
+                client.DELETE,
+                self.ctx(),
+                self.endpoint(),
+                None,
+                **kwargs
+            )
+        elif id_ is not None:
+            # Delete model by passed id_
+            setattr(self, self._pk, id_)
+            client.send(
+                client.DELETE,
+                self.ctx(),
+                self.endpoint(),
+                None,
+                **kwargs
+            )
+        else:
+            raise ValueError
+
+        self.__dict__.clear()
+        return self
+
+    def refresh(self):
+        """ If the current entity is valid, update it by retrieve it's own
+        data and perform an internal update.
+        """
+        if self.is_valid():
+            if self.owner_type != 'brand':
+                self.retrieve(
+                    self.pk(),
+                    owner_type=self.owner_type,
+                    owner_id=self.owner_id
+                )
+            else:
+                self.retrieve(
+                    self.pk(),
+                    owner_type=self.owner_type,
+                    owner_id=self.owner_id
+                )
+        else:
+            raise Exception
+
+    def save(self, data=None, **kwargs):
+        """ Save the current state of the model into the database, either
+        creating a new entry or updating an existing database entry. It
+        is dependent on whether a valid ID is present (which is required
+        for updates).
+        """
+        self_dict = self.to_dict()
+        if 'guid' in self_dict:
+            kwargs['guid'] = self_dict['guid']
+
+        if data is not None:
+            self.update(data)
+
+        if self.owner_type != "brand":
+            kwargs['owner_type'] = self.owner_type
+            kwargs['owner_id'] = self.owner_id
+
+        if self.is_valid():
+            returned_dict = client.send(
+                client.PUT,
+                self.ctx(),
+                self.endpoint(),
+                self_dict,
+                **kwargs
+            )
+        else:
+            returned_dict = client.send(
+                client.POST,
+                self.ctx(),
+                self.endpoint(),
+                self_dict,
+                **kwargs
+            )
+
+        self.clear()
+        self.update(returned_dict)
+        return self
+
     def set_relation(self, bool_, obj, refresh=True, **kwargs):
         """ Create or remove a relation between the current model and a
         different model.
