@@ -2,38 +2,52 @@ from amber_lib.models.bases import Model, Property, resource
 from amber_lib import client
 from amber_lib.errors import MethodNotAllowed
 
-
 @resource('api_keys')
 class APIKey(Model):
+    brand_id = Property(int)
     id = Property(int)
+    kind = Property(str)
     manufacturer_id = Property(int)
     name = Property(str)
     private = Property(str)
     public = Property(str)
-    sales_channel_id = Property(int)
-    kind = Property(str)
+    retailer_id = Property(int)
     role_name = Property(str)
+    sales_channel_id = Property(int)
     token_secret = Property(str)
 
 
-class AssemblageElement(Model):
-    class_name = Property(str)
-    description = Property(str)
+@resource('brands')
+class Brand(Model):
+    bio = Property(str)
+    city = Property(str)
+    date_added = Property(str)
+    date_updated = Property(str)
+    email = Property(str)
+    facebook_url = Property(str)
+    featured = Property(bool)
+    google_plus_url = Property(str)
     id = Property(int)
+    legal = Property(str)
+    linkedin_url = Property(str)
+    logo_url = Property(str)
+    manufacturer_id = Property(int)
     name = Property(str)
-    table_name = Property(str)
-    parent_name = Property(str)
-
-
-AssemblageElement.child_component = Property(AssemblageElement)
-
-
-@resource('assemblage')
-class Assemblage(Model):
-    assemblage_element_list = Property(AssemblageElement, True)
-    id = Property(int)
-    name = Property(str)
-    description = Property(str)
+    phone = Property(str)
+    phone_extension = Property(str)
+    pinterest_url = Property(str)
+    restock_fee = Property(float)
+    return_period = Property(int)
+    returnable = Property(bool)
+    state = Property(str)
+    street_address_1 = Property(str)
+    street_address_2 = Property(str)
+    province = Property(str)
+    country = Property(str)
+    twitter_url = Property(str)
+    updated_by_api_key = Property(str)
+    url = Property(str)
+    zipcode = Property(str)
 
 
 @resource('categories')
@@ -67,19 +81,10 @@ class Collection(Model):
 
 @resource('events')
 class Event(Model):
-    date_time = Property(str)
-    id = Property(int)
-    message = Property(str)
-    name = Property(str)
-    object_id = Property(int)
-    object_type = Property(str)
-
-
-@resource('moments')
-class Moment(Model):
     id = Property(int)
     resource_name = Property(str)
     resource_action = Property(str)
+    resource_owner_type = Property(str)
     resource_id = Property(int)
     created_by_api_key = Property(str)
     date_created = Property(str)
@@ -91,13 +96,15 @@ class Export(Model):
     id = Property(int)
     user_email = Property(str)
     user_manufacturer_id = Property(int)
-    product_ids = Property(int, True)
+    product_ids = Property(str, True)
     url = Property(str)
     date_created = Property(str)
     date_exported = Property(str)
     mapping_id = Property(int)
     mapping_name = Property(str)
     message = Property(str)
+    output_id = Property(int)
+    parent = Property(bool)
     status = Property(str)
 
 
@@ -161,7 +168,6 @@ class MultiValueList(Model):
     multi_values = Property(int, True)
     accepted_values = Property(MultiValue, True)
 
-
 @resource('options')
 class Option(Model):
     class Nailhead(Model):
@@ -187,13 +193,13 @@ class Option(Model):
         grade = Property(str)
 
     class Hardware(Model):
-        id = Property(int)
-        option_id = Property(int)
-        finish = Property(str)
-        height = Property(float)
-        width = Property(float)
         depth = Property(float)
         diameter = Property(float)
+        finish = Property(str)
+        height = Property(float)
+        id = Property(int)
+        option_id = Property(int)
+        width = Property(float)
 
     class Textile(Model):
         id = Property(int)
@@ -264,81 +270,24 @@ class Option(Model):
         height = Property(float)
         style = Property(str)
 
-    id = Property(int)
-    option_set_id = Property(int)
-    number = Property(str)
-    name = Property(str)
-    description = Property(str)
+    arm = Property(Arm)
+    cushion = Property(Cushion)
     default = Property(bool)
+    description = Property(str)
+    hardware = Property(Hardware)
+    id = Property(int)
     image = Property(str)
-    surcharge = Property(int)
     kind = Property(str)
-    extended_data = Property((
-        Nailhead,
-        Leather,
-        Hardware,
-        Textile,
-        Trim,
-        Arm,
-        Cushion,
-        Leg,
-        Skirt
-    ))
-
-    def from_dict(self, dict_):
-        """ Update the internal dictionary for the instance using the
-        key-value pairs contained within the provided dictionary.
-        """
-        if 'kind' in dict_:
-            self.kind = dict_['kind']
-
-        def explode_dict(obj, exp_dict):
-            for key, val in exp_dict.items():
-                attr = object.__getattribute__(obj, key)
-
-                if isinstance(val, dict):
-                    if not isinstance(attr, dict):
-                        type_ = obj.kind
-                        if not getattr(obj, key):
-                            inst = None
-
-                            if type_ == 'nailhead':
-                                inst = Option.Nailhead(obj.ctx())
-                            elif type_ == 'leather':
-                                inst = Option.Leather(obj.ctx())
-                            elif type_ == 'hardware':
-                                inst = Option.Hardware(obj.ctx())
-                            elif type_ == 'textile':
-                                inst = Option.Textile(obj.ctx())
-                            elif type_ == 'trim':
-                                inst = Option.Trim(obj.ctx())
-                            elif type_ == 'arm':
-                                inst = Option.Arm(obj.ctx())
-                            elif type_ == 'cushion':
-                                inst = Option.Cushion(obj.ctx())
-                            elif type_ == 'leg':
-                                inst = Option.Leg(obj.ctx())
-                            elif type_ == 'skirt':
-                                inst = Option.Skirt(obj.ctx())
-                            elif type_ == 'finish':
-                                pass  # because finish has no extra fields
-                            if inst is None:
-                                val = None
-                            else:
-                                val = inst.from_dict(val)
-                        else:
-                            val = getattr(obj, key).from_dict(val)
-                elif isinstance(val, list):
-                    list_ = []
-                    for el in val:
-                        if isinstance(el, dict):
-                            inst = attr.kind(obj.ctx())
-                            el = inst.from_dict(el)
-                        list_.append(el)
-                    val = list_
-                setattr(obj, key, val)
-            return obj
-        return explode_dict(self, dict_)
+    leather = Property(Leather)
+    leg = Property(Leg)
+    nail_head = Property(Nailhead)
+    name = Property(str)
+    number = Property(str)
+    option_set_id = Property(int)
+    skirt = Property(Skirt)
+    surcharge = Property(int)
+    textile = Property(Textile)
+    trim = Property(Trim)
 
 
 @resource('option_sets')
@@ -348,6 +297,67 @@ class OptionSet(Model):
     name = Property(str)
     kind = Property(str)
     option_list = Property(Option, True)
+
+
+@resource('retailers')
+class Retailer(Model):
+    bio = Property(str)
+    city = Property(str)
+    country = Property(str)
+    date_added = Property(str)
+    date_updated = Property(str)
+    email = Property(str)
+    facebook_url = Property(str)
+    google_plus_url = Property(str)
+    id = Property(int)
+    legal = Property(str)
+    linkedin_url = Property(str)
+    logo_url = Property(str)
+    name = Property(str)
+    phone = Property(str)
+    phone_extension = Property(str)
+    pinterest_url = Property(str)
+    province = Property(str)
+    state = Property(str)
+    street_address_1 = Property(str)
+    street_address_2 = Property(str)
+    twitter_url = Property(str)
+    updated_by_api_key = Property(str)
+    url = Property(str)
+    website = Property(str)
+    zipcode = Property(str)
+
+
+@resource('channels')
+class Channel(Model):
+    id = Property(int)
+    channel_type = Property(str)
+    export_id = Property(int)
+    variety = Property(str)
+    retailer_id = Property(int)
+    name = Property(str)
+
+
+@resource('channel_sets')
+class ChannelSet(Model):
+    brand_id = Property(int)
+    channel_ids = Property(int, True)
+    date_added = Property(str)
+    dealer_price = Property(int)
+    dealer_price_enabled = Property(bool)
+    id = Property(int)
+    is_dirty = Property(bool)
+    last_update_sent = Property(str)
+    manufacturer_id = Property(int)
+    minimum_internet_price = Property(int)
+    minimum_internet_price_enabled = Property(bool)
+    msrp = Property(int)
+    msrp_enabled = Property(bool)
+    name = Property(str)
+    trade_price = Property(int)
+    trade_price_enabled = Property(bool)
+    wholesale_price = Property(int)
+    wholesale_price_enabled = Property(bool)
 
 
 @resource('sales_channels')

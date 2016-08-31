@@ -19,6 +19,7 @@ import amber_lib.errors as errors
 
 DELETE = 'delete'
 GET = 'get'
+PATCH = 'patch'
 POST = 'post'
 PUT = 'put'
 
@@ -469,7 +470,7 @@ def send(method, ctx, endpoint, json_data=None, **uri_params):
     response will be returned.
     """
     method = method.lower()
-    if method not in ['get', 'post', 'put', 'delete']:
+    if method not in ['get', 'post', 'put', 'delete', 'patch']:
         raise AttributeError('Bad HTTP method provided: %s' % method)
 
     def dump(data):

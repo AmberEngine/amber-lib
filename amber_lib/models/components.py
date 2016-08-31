@@ -1,4 +1,4 @@
-from amber_lib import client
+from amber_lib import client, query
 from amber_lib.models import primaries
 from amber_lib.models.bases import Model, Property, resource
 
@@ -12,6 +12,7 @@ class Component(Model):
     _resource = 'component'
     component_data_id = Property(int)
     parent_id = Property(int)
+    product_guid = Property(str)
     parent_name = Property(str)
     product_id = Property(int)
 
@@ -92,7 +93,7 @@ class Component(Model):
 
     def form_schema(self):
         """ Retrieve the Schema for the """
-        endpoint = '/form_schemas/products?component=%s' % self._resource
+        endpoint = '/form_schemas/components?name=%s' % self._resource
         response = client.send(client.GET, self.ctx(), endpoint, {})
         return response
 
@@ -135,12 +136,19 @@ class Box(Component):
     volume = Property(float)
 
 
+@resource('brand')
+class Brand(Component):
+    brand = Property(primaries.Brand)
+    brand_id = Property(int)
+
+
 @resource('bulb')
 class Bulb(Component):
     base = Property(str)
     quantity = Property(int)
     kind = Property(str)
     wattage = Property(int)
+    shape = Property(str)
 
 
 @resource('category')
@@ -166,13 +174,29 @@ class COMCOL(Component):
 
 @resource('construction_information')
 class ConstructionInformation(Component):
-    material = Property(str)
-    joinery_type = Property(str)
-    finish = Property(str)
     assembly_required = Property(bool)
-    cover = Property(str)
+    distressed_finish = Property(bool)
+    finish = Property(str)
     hardware = Property(str)
+    joinery_type = Property(str)
+    material = Property(str)
     nail_type = Property(str)
+
+
+@resource('cover')
+class Cover(Component):
+    cover_name = Property(str)
+    content = Property(str)
+    location = Property(str)
+    color = Property(str)
+    cover_type = Property(str)
+    cleaning_code = Property(str)
+
+
+@resource('covers')
+class Covers(Component):
+    cover_list = Property(Cover, True)
+    quantity = Property(int)
 
 
 @resource('cushion')
@@ -291,6 +315,36 @@ class Glass(Component):
     kind = Property(str)
 
 
+@resource('group')
+class Group(Component):
+    child_id = Property(int)
+    quantity = Property(int)
+
+
+@resource('groups')
+class Groups(Component):
+    group_list = Property(Group, True)
+
+    def children(self, specific_kind=''):
+       ids = [g.other_product_id for g in self.group_list]
+       where = query.Predicate('id', query.within(ids))
+
+       if specific_kind:
+            specific_kind = specific_kind.lower()
+            if specific_kind in ['kit', 'group', 'kit_piece', 'product']:
+                where = query.And(
+                    where,
+                    query.Predicate(
+                        'type',
+                        query.equal(specific_kind)
+                    )
+                )
+            else:
+                raise Exception('Cannot use that specified kind of child')
+
+       return Product(self.ctx()).query(filtering=where)
+
+
 @resource('headboard')
 class Headboard(Component):
     depth = Property(float)
@@ -357,9 +411,16 @@ class Manufacturer(Component):
     manufacturer_id = Property(int)
 
 
+
+@resource('option_set')
+class OptionSet(Component):
+    option_set_id = Property(int)
+    option_set = Property(primaries.OptionSet)
+
+
 @resource('option_sets')
 class OptionSets(Component):
-    option_set_list = Property(primaries.OptionSet, True)
+    option_set_list = Property(OptionSet, True)
 
 
 @resource('ordering_information')
@@ -376,6 +437,11 @@ class OrderingInformation(Component):
     warranty_length = Property(str)
 
 
+@resource('output')
+class Output(Component):
+    output_id = Property(int)
+
+
 @resource('overall_dimension')
 class OverallDimension(Component):
     depth = Property(float)
@@ -386,6 +452,7 @@ class OverallDimension(Component):
     max_height = Property(float)
     width = Property(float)
     max_width = Property(float)
+    volume = Property(float)
 
 
 @resource('pattern')
@@ -430,18 +497,20 @@ class Pillows(Component):
 @resource('pricing')
 class Pricing(Component):
     dealer_price = Property(int)
+    internal_cost = Property(int)
     minimum_internet_price = Property(int)
     msrp = Property(int)
     trade_price = Property(int)
     wholesale = Property(int)
 
 
-@resource('promotional_tag')
-class PromotionalTag(Component):
-    best_seller = Property(bool)
-    discontinued = Property(bool)
+@resource('inventory')
+class Inventory(Component):
+    in_stock = Property(bool)
     limited_stock = Property(bool)
-    new_product = Property(bool)
+    planned_discontinued = Property(bool)
+    discontinued = Property(bool)
+    out_of_stock = Property(bool)
 
 
 @resource('rug_construction')

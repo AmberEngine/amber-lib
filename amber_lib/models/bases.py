@@ -1,6 +1,28 @@
-import json
+import json, random, string
 
-from amber_lib import client, errors
+from amber_lib import client, errors, query
+
+
+
+
+def randStr(length):
+    return ''.join(random.choice(string.ascii_letters) for i in range(length))
+
+def randInt():
+    return int(random.random()*100000) + 1
+
+def randWords(amt):
+    words = []
+    for i in range(amt):
+        words.append(
+            randStr(
+                int(
+                    random.random()*7
+                ) + 1
+            )
+        )
+    return " ".join(words)
+
 
 
 class Model(object):
@@ -56,6 +78,39 @@ class Model(object):
             self.__dict__[attr] = Property(prop.kind, prop.is_list)
             setattr(self, attr, val)
 
+    def _randomize(self):
+        for key in self.__class__.__dict__:
+            self.__dict__[key] = self.__class__.__dict__[key]
+            prop = self.__dict__[key]
+            if not isinstance(prop, Property):
+                continue
+            if not prop.is_list:
+                if prop.kind == int:
+                    setattr(self, key, randInt())
+                elif prop.kind == str:
+                    setattr(self, key, randStr(4 + (randInt() % 10)))
+                elif prop.kind == bool:
+                    setattr(self, key, 2 == random.random()*2)
+                elif hasattr(prop.kind, '_randomize'):
+                    new_instance = prop.kind(self.ctx())
+                    new_instance._randomize()
+                    setattr(self, key, new_instance)
+            else:
+                list_ = []
+                for i in range((randInt() % 10) + 2):
+                    if prop.kind == int:
+                        list_.append(randInt())
+                    elif prop.kind == str:
+                        list_.append(randStr(4 + (randInt() % 10)))
+                    elif prop.kind == bool:
+                        list_.append(2 == random.random()*2)
+                    elif hasattr(prop.kind, '_randomize'):
+                        new_instance = prop.kind(self.ctx())
+                        new_instance._randomize()
+                        list_.append(new_instance)
+                setattr(self, key, list_)
+
+
     def clear(self):
         """ clear will remove all public attributes from the model by
         deleting the respective entries in the object's internal dictionary.
@@ -104,6 +159,13 @@ class Model(object):
 
         self.__dict__.clear()
         return self
+
+    def mock_delete(self, id_=None):
+        if self.is_valid() and id_ is not None:
+            raise ValueError('Cannot delete using an already instantiated model.')
+        self.__dict__.clear()
+        return self
+
 
     def endpoint(self):
         """ Generate and retrieve an API URL endpoint for the current model.
@@ -184,6 +246,8 @@ class Model(object):
         """
         # TODO: Limit the total returned results.
         # TODO: Accept fields to pass on to client.send as a kwarg
+        if filtering and isinstance(filtering, query.Predicate):
+            filtering = query.WhereItem(pred=filtering)
         try:
             payload = client.send(
                 client.GET,
@@ -206,12 +270,32 @@ class Model(object):
 
         return collection
 
+    def mock_query(self, filtering=None, batch_size=500, offset=0, amount=10, **kwargs):
+        import copy
+        array = []
+        for i in range(amount):
+            t = copy.deepcopy(self)
+            t._randomize()
+            array.append(t)
+        return array
+
     def relate(self, obj, refresh=True):
         """ Create a relation between this object and another.
         """
         self.set_relation(True, obj, refresh=refresh)
 
-    def retrieve(self, id_=None):
+    def mock_relate(self, obj, refresh=True):
+        self.mock_set_relation(True, obj, refresh=refresh)
+
+    def relate_many(self, objs, refresh=True):
+        """ Create a relation between this object and another.
+        """
+        self.set_relation_multiple(True, objs, refresh=refresh)
+
+    def mock_relate_many(self, objs, refresh=True):
+        self.mock_set_relation(True, objs, refresh=refresh)
+
+    def retrieve(self, id_=None, **kwargs):
         """ Retrieve the data for a database entry constrained by the
         specified ID, and udpate the current instance using the retrieved
         data.
@@ -224,10 +308,16 @@ class Model(object):
             self.ctx(),
             self.endpoint(),
             None,
+            **kwargs
         )
         self.clear()
         self.from_dict(payload)
 
+        return self
+
+    def mock_retrieve(self, id_=None):
+        self.clear()
+        self._randomize()
         return self
 
     def refresh(self):
@@ -239,12 +329,52 @@ class Model(object):
         else:
             raise Exception
 
-    def save(self, data=None):
+    def mock_refresh(self):
+        if self.is_valid():
+            self.mock_retrieve(self.pk())
+        else:
+            raise Exception
+
+
+    def partial_save(self, data=None, **kwargs):
         """ Save the current state of the model into the database, either
         creating a new entry or updating an existing database entry. It
         is dependent on whether a valid ID is present (which is required
         for updates).
         """
+        self_dict = self.to_dict()
+        if 'guid' in self_dict:
+            kwargs['guid'] = self_dict['guid']
+
+        if data is not None:
+            self.update(data)
+
+        if self.is_valid():
+            returned_dict = client.send(
+                client.PATCH,
+                self.ctx(),
+                self.endpoint(),
+                self_dict,
+                **kwargs
+            )
+        else:
+            raise Exception("Cannot perform partial save without valid primary key")
+
+        self.clear()
+        self.update(returned_dict)
+        return self
+
+
+    def save(self, data=None, **kwargs):
+        """ Save the current state of the model into the database, either
+        creating a new entry or updating an existing database entry. It
+        is dependent on whether a valid ID is present (which is required
+        for updates).
+        """
+        self_dict = self.to_dict()
+        if 'guid' in self_dict:
+            kwargs['guid'] = self_dict['guid']
+
         if data is not None:
             self.update(data)
 
@@ -253,18 +383,25 @@ class Model(object):
                 client.PUT,
                 self.ctx(),
                 self.endpoint(),
-                self.to_dict()
+                self_dict,
+                **kwargs
             )
         else:
             returned_dict = client.send(
                 client.POST,
                 self.ctx(),
                 self.endpoint(),
-                self.to_dict()
+                self_dict,
+                **kwargs
             )
 
         self.clear()
         self.update(returned_dict)
+        return self
+
+    def mock_save(data=None, **kwargs):
+        self.clear()
+        self._randomize()
         return self
 
     def set_relation(self, bool_, obj, refresh=True):
@@ -272,20 +409,66 @@ class Model(object):
         different model.
         """
         self.save()
+        res1 = self._resource
+        res2 = obj._resource
+
+        if res2 == res1:
+            res2 = "other_%s" % res1
+
         payload = client.send(
             client.POST if bool_ is True else client.DELETE,
             self.ctx(),
             '/relations',
             **{
-                self._resource: self.pk(),
-                obj._resource: obj.pk()
+                res1: self.pk(),
+                res2: obj.pk()
             }
         )
         # Dear Future Dev, if you're wondering why changes are disappearing
         # when relate/unrelate calls are made then this line is why, but
         # without it then relate/unrelate changes disappear on save calls.
         if refresh:
+            obj.refresh()
             self.refresh()
+
+    def mock_set_relation(self, bool_, obj, refresh=True):
+        self.mock_save()
+
+    def set_relation_multiple(self, bool_, objs, refresh=True):
+        """ Create or remove a relation between the current model and a
+        different model.
+        """
+        self.save()
+        res1 = self._resource
+        if len(objs) == 0:
+            raise Exception("Must provide at least one object to relate to.")
+        if not isinstance(objs, (list, client.Container)):
+            raise Exception("Must provide a list of objects to relate to.")
+
+        res2 = objs[0]._resource
+
+        if res2 == res1:
+            res2 = "other_%s" % res1
+
+        payload = client.send(
+            client.POST if bool_ is True else client.DELETE,
+            self.ctx(),
+            '/relations',
+            **{
+                res1: self.pk(),
+                res2: ",".join([str(obj.pk()) for obj in objs])
+            }
+        )
+        # Dear Future Dev, if you're wondering why changes are disappearing
+        # when relate/unrelate calls are made then this line is why, but
+        # without it then relate/unrelate changes disappear on save calls.
+        if refresh:
+            for obj in objs:
+                obj.refresh()
+            self.refresh()
+
+    def mock_set_relation_multiple(self, bool_, objs, refresh=True):
+        self.mock_save()
 
     def to_dict(self):
         """ Retrieve a dictionary version of the model.
@@ -294,6 +477,8 @@ class Model(object):
             dict_ = {}
             for key in dir(obj):
                 value = getattr(obj, key)
+                if value == None:
+                    continue
                 if key.startswith('_'):
                     continue
                 if hasattr(value, '__call__'):
@@ -329,6 +514,17 @@ class Model(object):
         """ Unrelate this object and another object.
         """
         self.set_relation(False, obj)
+
+    def mock_unrelate(self, obj):
+        self.mock_set_relation(False, obj)
+
+    def unrelate_many(self, objs):
+        """ Unrelate this object and another object.
+        """
+        self.set_relation_multiple(False, objs)
+
+    def mock_unnrelate_many(self, objs):
+        self.mock_set_relation_multiple(False, objs)
 
     def update(self, data):
         """ Update the internal data of the class instance using either
