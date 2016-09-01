@@ -19,6 +19,7 @@ class APIKey(Model):
 
 @resource('brands')
 class Brand(Model):
+    active = Property(bool)
     bio = Property(str)
     city = Property(str)
     date_added = Property(str)
@@ -72,6 +73,7 @@ class Categories(Model):
 
 @resource('collections')
 class Collection(Model):
+    brand_id = Property(int)
     description = Property(str)
     designed_by = Property(str)
     id = Property(int)
@@ -293,6 +295,7 @@ class Option(Model):
 @resource('option_sets')
 class OptionSet(Model):
     id = Property(int)
+    brand_id = Property(int)
     manufacturer_id = Property(int)
     name = Property(str)
     kind = Property(str)
