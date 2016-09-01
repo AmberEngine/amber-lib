@@ -73,6 +73,7 @@ class Categories(Model):
 
 @resource('collections')
 class Collection(Model):
+    brand_id = Property(int)
     description = Property(str)
     designed_by = Property(str)
     id = Property(int)
