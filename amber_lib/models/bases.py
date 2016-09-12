@@ -195,6 +195,7 @@ class Model(object):
 
                 if isinstance(val, dict):
                     if not isinstance(attr, dict):
+                        print(key)
                         print(attr.kind(obj.ctx()))
                         inst = attr.kind(obj.ctx())
                         # Try to fill the new instance with data from the old
