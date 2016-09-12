@@ -103,7 +103,6 @@ class Product(Model):
         print(self.identity)
         print(self.foundation_information)
         print(self.mattress_information)
-        print(self.mattress_information.to_dict())
 
     def get_components(self):
         return {
