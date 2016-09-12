@@ -452,7 +452,7 @@ class MattressFeatures(Component):
     ventilated = Property(bool)
 
 
-@resource('mattress_information'):
+@resource('mattress_information')
 class MattressInformation:
     additional_materials = Property(str)
     coil_count = Property(str)
