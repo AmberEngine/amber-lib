@@ -199,6 +199,8 @@ class Model(object):
                         print(attr)
                         print(type(obj))
                         print(key)
+                        print(attr.kind)
+                        print(type(attr.kind))
                         inst = attr.kind(obj.ctx())
                         # Try to fill the new instance with data from the old
                         # instance so we don't lose data that isn't included
