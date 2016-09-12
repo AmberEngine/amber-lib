@@ -453,7 +453,7 @@ class MattressFeatures(Component):
 
 
 @resource('mattress_information')
-class MattressInformation:
+class MattressInformation(Component):
     additional_materials = Property(str)
     coil_count = Property(str)
     coil_gauge = Property(str)
@@ -472,7 +472,7 @@ class MattressInformation:
 
 
 @resource('mattress_specifications')
-class MattressSpecifications:
+class MattressSpecifications(Component):
     construction = Property(str)
     depth = Property(float)
     height = Property(float)
