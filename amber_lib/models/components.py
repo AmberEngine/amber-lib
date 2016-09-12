@@ -471,6 +471,16 @@ class MattressInformation:
     weight_capacity = Property(float)
 
 
+@resource('mattress_specifications')
+class MattressSpecifications:
+    construction = Property(str)
+    depth = Property(float)
+    height = Property(float)
+    size = Property(str)
+    thickness = Property(float)
+    width = Property(float)
+
+
 @resource('option_set')
 class OptionSet(Component):
     option_set_id = Property(int)
