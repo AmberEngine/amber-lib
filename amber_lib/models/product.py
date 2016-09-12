@@ -100,6 +100,8 @@ class Product(Model):
         print(Property(components.MattressInformation))
         print(Property(components.MattressInformation).kind)
         print(components.MattressInformation)
+        print(self.identity)
+        print(self.foundation_information)
         print(self.mattress_information)
         print(self.mattress_information.to_dict())
 
