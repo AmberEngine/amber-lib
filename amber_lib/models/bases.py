@@ -64,9 +64,6 @@ class Model(object):
             self.__dict__[attr] = val
             return
         elif attr in self.__dict__:
-            print(self)
-            print(attr)
-            print(val)
             self.__dict__[attr].__set__(self, val)
             return
         else:
