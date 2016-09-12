@@ -98,6 +98,7 @@ class Product(Model):
     def __init__(self, ctx):
         self._ctx = ctx
         print(Property(components.MattressInformation))
+        print(Property(components.MattressInformation).kind)
         print(components.MattressInformation)
         print(self.mattress_information)
         print(self.mattress_information.to_dict())
