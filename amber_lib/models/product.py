@@ -95,15 +95,6 @@ class Product(Model):
     visibility = Property(components.Visibility)
     weight = Property(components.Weight)
 
-    def __init__(self, ctx):
-        self._ctx = ctx
-        print(Property(components.MattressInformation))
-        print(Property(components.MattressInformation).kind)
-        print(components.MattressInformation)
-        print(self.identity)
-        print(self.foundation_information)
-        print(self.mattress_information)
-
     def get_components(self):
         return {
             key: val for key, val in self.__dict__.items()
