@@ -50,6 +50,11 @@ class Brand(Model):
     url = Property(str)
     zipcode = Property(str)
 
+@resource('brand_retailer_relations')
+class BrandRetailerRelation(Model):
+    brand_id = Property(int)
+    id = Property(int)
+    retailer_id = Property(int)
 
 @resource('categories')
 class Categories(Model):
