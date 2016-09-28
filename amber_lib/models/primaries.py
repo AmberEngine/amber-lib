@@ -16,6 +16,14 @@ class APIKey(Model):
     sales_channel_id = Property(int)
     token_secret = Property(str)
 
+# This class must come before Brand and Retailer because it is used in both of
+# those classes.
+@resource('brand_retailer_relations')
+class BrandRetailerRelation(Model):
+    brand_id = Property(int)
+    id = Property(int)
+    retailer_id = Property(int)
+
 
 @resource('brands')
 class Brand(Model):
@@ -50,12 +58,6 @@ class Brand(Model):
     updated_by_api_key = Property(str)
     url = Property(str)
     zipcode = Property(str)
-
-@resource('brand_retailer_relations')
-class BrandRetailerRelation(Model):
-    brand_id = Property(int)
-    id = Property(int)
-    retailer_id = Property(int)
 
 @resource('categories')
 class Categories(Model):
