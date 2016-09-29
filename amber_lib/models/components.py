@@ -304,6 +304,16 @@ class Footrest(Component):
     height = Property(float)
 
 
+@resource('foundation_information')
+class FoundationInformation(Component):
+    foundation_construction = Property(str)
+    foundation_type = Property(str)
+    number_of_pieces = Property(str)
+    pieces_included = Property(str)
+    size = Property(str)
+    weight_capacity = Property(float)
+
+
 @resource('frame')
 class Frame(Component):
     back_rail_height = Property(float)
@@ -410,6 +420,65 @@ class Manufacturer(Component):
     manufacturer = Property(primaries.Manufacturer)
     manufacturer_id = Property(int)
 
+
+@resource('mattress_compliances')
+class MattressCompliances(Component):
+    certipur_us = Property(bool)
+    cpsc_16_cfr_compliant = Property(bool)
+    cpsia_compliant = Property(bool)
+    global_organic_textile_standard = Property(bool)
+    gsa_approved = Property(bool)
+    greenguard = Property(bool)
+    usda_certified_biobased_product_label = Property(bool)
+    usda_organic = Property(bool)
+
+
+@resource('mattress_features')
+class MattressFeatures(Component):
+    box_spring_recommended = Property(bool)
+    commercial_use = Property(bool)
+    cover_included = Property(bool)
+    dust_mite_resistant = Property(bool)
+    fire_resistant = Property(bool)
+    handles = Property(bool)
+    hypo_allergenic = Property(bool)
+    mildew_resistant = Property(bool)
+    non_toxic = Property(bool)
+    no_flip = Property(bool)
+    organic = Property(bool)
+    removeable_cover = Property(bool)
+    sleep_cool_foam = Property(bool)
+    works_with_adjustable_base = Property(bool)
+    ventilated = Property(bool)
+
+
+@resource('mattress_information')
+class MattressInformation(Component):
+    additional_materials = Property(str)
+    coil_count = Property(str)
+    coil_gauge = Property(str)
+    coils_included = Property(bool)
+    comfort_level = Property(str)
+    core_construction = Property(str)
+    cover_closure_type = Property(str)
+    crown_height = Property(float)
+    mattress_layer = Property(str)
+    pocketed_coils = Property(bool)
+    recommended_foundation = Property(str)
+    size = Property(str)
+    thickness = Property(float)
+    top = Property(str)
+    weight_capacity = Property(float)
+
+
+@resource('mattress_specifications')
+class MattressSpecifications(Component):
+    construction = Property(str)
+    depth = Property(float)
+    height = Property(float)
+    size = Property(str)
+    thickness = Property(float)
+    width = Property(float)
 
 
 @resource('option_set')
