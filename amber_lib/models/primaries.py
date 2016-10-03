@@ -16,12 +16,21 @@ class APIKey(Model):
     sales_channel_id = Property(int)
     token_secret = Property(str)
 
+# This class must come before Brand and Retailer because it is used in both of
+# those classes.
+@resource('brand_retailer_relations')
+class BrandRetailerRelation(Model):
+    brand_id = Property(int)
+    id = Property(int)
+    retailer_id = Property(int)
+
 
 @resource('brands')
 class Brand(Model):
     active = Property(bool)
     bio = Property(str)
     city = Property(str)
+    country = Property(str)
     date_added = Property(str)
     date_updated = Property(str)
     email = Property(str)
@@ -37,19 +46,18 @@ class Brand(Model):
     phone = Property(str)
     phone_extension = Property(str)
     pinterest_url = Property(str)
+    province = Property(str)
     restock_fee = Property(float)
+    retailer_relation = Property(BrandRetailerRelation, True)
     return_period = Property(int)
     returnable = Property(bool)
     state = Property(str)
     street_address_1 = Property(str)
     street_address_2 = Property(str)
-    province = Property(str)
-    country = Property(str)
     twitter_url = Property(str)
     updated_by_api_key = Property(str)
     url = Property(str)
     zipcode = Property(str)
-
 
 @resource('categories')
 class Categories(Model):
@@ -305,6 +313,7 @@ class OptionSet(Model):
 @resource('retailers')
 class Retailer(Model):
     bio = Property(str)
+    brand_relation = Property(BrandRetailerRelation, True)
     city = Property(str)
     country = Property(str)
     date_added = Property(str)
