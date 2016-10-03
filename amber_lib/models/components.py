@@ -158,6 +158,11 @@ class Category(Component):
     tertiary = Property(str)
 
 
+@resource('category_tags')
+class CategoryTags(Component):
+    tags = Property(str)
+
+
 @resource('collection')
 class Collection(Component):
     collection = Property(primaries.Collection)
