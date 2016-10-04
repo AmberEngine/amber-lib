@@ -163,15 +163,34 @@ class Product(Model):
             res1 = "groups"
             res2 = "products"
 
-        payload = client.send(
-            client.POST if bool_ is True else client.DELETE,
-            self.ctx(),
-            '/relations',
-            **{
-                res1: self.pk(),
-                res2: obj.pk()
-            }
-        )
+        if res2 != "channels":
+            payload = client.send(
+                client.POST if bool_ is True else client.DELETE,
+                self.ctx(),
+                '/relations',
+                **{
+                    res1: self.pk(),
+                    res2: obj.pk()
+                }
+            )
+        else:
+            payload = client.send(
+                client.POST if bool_ is True else client.DELETE,
+                self.ctx(),
+                '/relations',
+                json_data={
+                    "products": {
+                        "owner_id": self.owner_id,
+                        "owner_type": self.owner_type,
+                        "ids": [self.pk()]
+                    },
+                    "channels": [obj.pk()]
+                },
+                **{
+                    res1: self.pk(),
+                    res2: obj.pk()
+                }
+            )
         # Dear Future Dev, if you're wondering why changes are disappearing
         # when relate/unrelate calls are made then this line is why, but
         # without it then relate/unrelate changes disappear on save calls.
@@ -197,15 +216,34 @@ class Product(Model):
             res1 = "groups"
             res2 = "products"
 
-        payload = client.send(
-            client.POST if bool_ is True else client.DELETE,
-            self.ctx(),
-            '/relations',
-            **{
-                res1: self.pk(),
-                res2: ",".join([str(obj.pk()) for obj in objs])
-            }
-        )
+        if res2 != "channels":
+            payload = client.send(
+                client.POST if bool_ is True else client.DELETE,
+                self.ctx(),
+                '/relations',
+                **{
+                    res1: self.pk(),
+                    res2: ",".join([str(obj.pk()) for obj in objs])
+                }
+            )
+        else:
+            payload = client.send(
+                client.POST if bool_ is True else client.DELETE,
+                self.ctx(),
+                '/relations',
+                json_data={
+                    "products": {
+                        "owner_id": self.owner_id,
+                        "owner_type": self.owner_type,
+                        "ids": [self.pk()]
+                    },
+                    "channels": [r.pk() for r in objs]
+                },
+                **{
+                    res1: self.pk(),
+                    res2: obj.pk()
+                }
+            )
         # Dear Future Dev, if you're wondering why changes are disappearing
         # when relate/unrelate calls are made then this line is why, but
         # without it then relate/unrelate changes disappear on save calls.
