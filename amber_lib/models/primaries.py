@@ -340,6 +340,105 @@ class Retailer(Model):
     zipcode = Property(str)
 
 
+    def set_relation(self, bool_, obj, refresh=True):
+        """ Create or remove a relation between the current model and a
+        different model.
+        """
+        #self.save()
+        res1 = self._resource
+        print(obj)
+        res2 = obj._resource
+
+        if res2 != "products":
+            payload = client.send(
+                client.POST if bool_ is True else client.DELETE,
+                self.ctx(),
+                '/relations',
+                **{
+                    res1: self.pk(),
+                    res2: obj.pk()
+                }
+            )
+        else:
+            payload = client.send(
+                client.POST if bool_ is True else client.DELETE,
+                self.ctx(),
+                '/relations',
+                json_data={
+                    "products": {
+                        "owner_id": obj.owner_id,
+                        "owner_type": obj.owner_type,
+                        "ids": [obj.pk()]
+                    },
+                    "retailers": [self.pk()]
+                },
+                **{
+                    res1: self.pk(),
+                    res2: obj.pk()
+                }
+            )
+        # Dear Future Dev, if you're wondering why changes are disappearing
+        # when relate/unrelate calls are made then this line is why, but
+        # without it then relate/unrelate changes disappear on save calls.
+        if refresh:
+            obj.refresh()
+            self.refresh()
+
+
+    def set_relation_multiple(self, bool_, objs, refresh=True):
+        """ Create or remove a relation between the current model and a
+        different model.
+        """
+        #self.save()
+        res1 = self._resource
+        if len(objs) == 0:
+            raise Exception("Must provide at least one object to relate to.")
+        if not isinstance(objs, (list, client.Container)):
+            raise Exception("Must provide a list of objects to relate to.")
+
+        res2 = objs[0]._resource
+
+        if res2 != "products":
+            payload = client.send(
+                client.POST if bool_ is True else client.DELETE,
+                self.ctx(),
+                '/relations',
+                **{
+                    res1: self.pk(),
+                    res2: ",".join([str(obj.pk()) for obj in objs])
+                }
+            )
+        else:
+            payload = client.send(
+                client.POST if bool_ is True else client.DELETE,
+                self.ctx(),
+                '/relations',
+                json_data={
+                    "products": {
+                        "owner_id": objs[0].owner_id,
+                        "owner_type": objs[0].owner_type,
+                        "ids": [r.pk() for r in objs]
+                    },
+                    "retailers": [self.pk()]
+                },
+                **{
+                    res1: self.pk(),
+                    res2: objs[0].pk()
+                }
+            )
+        # Dear Future Dev, if you're wondering why changes are disappearing
+        # when relate/unrelate calls are made then this line is why, but
+        # without it then relate/unrelate changes disappear on save calls.
+        if refresh:
+            for obj in objs:
+                obj.refresh()
+            self.refresh()
+
+
+
+
+
+
 @resource('channels')
 class Channel(Model):
     id = Property(int)
@@ -349,10 +448,106 @@ class Channel(Model):
     retailer_id = Property(int)
     name = Property(str)
 
+    def set_relation(self, bool_, obj, refresh=True):
+        """ Create or remove a relation between the current model and a
+        different model.
+        """
+        #self.save()
+        res1 = self._resource
+        print(obj)
+        res2 = obj._resource
+
+        if res2 != "products":
+            payload = client.send(
+                client.POST if bool_ is True else client.DELETE,
+                self.ctx(),
+                '/relations',
+                **{
+                    res1: self.pk(),
+                    res2: obj.pk()
+                }
+            )
+        else:
+            payload = client.send(
+                client.POST if bool_ is True else client.DELETE,
+                self.ctx(),
+                '/relations',
+                json_data={
+                    "products": {
+                        "owner_id": obj.owner_id,
+                        "owner_type": obj.owner_type,
+                        "ids": [obj.pk()]
+                    },
+                    "channels": [self.pk()]
+                },
+                **{
+                    res1: self.pk(),
+                    res2: obj.pk()
+                }
+            )
+        # Dear Future Dev, if you're wondering why changes are disappearing
+        # when relate/unrelate calls are made then this line is why, but
+        # without it then relate/unrelate changes disappear on save calls.
+        if refresh:
+            obj.refresh()
+            self.refresh()
+
+
+    def set_relation_multiple(self, bool_, objs, refresh=True):
+        """ Create or remove a relation between the current model and a
+        different model.
+        """
+        #self.save()
+        res1 = self._resource
+        if len(objs) == 0:
+            raise Exception("Must provide at least one object to relate to.")
+        if not isinstance(objs, (list, client.Container)):
+            raise Exception("Must provide a list of objects to relate to.")
+
+        res2 = objs[0]._resource
+
+        if res2 != "products":
+            payload = client.send(
+                client.POST if bool_ is True else client.DELETE,
+                self.ctx(),
+                '/relations',
+                **{
+                    res1: self.pk(),
+                    res2: ",".join([str(obj.pk()) for obj in objs])
+                }
+            )
+        else:
+            payload = client.send(
+                client.POST if bool_ is True else client.DELETE,
+                self.ctx(),
+                '/relations',
+                json_data={
+                    "products": {
+                        "owner_id": objs[0].owner_id,
+                        "owner_type": objs[0].owner_type,
+                        "ids": [r.pk() for r in objs]
+                    },
+                    "channels": [self.pk()]
+                },
+                **{
+                    res1: self.pk(),
+                    res2: objs[0].pk()
+                }
+            )
+        # Dear Future Dev, if you're wondering why changes are disappearing
+        # when relate/unrelate calls are made then this line is why, but
+        # without it then relate/unrelate changes disappear on save calls.
+        if refresh:
+            for obj in objs:
+                obj.refresh()
+            self.refresh()
+
+
+
+
 
 @resource('channel_sets')
 class ChannelSet(Model):
-    brand_id = Property(int)
     channel_ids = Property(int, True)
     date_added = Property(str)
     dealer_price = Property(int)
@@ -360,12 +555,13 @@ class ChannelSet(Model):
     id = Property(int)
     is_dirty = Property(bool)
     last_update_sent = Property(str)
-    manufacturer_id = Property(int)
     minimum_internet_price = Property(int)
     minimum_internet_price_enabled = Property(bool)
     msrp = Property(int)
     msrp_enabled = Property(bool)
     name = Property(str)
+    owner_id = Property(int)
+    owner_type = Property(int)
     trade_price = Property(int)
     trade_price_enabled = Property(bool)
     wholesale_price = Property(int)

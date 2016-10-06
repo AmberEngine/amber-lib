@@ -163,7 +163,7 @@ class Product(Model):
             res1 = "groups"
             res2 = "products"
 
-        if res2 != "channels":
+        if res2 != "channels" and res2 != 'retailers':
             payload = client.send(
                 client.POST if bool_ is True else client.DELETE,
                 self.ctx(),
@@ -184,7 +184,7 @@ class Product(Model):
                         "owner_type": self.owner_type,
                         "ids": [self.pk()]
                     },
-                    "channels": [obj.pk()]
+                    res2: [obj.pk()]
                 },
                 **{
                     res1: self.pk(),
@@ -216,7 +216,7 @@ class Product(Model):
             res1 = "groups"
             res2 = "products"
 
-        if res2 != "channels":
+        if res2 != "channels" and res2 != 'retailer':
             payload = client.send(
                 client.POST if bool_ is True else client.DELETE,
                 self.ctx(),
@@ -237,7 +237,7 @@ class Product(Model):
                         "owner_type": self.owner_type,
                         "ids": [self.pk()]
                     },
-                    "channels": [r.pk() for r in objs]
+                    res2: [r.pk() for r in objs]
                 },
                 **{
                     res1: self.pk(),
