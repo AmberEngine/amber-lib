@@ -160,7 +160,7 @@ class Category(Component):
 
 @resource('category_tags')
 class CategoryTags(Component):
-    tags = Property(str)
+    tags = Property(primaries.MultiValueList)
 
 
 @resource('collection')
