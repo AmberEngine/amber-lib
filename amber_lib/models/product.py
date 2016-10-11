@@ -125,7 +125,7 @@ class Product(Model):
                 **uri_params
             )
 
-    def search(self, filtering=None, batch_size=500, offset=0,  **kwargs):
+    def search(self, filtering=None, batch_size=500, offset=0, limit=0, **kwargs):
         if filtering and isinstance(filtering, query.Predicate):
             filtering = query.WhereItem(pred=filtering)
         try:
@@ -145,6 +145,13 @@ class Product(Model):
                 self._ctx,
                 offset
             )
+            if limit and offset:
+                collection = collection[offset:offset+limit]
+            elif limit:
+                collection = collection[:limit]
+            else:
+                collection = collection[offset:]
+
         except errors.NotFound:
             collection = client.Container({}, self.__class__, self._ctx, 0)
 
@@ -397,7 +404,7 @@ class KitPiece(Model):
             {}
         )
 
-    def search(self, filtering=None, batch_size=500, offset=0, **kwargs):
+    def search(self, filtering=None, batch_size=500, offset=0, limit=0, **kwargs):
         if filtering and isinstance(filtering, query.Predicate):
             filtering = query.WhereItem(pred=filtering)
         payload = client.send(
@@ -416,5 +423,11 @@ class KitPiece(Model):
             self._ctx,
             offset
         )
+        if limit and offset:
+            collection = collection[offset:offset+limit]
+        elif limit:
+            collection = collection[:limit]
+        else:
+            collection = collection[offset:]
 
         return collection
