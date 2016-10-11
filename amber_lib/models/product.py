@@ -149,7 +149,7 @@ class Product(Model):
                 collection = collection[offset:offset+limit]
             elif limit:
                 collection = collection[:limit]
-            else:
+            elif offset:
                 collection = collection[offset:]
 
         except errors.NotFound:
@@ -427,7 +427,7 @@ class KitPiece(Model):
             collection = collection[offset:offset+limit]
         elif limit:
             collection = collection[:limit]
-        else:
+        elif offset:
             collection = collection[offset:]
 
         return collection
