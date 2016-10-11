@@ -271,7 +271,7 @@ class Model(object):
                 collection = collection[offset:offset+limit]
             elif limit:
                 collection = collection[:limit]
-            else:
+            elif offset:
                 collection = collection[offset:]
         except errors.NotFound:
             collection = client.Container({}, self.__class__, self._ctx, 0)
