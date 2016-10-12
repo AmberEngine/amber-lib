@@ -469,6 +469,7 @@ class MattressSpecifications(Component):
 
 @resource('option_set')
 class OptionSet(Component):
+    masked_option_ids = Property(int, True)
     option_set_id = Property(int)
     option_set = Property(primaries.OptionSet)
 
