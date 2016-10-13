@@ -25,8 +25,23 @@ class BrandRetailerRelation(Model):
     retailer_id = Property(int)
 
 
+@resource('brand_channel_relations')
+class BrandChannelRelation(Model):
+    brand_id = Property(int)
+    channel_id = Property(int)
+    id = Property(int)
+
+
+@resource('retailer_channel_relations')
+class RetailerChannelRelation(Model):
+    channel_id = Property(int)
+    id = Property(int)
+    retailer_id = Property(int)
+
+
 @resource('brands')
 class Brand(Model):
+    accessible_channels = Property(BrandChannelRelation, True)
     active = Property(bool)
     bio = Property(str)
     city = Property(str)
@@ -312,6 +327,7 @@ class OptionSet(Model):
 
 @resource('retailers')
 class Retailer(Model):
+    accessible_channels = Property(RetailerChannelRelation, True)
     bio = Property(str)
     brand_relation = Property(BrandRetailerRelation, True)
     city = Property(str)
