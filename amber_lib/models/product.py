@@ -170,7 +170,7 @@ class Product(Model):
             res1 = "groups"
             res2 = "products"
 
-        if res2 != "channels" and res2 != 'retailers':
+        if res2 != "channels" and res2 != 'retailers' and res1 != "groups":
             payload = client.send(
                 client.POST if bool_ is True else client.DELETE,
                 self.ctx(),
@@ -180,7 +180,7 @@ class Product(Model):
                     res2: obj.pk()
                 }
             )
-        else:
+        elif res1 != "groups":
             payload = client.send(
                 client.POST if bool_ is True else client.DELETE,
                 self.ctx(),
@@ -192,6 +192,28 @@ class Product(Model):
                         "ids": [self.pk()]
                     },
                     res2: [obj.pk()]
+                },
+                **{
+                    res1: self.pk(),
+                    res2: obj.pk()
+                }
+            )
+        else:
+            payload = client.send(
+                client.POST if bool_ is True else client.DELETE,
+                self.ctx(),
+                '/relations',
+                json_data={
+                    "groups": {
+                        "owner_id": self.owner_id,
+                        "owner_type": self.owner_type,
+                        "ids": [self.pk()]
+                    },
+                    "products": {
+                        "owner_id": obj.owner_id,
+                        "owner_type": obj.owner_type,
+                        "ids": [obj.pk()]
+                    },
                 },
                 **{
                     res1: self.pk(),
@@ -223,7 +245,7 @@ class Product(Model):
             res1 = "groups"
             res2 = "products"
 
-        if res2 != "channels" and res2 != 'retailer':
+        if res2 != "channels" and res2 != 'retailer' and res1 != "groups":
             payload = client.send(
                 client.POST if bool_ is True else client.DELETE,
                 self.ctx(),
@@ -233,7 +255,7 @@ class Product(Model):
                     res2: ",".join([str(obj.pk()) for obj in objs])
                 }
             )
-        else:
+        elif res1 != "groups":
             payload = client.send(
                 client.POST if bool_ is True else client.DELETE,
                 self.ctx(),
@@ -248,7 +270,29 @@ class Product(Model):
                 },
                 **{
                     res1: self.pk(),
-                    res2: obj.pk()
+                    res2: ",".join([str(obj.pk()) for obj in objs])
+                }
+            )
+        else:
+            payload = client.send(
+                client.POST if bool_ is True else client.DELETE,
+                self.ctx(),
+                '/relations',
+                json_data={
+                    "groups": {
+                        "owner_id": self.owner_id,
+                        "owner_type": self.owner_type,
+                        "ids": [self.pk()]
+                    },
+                    "products": {
+                        "owner_id": objs[0].owner_id,
+                        "owner_type": objs[0].owner_type,
+                        "ids": [r.pk() for r in objs]
+                    },
+                },
+                **{
+                    res1: self.pk(),
+                    res2: ",".join([str(obj.pk()) for obj in objs])
                 }
             )
         # Dear Future Dev, if you're wondering why changes are disappearing
