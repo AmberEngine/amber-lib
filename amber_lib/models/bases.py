@@ -194,7 +194,7 @@ class Model(object):
                 attr = object.__getattribute__(obj, key)
 
                 if isinstance(val, dict):
-                    if not isinstance(attr, dict):
+                    if not isinstance(attr, dict) and attr.kind != type(dict()):
                         inst = attr.kind(obj.ctx())
                         # Try to fill the new instance with data from the old
                         # instance so we don't lose data that isn't included

@@ -472,7 +472,7 @@ class OptionSet(Component):
     masked_option_ids = Property(int, True)
     option_set = Property(primaries.OptionSet)
     option_set_id = Property(int)
-    option_surcharging = Property(str)
+    option_surcharging = Property(dict)
 
 
 @resource('option_sets')
