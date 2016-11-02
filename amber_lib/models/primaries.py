@@ -118,19 +118,20 @@ class Event(Model):
 
 @resource('exports')
 class Export(Model):
-    id = Property(int)
-    user_email = Property(str)
-    user_manufacturer_id = Property(int)
-    product_ids = Property(str, True)
-    url = Property(str)
     date_created = Property(str)
     date_exported = Property(str)
+    id = Property(int)
     mapping_id = Property(int)
     mapping_name = Property(str)
     message = Property(str)
     output_id = Property(int)
     parent = Property(bool)
+    product_ids = Property(str, True)
     status = Property(str)
+    url = Property(str)
+    user_email = Property(str)
+    user_manufacturer_id = Property(int)
+    user_retailer_id = Property(int)
 
 
 @resource('export_jobs')
