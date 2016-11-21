@@ -326,6 +326,14 @@ class OptionSet(Model):
     option_list = Property(Option, True)
 
 
+@resource('pushes')
+class Push(Model):
+    channel_set_id = Property(int)
+    end_timestamp = Property(str)
+    id = Property(int)
+    start_timestamp = Property(str)
+
+
 @resource('retailers')
 class Retailer(Model):
     accessible_channels = Property(RetailerChannelRelation, True)
@@ -452,10 +460,6 @@ class Retailer(Model):
             self.refresh()
 
 
-
-
-
-
 @resource('channels')
 class Channel(Model):
     id = Property(int)
@@ -560,7 +564,16 @@ class Channel(Model):
             self.refresh()
 
 
-
+@resource('channel_pushes')
+class ChannelPush(Model):
+    channel_id = Property(int)
+    channel_set_id = Property(int)
+    end_timestamp = Property(str)
+    id = Property(int)
+    product_guids = Property(str, True)
+    product_ids = Property(int, True)
+    push_id = Property(int)
+    start_timestamp = Property(str)
 
 
 @resource('channel_sets')
