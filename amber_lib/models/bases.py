@@ -129,7 +129,7 @@ class Model(object):
         """
         return self._ctx
 
-    def delete(self, id_=None):
+    def delete(self, id_=None, **kwargs):
         """ Delete the current model, delete the model as specified by ID, or
         error out, depending on the weather conditions.
         """
@@ -143,7 +143,8 @@ class Model(object):
                 client.DELETE,
                 self.ctx(),
                 self.endpoint(),
-                None
+                None,
+                **kwargs
             )
         elif id_ is not None:
             # Delete model by passed id_
@@ -152,7 +153,8 @@ class Model(object):
                 client.DELETE,
                 self.ctx(),
                 self.endpoint(),
-                None
+                None,
+                **kwargs
             )
         else:
             raise ValueError
