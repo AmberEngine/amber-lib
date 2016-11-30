@@ -56,6 +56,7 @@ class Product(Model):
     glass = Property(components.Glass)
     groups = Property(components.Groups)
     guid = Property(str)
+    hash = Property(components.Hash)
     headboard = Property(components.Headboard)
     id = Property(int)
     identity = Property(components.Identity)

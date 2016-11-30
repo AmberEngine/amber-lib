@@ -510,7 +510,6 @@ def send(method, ctx, endpoint, json_data=None, **uri_params):
         auth_string = sig
 
     headers['Authorization'] = 'Bearer %s' % auth_string
-
     r = None
     retry_on = [408, 419, 500, 502, 504]
     attempts = 0
