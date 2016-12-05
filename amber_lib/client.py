@@ -120,7 +120,8 @@ class Container(object):
                 end = key.stop
             step = key.step if key.step else 1
 
-            container = Container({}, self.class_, self.ctx)
+            container = copy.deepcopy(self)
+            container.values = {}
             count = 0
             for index in range(start, end, step):
                 # Get next batch of entries.

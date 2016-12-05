@@ -160,7 +160,7 @@ class Category(Component):
 
 @resource('category_tags')
 class CategoryTags(Component):
-    tags = Property(str)
+    tags = Property(primaries.MultiValueList)
 
 
 @resource('collection')
@@ -469,8 +469,10 @@ class MattressSpecifications(Component):
 
 @resource('option_set')
 class OptionSet(Component):
-    option_set_id = Property(int)
+    masked_option_ids = Property(int, True)
     option_set = Property(primaries.OptionSet)
+    option_set_id = Property(int)
+    option_surcharging = Property(dict)
 
 
 @resource('option_sets')
