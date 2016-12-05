@@ -158,6 +158,11 @@ class Category(Component):
     tertiary = Property(str)
 
 
+@resource('category_tags')
+class CategoryTags(Component):
+    tags = Property(primaries.MultiValueList)
+
+
 @resource('collection')
 class Collection(Component):
     collection = Property(primaries.Collection)
@@ -335,25 +340,6 @@ class Group(Component):
 class Groups(Component):
     group_list = Property(Group, True)
 
-    def children(self, specific_kind=''):
-       ids = [g.other_product_id for g in self.group_list]
-       where = query.Predicate('id', query.within(ids))
-
-       if specific_kind:
-            specific_kind = specific_kind.lower()
-            if specific_kind in ['kit', 'group', 'kit_piece', 'product']:
-                where = query.And(
-                    where,
-                    query.Predicate(
-                        'type',
-                        query.equal(specific_kind)
-                    )
-                )
-            else:
-                raise Exception('Cannot use that specified kind of child')
-
-       return Product(self.ctx()).query(filtering=where)
-
 
 @resource('headboard')
 class Headboard(Component):
@@ -483,8 +469,10 @@ class MattressSpecifications(Component):
 
 @resource('option_set')
 class OptionSet(Component):
-    option_set_id = Property(int)
+    masked_option_ids = Property(int, True)
     option_set = Property(primaries.OptionSet)
+    option_set_id = Property(int)
+    option_surcharging = Property(dict)
 
 
 @resource('option_sets')

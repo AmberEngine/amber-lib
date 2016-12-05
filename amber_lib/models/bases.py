@@ -196,7 +196,7 @@ class Model(object):
                 attr = object.__getattribute__(obj, key)
 
                 if isinstance(val, dict):
-                    if not isinstance(attr, dict):
+                    if not isinstance(attr, dict) and attr.kind != type(dict()):
                         inst = attr.kind(obj.ctx())
                         # Try to fill the new instance with data from the old
                         # instance so we don't lose data that isn't included
@@ -242,7 +242,7 @@ class Model(object):
         """
         return getattr(self, self._pk)
 
-    def query(self, filtering=None, batch_size=500, offset=0, **kwargs):
+    def query(self, filtering=None, batch_size=500, offset=0, limit=0, **kwargs):
         """ Retrieve a collection of instances of the model, using the
         URI params from the keyword arguments.
         """
@@ -267,6 +267,12 @@ class Model(object):
                 self._ctx,
                 offset
             )
+            if limit and offset:
+                collection = collection[offset:offset+limit]
+            elif limit:
+                collection = collection[:limit]
+            elif offset:
+                collection = collection[offset:]
         except errors.NotFound:
             collection = client.Container({}, self.__class__, self._ctx, 0)
 

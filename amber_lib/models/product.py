@@ -36,6 +36,7 @@ class Product(Model):
     brand = Property(components.Brand)
     bulb = Property(components.Bulb)
     category = Property(components.Category)
+    category_tags = Property(components.CategoryTags)
     collection = Property(components.Collection)
     com_col = Property(components.COMCOL)
     construction_information = Property(components.ConstructionInformation)
@@ -124,7 +125,7 @@ class Product(Model):
                 **uri_params
             )
 
-    def search(self, filtering=None, batch_size=500, offset=0,  **kwargs):
+    def search(self, filtering=None, batch_size=500, offset=0, limit=0, **kwargs):
         if filtering and isinstance(filtering, query.Predicate):
             filtering = query.WhereItem(pred=filtering)
         try:
@@ -144,6 +145,13 @@ class Product(Model):
                 self._ctx,
                 offset
             )
+            if limit and offset:
+                collection = collection[offset:offset+limit]
+            elif limit:
+                collection = collection[:limit]
+            elif offset:
+                collection = collection[offset:]
+
         except errors.NotFound:
             collection = client.Container({}, self.__class__, self._ctx, 0)
 
@@ -162,15 +170,56 @@ class Product(Model):
             res1 = "groups"
             res2 = "products"
 
-        payload = client.send(
-            client.POST if bool_ is True else client.DELETE,
-            self.ctx(),
-            '/relations',
-            **{
-                res1: self.pk(),
-                res2: obj.pk()
-            }
-        )
+        if res2 != "channels" and res2 != 'retailers' and res1 != "groups":
+            payload = client.send(
+                client.POST if bool_ is True else client.DELETE,
+                self.ctx(),
+                '/relations',
+                **{
+                    res1: self.pk(),
+                    res2: obj.pk()
+                }
+            )
+        elif res1 != "groups":
+            payload = client.send(
+                client.POST if bool_ is True else client.DELETE,
+                self.ctx(),
+                '/relations',
+                json_data={
+                    "products": {
+                        "owner_id": self.owner_id,
+                        "owner_type": self.owner_type,
+                        "ids": [self.pk()]
+                    },
+                    res2: [obj.pk()]
+                },
+                **{
+                    res1: self.pk(),
+                    res2: obj.pk()
+                }
+            )
+        else:
+            payload = client.send(
+                client.POST if bool_ is True else client.DELETE,
+                self.ctx(),
+                '/relations',
+                json_data={
+                    "groups": {
+                        "owner_id": self.owner_id,
+                        "owner_type": self.owner_type,
+                        "ids": [self.pk()]
+                    },
+                    "products": {
+                        "owner_id": obj.owner_id,
+                        "owner_type": obj.owner_type,
+                        "ids": [obj.pk()]
+                    },
+                },
+                **{
+                    res1: self.pk(),
+                    res2: obj.pk()
+                }
+            )
         # Dear Future Dev, if you're wondering why changes are disappearing
         # when relate/unrelate calls are made then this line is why, but
         # without it then relate/unrelate changes disappear on save calls.
@@ -196,15 +245,56 @@ class Product(Model):
             res1 = "groups"
             res2 = "products"
 
-        payload = client.send(
-            client.POST if bool_ is True else client.DELETE,
-            self.ctx(),
-            '/relations',
-            **{
-                res1: self.pk(),
-                res2: ",".join([str(obj.pk()) for obj in objs])
-            }
-        )
+        if res2 != "channels" and res2 != 'retailer' and res1 != "groups":
+            payload = client.send(
+                client.POST if bool_ is True else client.DELETE,
+                self.ctx(),
+                '/relations',
+                **{
+                    res1: self.pk(),
+                    res2: ",".join([str(obj.pk()) for obj in objs])
+                }
+            )
+        elif res1 != "groups":
+            payload = client.send(
+                client.POST if bool_ is True else client.DELETE,
+                self.ctx(),
+                '/relations',
+                json_data={
+                    "products": {
+                        "owner_id": self.owner_id,
+                        "owner_type": self.owner_type,
+                        "ids": [self.pk()]
+                    },
+                    res2: [r.pk() for r in objs]
+                },
+                **{
+                    res1: self.pk(),
+                    res2: ",".join([str(obj.pk()) for obj in objs])
+                }
+            )
+        else:
+            payload = client.send(
+                client.POST if bool_ is True else client.DELETE,
+                self.ctx(),
+                '/relations',
+                json_data={
+                    "groups": {
+                        "owner_id": self.owner_id,
+                        "owner_type": self.owner_type,
+                        "ids": [self.pk()]
+                    },
+                    "products": {
+                        "owner_id": objs[0].owner_id,
+                        "owner_type": objs[0].owner_type,
+                        "ids": [r.pk() for r in objs]
+                    },
+                },
+                **{
+                    res1: self.pk(),
+                    res2: ",".join([str(obj.pk()) for obj in objs])
+                }
+            )
         # Dear Future Dev, if you're wondering why changes are disappearing
         # when relate/unrelate calls are made then this line is why, but
         # without it then relate/unrelate changes disappear on save calls.
@@ -220,6 +310,7 @@ class Group(Model):
     assemblage_id = Property(int)
     audit = Property(components.Audit)
     category = Property(components.Category)
+    category_tags = Property(components.CategoryTags)
     collection = Property(components.Collection)
     construction_information = Property(components.ConstructionInformation)
     covers = Property(components.Covers)
@@ -275,6 +366,7 @@ class Kit(Model):
     assemblage = Property(Assemblage)
     audit = Property(components.Audit)
     category = Property(components.Category)
+    category_tags = Property(components.CategoryTags)
     collection = Property(components.Collection)
     construction_information = Property(components.ConstructionInformation)
     covers = Property(components.Covers)
@@ -356,7 +448,7 @@ class KitPiece(Model):
             {}
         )
 
-    def search(self, filtering=None, batch_size=500, offset=0, **kwargs):
+    def search(self, filtering=None, batch_size=500, offset=0, limit=0, **kwargs):
         if filtering and isinstance(filtering, query.Predicate):
             filtering = query.WhereItem(pred=filtering)
         payload = client.send(
@@ -375,5 +467,11 @@ class KitPiece(Model):
             self._ctx,
             offset
         )
+        if limit and offset:
+            collection = collection[offset:offset+limit]
+        elif limit:
+            collection = collection[:limit]
+        elif offset:
+            collection = collection[offset:]
 
         return collection
