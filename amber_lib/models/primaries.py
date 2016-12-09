@@ -306,7 +306,7 @@ class Option(Model):
     kind = Property(str)
     leather = Property(Leather)
     leg = Property(Leg)
-    nail_head = Property(Nailhead)
+    nailhead = Property(Nailhead)
     name = Property(str)
     number = Property(str)
     option_set_id = Property(int)
