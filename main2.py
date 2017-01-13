@@ -243,6 +243,7 @@ class Resource(dict):
         self.unsaved_state_keys = set()
 
     def update(self, dict_):
+        # Probobly a naming conflict
         for k in dict_:
             self.unsaved_state_keys.add(k)
 
@@ -257,7 +258,7 @@ class Resource(dict):
         return self.affordances[key]
 
     def __getitem__(self, key):
-        if key == 'embeddded':
+        if key == 'embedded':
             return self.embedded
 
         if key in self.state:
@@ -266,8 +267,15 @@ class Resource(dict):
         raise KeyError("'%s'" % key)
 
     def __setitem__(self, key, value):
-        if key == '_embeded':
-            self.embedded = value
+        if key == '_embedded':
+            for resName, list_ in value.items():
+                for dict_ in list_:
+                    inst = Resource(self.ctx)
+                    for k, v in dict_.items():
+                        inst[k] = v
+                    if resName not in self.embedded:
+                        self.embedded[resName] = []
+                    self.embedded[resName].append(inst)
         elif key == '_links':
             if isinstance(value, dict):
                 value = [val for val in value.values()]
@@ -277,7 +285,6 @@ class Resource(dict):
                 templated = aff.get('templated', False)
                 name = aff.get('name', '')
                 href = aff.get('href', '')
-
                 self._add_affordance(name, create_affordance(self.ctx, method, href, templated))
         else:
             self.unsaved_state_keys.add(key)
@@ -303,14 +310,14 @@ class Resource(dict):
 
 def create_affordance(ctx, method, href, templated):
     posArgRegEx = re.compile('{([a-zA-Z0-9_]+)}')
-    kwArgRegEx = re.compile('{\?([a-zA-Z0-9_,]+)}')
+    kwArgRegEx = re.compile('{[?&]([a-zA-Z0-9_,]+)}')
 
     def fn(*args, **kwargs):
         if not templated:
             return send(method, ctx, href)
 
         args = [str(arg) for arg in args]
-        kwargs = {k: str(v) for k, v in kwargs.items()}
+        kwargs = {str(k): str(v) for k, v in kwargs.items()}
 
         posArgMatches = posArgRegEx.findall(href)
         kwArgMatches = []
@@ -338,8 +345,22 @@ def create_affordance(ctx, method, href, templated):
             non_templated_href = non_templated_href.replace("{%s}" % posArgMatches[i], args[i])
 
         if kwArgMatches:
-            non_templated_href = non_templated_href[:non_templated_href.index('?')-1]
+            uriParams = kwArgRegEx.sub('', non_templated_href)
+            if '?' in uriParams:
+                uriParams = uriParams[uriParams.index('?')+1:]
+                uriParams = kwArgRegEx.sub('', uriParams)
+                uriParams = uriParams.split('&')
 
+                for param in uriParams:
+                    pair = param.split("=")
+                    if not pair:
+                        continue
+                    if pair[0] not in kwargs:
+                        kwargs[pair[0]] = pair[1] if len(pair) == 2 else ''
+
+            non_templated_href = kwArgRegEx.sub('', non_templated_href)
+            if '?' in non_templated_href:
+                non_templated_href = non_templated_href[:non_templated_href.index('?')]
         dict_ = send(method, ctx, non_templated_href, **kwargs)
         inst = Resource(ctx)
 
@@ -355,6 +376,20 @@ class API(object):
     def __init__(self, ctx):
         self._ctx = ctx
         self._resources = {}
+        self._affordances = {}
+        self.ping()
+
+    def _create_affordance_wrapper(self, aff_name):
+        def fn(thing, *args, **kwargs):
+            res = thing
+            if isinstance(thing, str):
+                if thing not in self._affordances[aff_name]:
+                    raise KeyError("'%s' does not have affordance '%s'" % (thing, aff_name))
+                res = self._resources[thing]
+            elif not isinstance(thing, Resource):
+                raise TypeError("'%s' must be a string or a Resource object" % thing.__class__.__name__)
+            return res.__getattr__(aff_name)(*args, **kwargs)
+        return fn
 
     def ping(self):
         resp = send('options', self._ctx, '/')
@@ -366,13 +401,23 @@ class API(object):
                 name = aff.get('name', '')
                 href = aff.get('href', '')
 
+                if name not in self._affordances:
+                    self._affordances[name] = set()
+                self._affordances[name].add(key)
+
                 res._add_affordance(name, create_affordance(self._ctx, method, href, templated))
             self._resources[key] = res
 
     def __getattr__(self, key):
+        if key not in self._affordances:
+            raise KeyError("KeyError: '%s'" % key)
+        return self._create_affordance_wrapper(key)
+        """
         if key not in self._resources:
             raise KeyError("KeyError: '%s'" % key)
         return self._resources[key]
+        """
+
 
 
 
@@ -380,16 +425,40 @@ def main():
     ctx = Context(
         host="http://api.amberengine.dev",
         port="80",
-        public="fa1018e08a53ffcc318b2120d2ffd594eb8e27a9cd53a231160fecedc4adec18",
-        private="e234a9ed6e43b49715faed62cf51e8d8826b690c3ed84f4fffb4a123798b80e2"
+        public="8abebf3699d76c1707cc192a1627a100888b873e567c85765c0ce52d51129523",
+        private="b8c056bc53fa4dcd3665978da53beab6e24a5b64b33f2f625c3c51fb63858130"
+        #public="fa1018e08a53ffcc318b2120d2ffd594eb8e27a9cd53a231160fecedc4adec18",
+        #private="e234a9ed6e43b49715faed62cf51e8d8826b690c3ed84f4fffb4a123798b80e2"
     )
 
     api = API(ctx)
-    api.ping()
-    #print(json.dumps(api.products.query(limit=1)))
-    p = api.products.retrieve(78702)
-    print(p.self())
+    # api.query("products", limit=5)
+    # p = api.retrieve("products", 78702)
 
+    # p2 = api.update(p)
+
+    # Retrieve some API Keys and refresh one of them...
+    lst = api.query("api_keys", limit=5, offset=20)
+    keys = lst.embedded['api_keys']
+    print("API Key IDs: %s" % ", ".join([str(key['id']) for key in keys]))
+    key = keys[0]
+    key.self()
+
+    """
+    listing = api.products.query(limit=5)
+    p = api.products.retrieve(78702)
+    print(p)
+    #print(p.self()) # return refreshed prod
+    """
+
+    """
+    print(p['identity']['name'])
+    p['identity']['name'] = "foobar"
+    print(p['identity']['name'])
+    """
+
+    # Still need to support how UPDATES/CREATES work with injecting state into
+    # request body.
 
 
 if __name__ == "__main__":
