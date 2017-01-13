@@ -85,8 +85,6 @@ class ServerError(HTTPError):
     pass
 
 
-
-
 def create_url(context, endpoint, **uri_args):
     """ Create a full URL using the context settings, the desired endpoint,
     and any option URI (keyword) arguments.
@@ -113,6 +111,9 @@ def create_url(context, endpoint, **uri_args):
 
 
 def send(method, ctx, endpoint, json_data=None, **uri_params):
+    """ Create and execute an HTTP request at the specified endpoint,
+    with the described method, context, and request data.
+    """
     method = method.lower()
     if method not in ['get', 'post', 'put', 'delete', 'patch', 'options', 'head']:
         raise AttributeError('Bad HTTP method provided: %s' % method)
@@ -233,6 +234,17 @@ class Context(object):
 
 
 class Resource(dict):
+    """ A Resource instance is made up by an internal state, any embedded
+    external resources, and any affordances for the current resource.
+    The state can be accessed via dictionary-notation (eg: res['id']), while
+    the affordance functions can be accessed like normal methods.
+
+    Note that `unsaved_state_keys` is not operational.
+    Note that there may be method naming collisions (like 'update').
+    Note that inserting the current state of the resource into outbound
+    affordance requests has not been implemented yet (so no "update" or "create"
+    functionallity).
+    """
     def __init__(self, ctx):
         super(Resource, self).__init__()
 
@@ -240,10 +252,10 @@ class Resource(dict):
         self.affordances = {}
         self.state = {}
         self.embedded = {}
-        self.unsaved_state_keys = set()
+        self.unsaved_state_keys = set() # not really used for anything yet
 
     def update(self, dict_):
-        # Probobly a naming conflict
+        # Probobly a naming conflict with "update" affordances.
         for k in dict_:
             self.unsaved_state_keys.add(k)
 
@@ -253,8 +265,12 @@ class Resource(dict):
         self.affordances[name] = fn
 
     def __getattr__(self, key):
+        """ The only attributes accessible from a resource should be inheritted
+        dictionary methods, and affordances.
+        """
         if key not in self.affordances:
             raise AttributeError("'%s' has no affordance '%s'" % (self.__class__.__name__, key))
+        # Can inheritted dictionary methods be used? Or does this prevent them?
         return self.affordances[key]
 
     def __getitem__(self, key):
@@ -305,17 +321,39 @@ class Resource(dict):
         )
 
     def __str__(self):
+        """ Printing a Resource instance will result in printing *just* the current
+        state of the resource.
+        Embedded resources and afforances are not currently included.
+        """
         return json.dumps(self.state, sort_keys=True, indent=4)
 
 
 def create_affordance(ctx, method, href, templated):
-    posArgRegEx = re.compile('{([a-zA-Z0-9_]+)}')
-    kwArgRegEx = re.compile('{[?&]([a-zA-Z0-9_,]+)}')
+    """ Create and return a new affordance function, which will be based off
+    the context, method,  href, and templated arguments.
+
+    If the href is templated, it's position arguments become *required*.
+    In addition, if kwargs are provided that do not match any of the optional
+    URI query param keys an error is outputted. (Note that JSON params still
+    need to be supported).
+    """
+    posArgRegEx = re.compile('{([a-zA-Z0-9_]+)}') # Example match: /component/{comp_name}
+    kwArgRegEx = re.compile('{[?&]([a-zA-Z0-9_,]+)}') # Example match: /listing{?limit,offset,sort_by}
 
     def fn(*args, **kwargs):
+        """ This is a dynamically generated function, which utilizes the
+        method type, href url, templated boolean, and Context instance from its
+        parent scope.
+        This function will result in a HTTP call to the API.
+        Postional args replace tempalted positional URI args, while kwargs
+        replace option URI query parameters (and eventually JSON body params).
+        """
+
         if not templated:
+            # href is not tempalted, so we can just do the HTTP call.
             return send(method, ctx, href)
 
+        # Convert args and kwargs (both keys and vals) to be strings.
         args = [str(arg) for arg in args]
         kwargs = {str(k): str(v) for k, v in kwargs.items()}
 
@@ -326,6 +364,8 @@ def create_affordance(ctx, method, href, templated):
         if len(kwMatch) == 1:
             kwArgMatches = kwMatch[0].split(",")
 
+        # Ensure that the number of provided args matches the required number
+        # of positional arguments as determined from the tempalted href.
         if len(args) != len(posArgMatches):
             diff = len(args) - len(posArgMatches)
             if diff > 0:
@@ -337,13 +377,19 @@ def create_affordance(ctx, method, href, templated):
         if kwargs:
             for key, val in kwargs.items():
                 if key not in kwArgMatches:
+                    # Output to StdErr whenever a kwarg does not match any of
+                    # the specified URI query param keys.
                     warnings.warn("function argument '%s' not a valid URI query param" % key, UserWarning)
 
         non_templated_href = href
 
+        # Replace the href positional placeholders with their actual value. As
+        # such, the order of the URI positional params and the provided
+        # function args MUST MATCH.
         for i in range(len(posArgMatches)):
             non_templated_href = non_templated_href.replace("{%s}" % posArgMatches[i], args[i])
 
+        # If we have any URI query params in the href template then...
         if kwArgMatches:
             uriParams = kwArgRegEx.sub('', non_templated_href)
             if '?' in uriParams:
@@ -377,7 +423,7 @@ class API(object):
         self._ctx = ctx
         self._resources = {}
         self._affordances = {}
-        self.ping()
+        self.ping() # Calls the API to get all possible resources and their affordances.
 
     def _create_affordance_wrapper(self, aff_name):
         def fn(thing, *args, **kwargs):
@@ -425,10 +471,10 @@ def main():
     ctx = Context(
         host="http://api.amberengine.dev",
         port="80",
-        public="8abebf3699d76c1707cc192a1627a100888b873e567c85765c0ce52d51129523",
-        private="b8c056bc53fa4dcd3665978da53beab6e24a5b64b33f2f625c3c51fb63858130"
-        #public="fa1018e08a53ffcc318b2120d2ffd594eb8e27a9cd53a231160fecedc4adec18",
-        #private="e234a9ed6e43b49715faed62cf51e8d8826b690c3ed84f4fffb4a123798b80e2"
+        public="8abebf3699d76c1707cc192a1627a100888b873e567c85765c0ce52d51129523", # CM ADMIN
+        private="b8c056bc53fa4dcd3665978da53beab6e24a5b64b33f2f625c3c51fb63858130" # CM ADMIN
+        #public="fa1018e08a53ffcc318b2120d2ffd594eb8e27a9cd53a231160fecedc4adec18",  # Some normal brand
+        #private="e234a9ed6e43b49715faed62cf51e8d8826b690c3ed84f4fffb4a123798b80e2"  # Some normal brand
     )
 
     api = API(ctx)
