@@ -196,7 +196,7 @@ def send(method, ctx, endpoint, json_data=None, **uri_params):
 
 class Context(object):
     """ Context contains contextual data for generating data requests to the
-    API. Used for determining which API is being hit, contains authentication
+    Conn. Used for determining which Conn is being hit, contains authentication
     information, and optional parameters.
     """
     host = ''
@@ -233,8 +233,24 @@ class Context(object):
         return key
 
 
-class Resource(dict):
-    """ A Resource instance is made up by an internal state, any embedded
+class Resource(object):
+    def __init__(self):
+        super(Resource, self).__init__()
+
+        self._affordances = {}
+
+    def _add_affordance(self, name, fn):
+        self._affordances[name] = fn
+
+    def __getattr__(self, key):
+        if key in self._affordances:
+            return self._affordances[key]
+
+        return super(Resource, self).__getattr__(key)
+
+
+class ResourceInstance(object):
+    """ A ResourceInstance instance is made up by an internal state, any embedded
     external resources, and any affordances for the current resource.
     The state can be accessed via dictionary-notation (eg: res['id']), while
     the affordance functions can be accessed like normal methods.
@@ -245,66 +261,47 @@ class Resource(dict):
     affordance requests has not been implemented yet (so no "update" or "create"
     functionallity).
     """
-    def __init__(self, ctx):
-        super(Resource, self).__init__()
+    def __init__(self):
+        super(ResourceInstance, self).__init__()
 
-        self.ctx = ctx
-        self.affordances = {}
         self.state = {}
+        self.affordances = {}
+        self._unsaved_keys = set()
+
         self.embedded = {}
-        self.unsaved_state_keys = set() # not really used for anything yet
 
-    def update(self, dict_):
-        # Probobly a naming conflict with "update" affordances.
-        for k in dict_:
-            self.unsaved_state_keys.add(k)
-
-        return super(Resource, self).update(dict_)
 
     def _add_affordance(self, name, fn):
         self.affordances[name] = fn
 
     def __getattr__(self, key):
-        """ The only attributes accessible from a resource should be inheritted
-        dictionary methods, and affordances.
-        """
-        if key not in self.affordances:
-            raise AttributeError("'%s' has no affordance '%s'" % (self.__class__.__name__, key))
-        # Can inheritted dictionary methods be used? Or does this prevent them?
-        return self.affordances[key]
+        if key in self.affordances:
+            return self.affordances[key]
+        return self.__dict__[key]
 
-    def __getitem__(self, key):
-        if key == 'embedded':
-            return self.embedded
+    def _from_response(self, ctx, dict_):
+        for key, value in dict_.items():
+            if key == '_embedded':
+                for resName, resListing in value.items():
+                    for embeddedState in resListing:
+                        inst = ResourceInstance()
+                        inst._from_response(ctx, embeddedState)
 
-        if key in self.state:
-            return self.state[key]
+                        if resName not in self.embedded:
+                            self.embedded[resName] = []
+                        self.embedded[resName].append(inst)
+            elif key == '_links':
+                if isinstance(value, dict):
+                    value = [val for val in value.values()]
 
-        raise KeyError("'%s'" % key)
-
-    def __setitem__(self, key, value):
-        if key == '_embedded':
-            for resName, list_ in value.items():
-                for dict_ in list_:
-                    inst = Resource(self.ctx)
-                    for k, v in dict_.items():
-                        inst[k] = v
-                    if resName not in self.embedded:
-                        self.embedded[resName] = []
-                    self.embedded[resName].append(inst)
-        elif key == '_links':
-            if isinstance(value, dict):
-                value = [val for val in value.values()]
-
-            for aff in value:
-                method = aff.get('method', 'get')
-                templated = aff.get('templated', False)
-                name = aff.get('name', '')
-                href = aff.get('href', '')
-                self._add_affordance(name, create_affordance(self.ctx, method, href, templated))
-        else:
-            self.unsaved_state_keys.add(key)
-            self.state[key] = value
+                for aff in value:
+                    method = aff.get('method', 'get')
+                    templated = aff.get('templated', False)
+                    name = aff.get('name', '')
+                    href = aff.get('href', '')
+                    self._add_affordance(name, create_affordance(ctx, method, href, templated))
+            else:
+                self.state[key] = value
 
     def __delitem__(self, key):
         if key not in self.state:
@@ -321,7 +318,7 @@ class Resource(dict):
         )
 
     def __str__(self):
-        """ Printing a Resource instance will result in printing *just* the current
+        """ Printing a ResourceInstance instance will result in printing *just* the current
         state of the resource.
         Embedded resources and afforances are not currently included.
         """
@@ -344,7 +341,7 @@ def create_affordance(ctx, method, href, templated):
         """ This is a dynamically generated function, which utilizes the
         method type, href url, templated boolean, and Context instance from its
         parent scope.
-        This function will result in a HTTP call to the API.
+        This function will result in a HTTP call to the Conn.
         Postional args replace tempalted positional URI args, while kwargs
         replace option URI query parameters (and eventually JSON body params).
         """
@@ -408,56 +405,39 @@ def create_affordance(ctx, method, href, templated):
             if '?' in non_templated_href:
                 non_templated_href = non_templated_href[:non_templated_href.index('?')]
         dict_ = send(method, ctx, non_templated_href, **kwargs)
-        inst = Resource(ctx)
+        inst = ResourceInstance()
 
-        for key, val in dict_.items():
-            inst[key] = val
-        inst.unsaved_state_keys = set() # reset unsaved state keys, since we just updated all of them
+        inst._from_response(ctx, dict_)
 
         return inst
     return fn
 
 
-class API(object):
+class Conn(object):
     def __init__(self, ctx):
         self._ctx = ctx
-        self._resources = {}
+        self._gateways = {}
         self._affordances = {}
-        self.ping() # Calls the API to get all possible resources and their affordances.
-
-    def _create_affordance_wrapper(self, aff_name):
-        def fn(thing, *args, **kwargs):
-            res = thing
-            if isinstance(thing, str):
-                if thing not in self._affordances[aff_name]:
-                    raise KeyError("'%s' does not have affordance '%s'" % (thing, aff_name))
-                res = self._resources[thing]
-            elif not isinstance(thing, Resource):
-                raise TypeError("'%s' must be a string or a Resource object" % thing.__class__.__name__)
-            return res.__getattr__(aff_name)(*args, **kwargs)
-        return fn
+        self.ping() # Calls the Conn to get all possible resources and their affordances.
 
     def ping(self):
         resp = send('options', self._ctx, '/')
         for key, val in resp.items():
-            res = Resource(self._ctx)
+            res = Resource()
+            if key in self._gateways:
+                res = self._gateways[key]
             for aff in val:
                 method = aff.get('method', 'get')
                 templated = aff.get('templated', False)
                 name = aff.get('name', '')
                 href = aff.get('href', '')
 
-                if name not in self._affordances:
-                    self._affordances[name] = set()
-                self._affordances[name].add(key)
 
                 res._add_affordance(name, create_affordance(self._ctx, method, href, templated))
-            self._resources[key] = res
+            self._gateways[key] = res
 
     def __getattr__(self, key):
-        if key not in self._affordances:
-            raise KeyError("KeyError: '%s'" % key)
-        return self._create_affordance_wrapper(key)
+        return self._gateways[key]
         """
         if key not in self._resources:
             raise KeyError("KeyError: '%s'" % key)
@@ -477,19 +457,88 @@ def main():
         #private="e234a9ed6e43b49715faed62cf51e8d8826b690c3ed84f4fffb4a123798b80e2"  # Some normal brand
     )
 
-    api = API(ctx)
+    api = Conn(ctx)
+    lst = api.api_keys.query(limit=1, filtering=Predicate())
+    p = lst.embedded["api_keys"][0]
+
+    print(p.self())
+    # print(p.schema()) # implement this later
+
     # api.query("products", limit=5)
     # p = api.retrieve("products", 78702)
 
     # p2 = api.update(p)
 
-    # Retrieve some API Keys and refresh one of them...
-    lst = api.query("api_keys", limit=5, offset=20)
-    keys = lst.embedded['api_keys']
-    print("API Key IDs: %s" % ", ".join([str(key['id']) for key in keys]))
-    key = keys[0]
-    key.self()
+    # Retrieve some Conn Keys and refresh one of them...
 
+
+    """lst = api.query("api_keys", limit=5, offset=20)
+    keys = lst.embedded['api_keys']
+    print("Conn Key IDs: %s" % ", ".join([str(key['id']) for key in keys]))
+    key = keys[0]
+
+
+    key = api.self(key)
+    key = api.update(key)
+
+    key = api.update(key)
+    product.update()
+
+
+    api.products['create'](body={})
+
+    api.products.retrieve(412, body={})
+    api.products.query(body={'filtering': Predicate()})
+    api.products.update("142kjn12jn4k12", body={})
+    api.products.patch("412", body={})
+    api.products.delete(123, body={})
+    api.products.delete(body={"id": [123, 432]})
+
+    prod = api.products.retrieve({}, 412)
+    prod = prod.self()
+    prod = prod.save()
+    prod = prod.delete()
+
+
+    api.products.save("!23", body={"description": {"keywords": ["my keyword"]}})
+
+    prod._state = {"identity": Object()}
+    prod.state
+    prod.from_dict()
+    prod.from_json()
+
+
+    prod.identity = {"name": 123, "sku": "54rg34aga"}
+    prod.update()
+    prod.patch()
+    prod.save()
+
+
+
+    key = api.update("product", body={"state": "here"})
+    api.product.update({}, 1337, owner_type="")
+    api.product.id = ""
+
+    api.product.query == Product().query()
+    api.product.query == send("product", "GET", dasDasdads)
+
+
+    key = key.create()
+    key = api.api_key.create({"state": "here"})
+
+
+
+
+    key.update()
+    key.self()
+    lst = api.query("api_keys", limit=5, offset=20)
+
+
+
+
+    key = api.retrieve("api_keys", 1337)
+    lst = api.query("products", owner_type="", filtering=None, etc="etc")
+    """
     """
     listing = api.products.query(limit=5)
     p = api.products.retrieve(78702)
