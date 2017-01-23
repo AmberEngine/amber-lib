@@ -1,4 +1,5 @@
-HTTP_ERRORS = {}
+HTTP_ERRORS = {} # Keys are HTTP status codes, values are Error classes.
+
 
 def http_error(number):
     def inner(class_):
@@ -8,64 +9,63 @@ def http_error(number):
     return inner
 
 
-class HTTPError(Exception):
+class Error(Exception):
+    """Base class for all amber_lib errors."""
     def __init__(self, *args, **kwargs):
-
-        super(HTTPError, self).__init__(*args, **kwargs)
+        super(Error, self).__init__(*args, **kwargs)
 
 
 @http_error(400)
-class BadRequest(HTTPError):
+class BadRequest(Error):
     pass
 
 
 @http_error(401)
-class Unauthorized(HTTPError):
+class Unauthorized(Error):
     pass
 
 
 @http_error(403)
-class Forbidden(HTTPError):
+class Forbidden(Error):
     pass
 
 
 @http_error(404)
-class NotFound(HTTPError):
+class NotFound(Error):
     pass
 
 
 @http_error(405)
-class MethodNotAllowed(HTTPError):
+class MethodNotAllowed(Error):
     pass
 
 
 @http_error(406)
-class NotAcceptable(HTTPError):
+class NotAcceptable(Error):
     pass
 
 
 @http_error(410)
-class Gone(HTTPError):
+class Gone(Error):
     pass
 
 
 @http_error(415)
-class UnsupportedMediaType(HTTPError):
+class UnsupportedMediaType(Error):
     pass
 
 
 @http_error(418)
-class ImaTeapot(HTTPError):
+class ImaTeapot(Error):
     pass
 
 
 @http_error(419)
-class AuthenticationTimeout(HTTPError):
+class AuthenticationTimeout(Error):
     pass
 
 
 @http_error(500)
-class ServerError(HTTPError):
+class ServerError(Error):
     pass
-
 

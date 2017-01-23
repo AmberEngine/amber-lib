@@ -1,18 +1,18 @@
-import base64
-import hashlib
-import json
 from datetime import datetime
 from urllib.parse import quote, urlparse
+import base64
+import functools
+import hashlib
+import json
 import re
 import warnings
-import functools
 
 import requests
 
+
 def create_url(context, endpoint, **uri_args):
-    """ Create a full URL using the context settings, the desired endpoint,
-    and any option URI (keyword) arguments.
-    """
+    """ Create a full URL using the provided components."""
+
     host = context.host.rstrip('/')
     url = '%s:%s%s' % (host, context.port, endpoint)
 
@@ -35,6 +35,12 @@ def create_url(context, endpoint, **uri_args):
 
 
 def send(method, cfg, endpoint, json_data=None, **uri_params):
+    """Execute an HTTP request constructed from the provided parameters.
+
+    The method must be a valid HTTP method. Body data is sent in JSON format,
+    and must be `None` or a dictionary. URI Params are key-value pairs which
+    must be string-able.
+    """
     method = method.lower()
 
     if cfg.debug:
@@ -54,6 +60,8 @@ def send(method, cfg, endpoint, json_data=None, **uri_params):
         return json.dumps(data, sort_keys=True, separators=(',', ':'))
 
     url = create_url(cfg, endpoint, **uri_params)
+
+    # Convert JSON data to a string. If no JSON data, we send an empty object.
     if json_data:
         payload = dump(json_data)
     else:
@@ -94,8 +102,10 @@ def send(method, cfg, endpoint, json_data=None, **uri_params):
     headers['Authorization'] = 'Bearer %s' % auth_string
 
     r = None
+    # If request fails and status code is any of the following, attempt a rety.
     retry_on = [408, 419, 500, 502, 504]
     attempts = 0
+
     while attempts < cfg.request_attempts:
         r = getattr(requests, method)(url, data=payload, headers=headers)
         status = r.status_code
@@ -115,7 +125,7 @@ def send(method, cfg, endpoint, json_data=None, **uri_params):
         elif status in retry_on:
             attempts += 1
         else:
-            break
+            break # No more attempts. We need to error-out.
     error = {}
     try:
         error = r.json()
@@ -136,6 +146,8 @@ def send(method, cfg, endpoint, json_data=None, **uri_params):
                 )
             )
         )
+
+    # Try to raise an amber_lib.Error exception.
     status_code = r.status_code
     if status_code in HTTP_ERRORS:
         raise HTTP_ERRORS[status_code](method, url)
@@ -144,6 +156,8 @@ def send(method, cfg, endpoint, json_data=None, **uri_params):
 
 
 class BaseResource(object):
+    """ Represents generic affordances for a single API resource."""
+
     def __init__(self):
         super(BaseResource, self).__init__()
 
@@ -160,17 +174,13 @@ class BaseResource(object):
 
 
 class ResourceInstance(object):
-    """ A ResourceInstance instance is made up by an internal state, any embedded
-    external resources, and any affordances for the current resource.
-    The state can be accessed via dictionary-notation (eg: res['id']), while
-    the affordance functions can be accessed like normal methods.
+    """ Represent the state, affordances, and embedded entities for a Resource.
 
+    State will always be a normal dictionary. Any embedded entities will be
+    ResourceInstance instances, with their own state, affordances, etc.
     Note that `unsaved_state_keys` is not operational.
-    Note that there may be method naming collisions (like 'update').
-    Note that inserting the current state of the resource into outbound
-    affordance requests has not been implemented yet (so no "update" or "create"
-    functionallity).
     """
+
     def __init__(self):
         super(ResourceInstance, self).__init__()
 
@@ -228,15 +238,18 @@ class ResourceInstance(object):
         )
 
     def __str__(self):
-        """ Printing a ResourceInstance instance will result in printing *just* the current
-        state of the resource.
-        Embedded resources and afforances are not currently included.
+        """ Print the state of the current Resource (in JSON).
+
+        Print the current state of the Resource as a JSOn string. Note that
+        embedded resources and afforances are not included.
         """
         return json.dumps(self.state, sort_keys=True, indent=4)
 
 
 def create_affordance(cfg, method, href, templated):
-    """ Create and return a new affordance function, which will be based off
+    """Create and return a new affordance function based on provided args.
+
+    Create and return a new affordance function, which will be based off
     the context, method,  href, and templated arguments.
 
     If the href is templated, it's position arguments become *required*.
@@ -254,10 +267,11 @@ def create_affordance(cfg, method, href, templated):
     kwArgRegEx = re.compile('{[?&]([a-zA-Z0-9_,]+)}') # Example match: /listing{?limit,offset,sort_by}
 
     def fn(*args, **kwargs):
-        """ This is a dynamically generated function, which utilizes the
+        """Dynamically generated function for performing an API request.
+
+        This is a dynamically generated function, which utilizes the
         method type, href url, templated boolean, and Context instance from its
         parent scope.
-        This function will result in a HTTP call to the Conn.
         Postional args replace tempalted positional URI args, while kwargs
         replace option URI query parameters (and eventually JSON body params).
         """
