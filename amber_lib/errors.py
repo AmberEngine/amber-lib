@@ -9,12 +9,9 @@ def http_error(number):
 
 
 class HTTPError(Exception):
-    def __init__(self, code, title, description):
-        self.code = code
-        self.title = title
-        self.description = description
+    def __init__(self, *args, **kwargs):
 
-        Exception.__init__(self, self.description)
+        super(HTTPError, self).__init__(*args, **kwargs)
 
 
 @http_error(400)
@@ -70,3 +67,5 @@ class AuthenticationTimeout(HTTPError):
 @http_error(500)
 class ServerError(HTTPError):
     pass
+
+
