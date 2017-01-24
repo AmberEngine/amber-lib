@@ -10,6 +10,48 @@ import warnings
 import requests
 
 
+class NamedDict(dict):
+    """A dictionary whose items can be accessed using 'dot notation'.
+
+    NamedDict is a dictionary with overloaded __getattr__ and __setattr__
+    methods, allowing access to stored items using both dictionary-access
+    and class-attribute dot-notation.
+
+    For example:
+
+        >>> foo = NamedDict({"fizz": "buzz"})
+        >>> print(foo.fizz)
+        buzz
+        >>> print(foo["fizz"])
+        buzz
+
+    Whenever an item is set into the dict (including at initialization),
+    if the value is a dictionary then it is converted into a NamedDict.
+    """
+
+    def __init__(self, dict_=None, *args, **kwargs):
+        if not dict_:
+            return
+
+        if not isinstance(dict_, dict):
+            raise TypeError('\'dict_\' is not a dict')
+
+        for k, v in dict_.items():
+            if isinstance(v, dict):
+                v = NamedDict(v) # Convert all stored dicts to NamedDicts
+            self[k] = v
+
+        super(NamedDict, self).__init__(*args, **kwargs)
+
+    def __getattr__(self, key):
+        return super(NamedDict, self).__getitem__(key)
+
+    def __setattr__(self, key, value):
+        if isinstance(value, dict):
+            value = NamedDict(value) # Convert all stored dicts to NamedDicts
+        return super(NamedDict, self).__setitem__(key, value)
+
+
 def create_url(context, endpoint, **uri_args):
     """ Create a full URL using the provided components."""
 
@@ -178,17 +220,14 @@ class ResourceInstance(object):
 
     State will always be a normal dictionary. Any embedded entities will be
     ResourceInstance instances, with their own state, affordances, etc.
-    Note that `unsaved_state_keys` is not operational.
     """
 
     def __init__(self):
         super(ResourceInstance, self).__init__()
 
-        self.state = {}
-        self.affordances = {}
-        self._unsaved_keys = set()
-
-        self.embedded = {}
+        self.state = NamedDict()
+        self.affordances = NamedDict()
+        self.embedded = NamedDict()
 
 
     def _add_affordance(self, name, fn):
@@ -197,7 +236,10 @@ class ResourceInstance(object):
     def __getattr__(self, key):
         if key in self.affordances:
             return self.affordances[key]
-        return self.__dict__[key]
+        return self.state[key]
+
+    def __setattr__(self, key, value):
+        self.state[key] = value
 
     def _from_response(self, cfg, dict_):
         for key, value in dict_.items():
@@ -227,7 +269,6 @@ class ResourceInstance(object):
         if key not in self.state:
             raise KeyError("'%s'" % key)
 
-        self.unsaved_state_keys.remove(key)
         del self.state[key]
 
     def __repr__(self):
