@@ -9,7 +9,7 @@ import warnings
 
 import requests
 
-from amber_lib import query
+from amber_lib import errors, query
 
 
 class NamedDict(dict):
@@ -196,8 +196,8 @@ def send(method, cfg, endpoint, json_data=None, **uri_params):
 
     # Try to raise an amber_lib.Error exception.
     status_code = r.status_code
-    if status_code in HTTP_ERRORS:
-        raise HTTP_ERRORS[status_code](method, url)
+    if status_code in errors.HTTP_ERRORS:
+        raise errors.HTTP_ERRORS[status_code](method, url)
     else:
         raise Exception(method, url)
 
