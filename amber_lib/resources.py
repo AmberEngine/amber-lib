@@ -232,7 +232,7 @@ class BaseResource(object):
         if key in self._affordances:
             return self._affordances[key]
 
-        return super(BaseResource, self).__getattr__(key)
+        raise AttributeError("'%s' does not exist" % key)
 
 
 class ResourceInstance(object):
@@ -281,7 +281,23 @@ class ResourceInstance(object):
                     templated = aff.get('templated', False)
                     name = aff.get('name', '')
                     href = aff.get('href', '')
-                    self._add_affordance(name, functools.partial(create_affordance(cfg, method, href, templated), body=self.state))
+                    body_params = aff.get('body_params', {})
+
+                    body = self.state.copy()
+                    body.update(body_params)
+
+                    self._add_affordance(
+                        name,
+                        functools.partial(
+                            create_affordance(
+                                cfg,
+                                method,
+                                href,
+                                templated
+                            ),
+                            body=body
+                        )
+                    )
             else:
                 self.state[key] = value
 

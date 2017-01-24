@@ -68,7 +68,7 @@ def _get_base_resource(cfg, res):
                     'current available resources: %s' % available_res
                 )
             )
-        raise AttributeError('API has not resource \'%s\'', res)
+        raise AttributeError('API does not have resource \'%s\'' % res)
 
     return _base_resources[res]
 
