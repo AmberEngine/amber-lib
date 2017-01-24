@@ -225,9 +225,9 @@ class ResourceInstance(object):
     def __init__(self):
         super(ResourceInstance, self).__init__()
 
-        self.state = NamedDict()
-        self.affordances = NamedDict()
-        self.embedded = NamedDict()
+        super(ResourceInstance, self).__setattr__('state', NamedDict())
+        super(ResourceInstance, self).__setattr__('affordances', NamedDict())
+        super(ResourceInstance, self).__setattr__('embedded', NamedDict())
 
 
     def _add_affordance(self, name, fn):
