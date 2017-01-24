@@ -54,6 +54,18 @@ class NamedDict(dict):
         return super(NamedDict, self).__setitem__(key, value)
 
 
+class EmbeddedResources(NamedDict):
+    def __getattr__(self, key):
+        if key not in self:
+            return []
+        return super(EmbeddedResources, self).__getattr__(key)
+
+    def __getitem__(self, key):
+        if key not in self:
+            return []
+        return super(EmbeddedResources, self).__getitem__(key)
+
+
 def create_url(context, endpoint, **uri_args):
     """ Create a full URL using the provided components."""
 
@@ -235,7 +247,7 @@ class ResourceInstance(object):
 
         super(ResourceInstance, self).__setattr__('state', NamedDict())
         super(ResourceInstance, self).__setattr__('affordances', NamedDict())
-        super(ResourceInstance, self).__setattr__('embedded', NamedDict())
+        super(ResourceInstance, self).__setattr__('embedded', EmbeddedResources())
 
 
     def _add_affordance(self, name, fn):
