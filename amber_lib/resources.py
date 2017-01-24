@@ -12,6 +12,12 @@ import requests
 from amber_lib import errors, query
 
 
+def _def_wrapper_recursion(val):
+    if isinstance(val, dict):
+        return DictionaryWrapper(val)
+    if isinstance(val, (list, tuple)):
+        return [_def_wrapper_recursion(e) for e in val]
+    return val
 
 class DictionaryWrapper(dict):
     """A dictionary whose items can be accessed using 'dot notation'.
@@ -40,8 +46,6 @@ class DictionaryWrapper(dict):
             raise TypeError('\'dict_\' is not a dict')
 
         for k, v in dict_.items():
-            if isinstance(v, dict):
-                v = DictionaryWrapper(v) # Convert all stored dicts to DictionaryWrappers
             self[k] = v
 
         super(DictionaryWrapper, self).__init__(*args, **kwargs)
@@ -50,14 +54,16 @@ class DictionaryWrapper(dict):
         return super(DictionaryWrapper, self).__getitem__(key)
 
     def __setattr__(self, key, value):
-        if isinstance(value, dict):
-            value = DictionaryWrapper(value) # Convert all stored dicts to DictionaryWrappers
-        return super(DictionaryWrapper, self).__setitem__(key, value)
+        return super(DictionaryWrapper, self).__setitem__(
+            key,
+            _def_wrapper_recursion(value)
+        )
 
     def __setitem__(self, key, value):
-        if isinstance(value, dict):
-            value = DictionaryWrapper(value)
-        return super(DictionaryWrapper, self).__setitem__(key, value)
+        return super(DictionaryWrapper, self).__setitem__(
+            key,
+            _def_wrapper_recursion(value)
+        )
 
 
 def create_url(context, endpoint, **uri_args):
