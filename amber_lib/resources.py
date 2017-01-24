@@ -12,23 +12,24 @@ import requests
 from amber_lib import errors, query
 
 
-class NamedDict(dict):
+
+class DictionaryWrapper(dict):
     """A dictionary whose items can be accessed using 'dot notation'.
 
-    NamedDict is a dictionary with overloaded __getattr__ and __setattr__
+    DictionaryWrapper is a dictionary with overloaded __getattr__ and __setattr__
     methods, allowing access to stored items using both dictionary-access
     and class-attribute dot-notation.
 
     For example:
 
-        >>> foo = NamedDict({"fizz": "buzz"})
+        >>> foo = DictionaryWrapper({"fizz": "buzz"})
         >>> print(foo.fizz)
         buzz
         >>> print(foo["fizz"])
         buzz
 
-    Whenever an item is set into the dict (including at initialization),
-    if the value is a dictionary then it is converted into a NamedDict.
+    Additionally, whenever an item is set into the dict (including at initialization),
+    if the value is a dictionary then it is converted into a DictionaryWrapper.
     """
 
     def __init__(self, dict_=None, *args, **kwargs):
@@ -40,30 +41,23 @@ class NamedDict(dict):
 
         for k, v in dict_.items():
             if isinstance(v, dict):
-                v = NamedDict(v) # Convert all stored dicts to NamedDicts
+                v = DictionaryWrapper(v) # Convert all stored dicts to DictionaryWrappers
             self[k] = v
 
-        super(NamedDict, self).__init__(*args, **kwargs)
+        super(DictionaryWrapper, self).__init__(*args, **kwargs)
 
     def __getattr__(self, key):
-        return super(NamedDict, self).__getitem__(key)
+        return super(DictionaryWrapper, self).__getitem__(key)
 
     def __setattr__(self, key, value):
         if isinstance(value, dict):
-            value = NamedDict(value) # Convert all stored dicts to NamedDicts
-        return super(NamedDict, self).__setitem__(key, value)
+            value = DictionaryWrapper(value) # Convert all stored dicts to DictionaryWrappers
+        return super(DictionaryWrapper, self).__setitem__(key, value)
 
-
-class EmbeddedResources(NamedDict):
-    def __getattr__(self, key):
-        if key not in self:
-            return []
-        return super(EmbeddedResources, self).__getattr__(key)
-
-    def __getitem__(self, key):
-        if key not in self:
-            return []
-        return super(EmbeddedResources, self).__getitem__(key)
+    def __setitem__(self, key, value):
+        if isinstance(value, dict):
+            value = DictionaryWrapper(value)
+        return super(DictionaryWrapper, self).__setitem__(key, value)
 
 
 def create_url(context, endpoint, **uri_args):
@@ -245,9 +239,9 @@ class ResourceInstance(object):
     def __init__(self):
         super(ResourceInstance, self).__init__()
 
-        super(ResourceInstance, self).__setattr__('state', NamedDict())
-        super(ResourceInstance, self).__setattr__('affordances', NamedDict())
-        super(ResourceInstance, self).__setattr__('embedded', EmbeddedResources())
+        super(ResourceInstance, self).__setattr__('state', DictionaryWrapper())
+        super(ResourceInstance, self).__setattr__('affordances', DictionaryWrapper())
+        super(ResourceInstance, self).__setattr__('embedded', DictionaryWrapper())
 
 
     def _add_affordance(self, name, fn):
