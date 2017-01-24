@@ -107,7 +107,7 @@ def send(method, cfg, endpoint, json_data=None, **uri_params):
 
     # Convert JSON data to a string. If no JSON data, we send an empty object.
     if json_data:
-        for k, v in json_data:
+        for k, v in json_data.items():
             if isinstance(v, (query.Predicate, query.WhereItem)):
                 json_data[k] = v.to_dict()
         payload = dump(json_data)
