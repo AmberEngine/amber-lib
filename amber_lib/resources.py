@@ -65,6 +65,19 @@ class DictionaryWrapper(dict):
             _def_wrapper_recursion(value)
         )
 
+    def update(self, dict_):
+        """ Override default `update` method to modify any dictionary values.
+
+        Use DictionaryWrapper.__setitem__ method to update all values in the
+        provided dictionary, rather than the mixed-in dict.__setitem__, because
+        we need to convert all dictionaries in the provided arugment into
+        DictionaryWrapper instances themselves.
+        """
+        if not isinstance(dict_, dict):
+            raise TypeError("'%s' object is not iterable" % dict_.__class__.__name__)
+        for key, value in dict_.items():
+            self[key] = value
+
 
 def create_url(context, endpoint, **uri_args):
     """ Create a full URL using the provided components."""
