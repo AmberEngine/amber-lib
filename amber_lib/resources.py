@@ -284,6 +284,8 @@ class ResourceInstance(object):
                     body_params = aff.get('body_params', {})
 
                     body = self.state.copy()
+                    if not body:
+                        body = {}
                     body.update(body_params)
 
                     self._add_affordance(
