@@ -268,7 +268,7 @@ class ResourceInstance(object):
 
     def __getattr__(self, key):
         if key in self.affordances:
-            return self.affordances[key]
+            return functools.partial(self.affordances[key], body=self.state)
         return self.state[key]
 
     def __setattr__(self, key, value):
@@ -296,7 +296,7 @@ class ResourceInstance(object):
                     href = aff.get('href', '')
                     body_params = aff.get('body_params', {})
 
-                    body = self.state.copy()
+                    body = {}
                     if body_params:
                         body.update(body_params)
 
