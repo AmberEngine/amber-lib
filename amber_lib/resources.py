@@ -275,6 +275,36 @@ class ResourceInstance(object):
         self.state[key] = value
 
     def _from_response(self, cfg, dict_):
+        def unserialize_link(link_dict):
+            method = link_dict.get("method", "get")
+            templated = link_dict.get("templated", False)
+            name = link_dict.get("name", "")
+            href = link_dict.get("href", "")
+            body_params = link_dict.get("body_params", {})
+
+            body = {}
+            if body_params:
+                body.update(body_params)
+
+            kids = {}
+            for kid in link_dict.get("children", []):
+                l = unserialize_link(kid)
+                kids[l.name] = l
+            if kids:
+                return DictionaryWrapper(kids)
+            else:
+                return functools.partial(
+                    create_affordance(
+                        cfg,
+                        method,
+                        href,
+                        templated
+                    ),
+                    body=body
+                )
+
+
+
         for key, value in dict_.items():
             if key == '_embedded':
                 for resName, resListing in value.items():
@@ -288,29 +318,10 @@ class ResourceInstance(object):
             elif key == '_links':
                 if isinstance(value, dict):
                     value = [val for val in value.values()]
-
                 for aff in value:
-                    method = aff.get('method', 'get')
-                    templated = aff.get('templated', False)
-                    name = aff.get('name', '')
-                    href = aff.get('href', '')
-                    body_params = aff.get('body_params', {})
-
-                    body = {}
-                    if body_params:
-                        body.update(body_params)
-
                     self._add_affordance(
-                        name,
-                        functools.partial(
-                            create_affordance(
-                                cfg,
-                                method,
-                                href,
-                                templated
-                            ),
-                            body=body
-                        )
+                        aff.get("name"),
+                        unserialize_link(aff)
                     )
             else:
                 self.state[key] = value
