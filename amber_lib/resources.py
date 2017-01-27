@@ -268,7 +268,10 @@ class ResourceInstance(object):
 
     def __getattr__(self, key):
         if key in self.affordances:
-            return functools.partial(self.affordances[key], body=self.state)
+            if callable(self.affordances[key]):
+                return functools.partial(self.affordances[key], body=self.state)
+            else:
+                return self.affordances[key] # TODO TODO TODO THIS DOES NOT PROVIDE STATE!
         return self.state[key]
 
     def __setattr__(self, key, value):
@@ -289,9 +292,9 @@ class ResourceInstance(object):
             kids = {}
             for kid in link_dict.get("children", []):
                 l = unserialize_link(kid)
-                kids[l.name] = l
+                kids[kid["name"]] = l
             if kids:
-                return DictionaryWrapper(kids)
+                return DictionaryWrapper(kids) # THIS WONT WORK WITH INJECTION STATE!! TODO TODO TODO
             else:
                 return functools.partial(
                     create_affordance(
