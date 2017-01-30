@@ -67,7 +67,7 @@ class And(WhereItem):
         else:
             raise TypeError("'%s' must be a Predicate or WhereItem" % first)
 
-        for item in self.items:
+        for item in self.items[1:]:
             item.operand = "AND"
 
 
@@ -106,6 +106,6 @@ class Or(WhereItem):
         else:
             raise TypeError("'%s' must be a Predicate or WhereItem" % first)
 
-        for item in self.items:
+        for item in self.items[1:]:
             item.operand = "AND"
 
