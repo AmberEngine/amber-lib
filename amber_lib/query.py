@@ -73,7 +73,7 @@ class And(WhereItem):
 
 class Or(WhereItem):
     def __init__(self, first, second, *args):
-        super(And, self).__init__()
+        super(Or, self).__init__()
 
         children = [second]
         if args:
