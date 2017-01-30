@@ -389,10 +389,7 @@ def create_affordance(cfg, method, href, templated):
         if not templated:
             # href is not tempalted, so we can just do the HTTP call.
             for key, val in kwargs.items():
-                if key not in kwArgMatches:
-                    # Output to StdErr whenever a kwarg does not match any of
-                    # the specified URI query param keys.
-                    warnings.warn("function argument '%s' not a valid URI query param" % key, UserWarning)
+                warnings.warn("function kwarg '%s' not a valid URI query param" % key, UserWarning)
             dict_ = send(method, cfg, href, json_data=body, **kwargs)
             inst = ResourceInstance()
             inst._from_response(cfg, dict_)
