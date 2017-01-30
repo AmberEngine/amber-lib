@@ -61,10 +61,14 @@ class And(WhereItem):
             self.pred = first
             self.items = children
         elif isinstance(first, WhereItem):
-            if not first.items:
-                self.items += first.items + children
+            self.operand = ""
+            self.pred = None
+            self.items = [first] + children
         else:
             raise TypeError("'%s' must be a Predicate or WhereItem" % first)
+
+        for item in self.items:
+            item.operand = "AND"
 
 
 class Or(WhereItem):
@@ -96,9 +100,12 @@ class Or(WhereItem):
             self.pred = first
             self.items = children
         elif isinstance(first, WhereItem):
-            if not first.items:
-                self.items += first.items + children
+            self.operand = ""
+            self.pred = None
+            self.items = [first] + children
         else:
             raise TypeError("'%s' must be a Predicate or WhereItem" % first)
 
+        for item in self.items:
+            item.operand = "AND"
 
