@@ -34,6 +34,8 @@ class Predicate(object):
 
 class And(WhereItem):
     def __init__(self, first, second, *args):
+        super(And, self).__init__()
+
         children = [second]
         if args:
             children += args
@@ -67,6 +69,8 @@ class And(WhereItem):
 
 class Or(WhereItem):
     def __init__(self, first, second, *args):
+        super(And, self).__init__()
+
         children = [second]
         if args:
             children += args
