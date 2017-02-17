@@ -2,6 +2,16 @@ from amber_lib.models.bases import Model, Property, resource
 from amber_lib import client
 from amber_lib.errors import MethodNotAllowed
 
+
+
+
+@resource('skus')
+class SKU(Model):
+    sku = Property(str)
+    product_id = Property(int)
+    owner_type = Property(str)
+    owner_id = Property(int)
+
 @resource('api_keys')
 class APIKey(Model):
     brand_id = Property(int)
