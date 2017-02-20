@@ -149,7 +149,8 @@ class Container(object):
         self.batch_size = dict_.get('count', self.total)
 
         embedded = dict_.get('_embedded', {}).get(self.kind, [])
-        self.__append(embedded)
+        if embedded:
+            self.__append(embedded)
 
     def __iter__(self):
         """ Yield sequential values from the total entries available.
