@@ -289,7 +289,11 @@ class ResourceInstance(DictionaryWrapper):
                     ),
                     body=body
                 )
-                return type('Link', (dict,), {'__call__': new_call})()
+                link = type('Link', (dict,), {'__call__': new_call})()
+                link['method'] = method
+                link['href'] = href
+                link['templated'] = templated
+                return link
 
         for key, value in dict_.items():
             if key == '_embedded' and isinstance(value, dict):
