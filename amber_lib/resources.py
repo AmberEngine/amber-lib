@@ -248,34 +248,18 @@ class BaseResource(object):
         raise AttributeError("'%s' does not exist" % key)
 
 
-class ResourceInstance(object):
+class ResourceInstance(DictionaryWrapper):
     """ Represent the state, affordances, and embedded entities for a Resource.
 
     State will always be a normal dictionary. Any embedded entities will be
     ResourceInstance instances, with their own state, affordances, etc.
     """
 
-    def __init__(self):
-        super(ResourceInstance, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        super(ResourceInstance, self).__setattr__('state', DictionaryWrapper())
-        super(ResourceInstance, self).__setattr__('affordances', DictionaryWrapper())
-        super(ResourceInstance, self).__setattr__('embedded', DictionaryWrapper())
-
-
-    def _add_affordance(self, name, fn):
-        self.affordances[name] = fn
-
-    def __getattr__(self, key):
-        if key in self.affordances:
-            if callable(self.affordances[key]):
-                return functools.partial(self.affordances[key], body=self.state)
-            else:
-                return self.affordances[key] # TODO TODO TODO THIS DOES NOT PROVIDE STATE!
-        return self.state[key]
-
-    def __setattr__(self, key, value):
-        self.state[key] = value
+        self.affordances = DictionaryWrapper()
+        self.embedded = DictionaryWrapper()
 
     def _from_response(self, cfg, dict_):
         def unserialize_link(link_dict):
@@ -296,7 +280,7 @@ class ResourceInstance(object):
             if kids:
                 return DictionaryWrapper(kids) # THIS WONT WORK WITH INJECTION STATE!! TODO TODO TODO
             else:
-                return functools.partial(
+                new_call = functools.partial(
                     create_affordance(
                         cfg,
                         method,
@@ -305,8 +289,7 @@ class ResourceInstance(object):
                     ),
                     body=body
                 )
-
-
+                return type('Link', (dict,), {'__call__': new_call})()
 
         for key, value in dict_.items():
             if key == '_embedded' and isinstance(value, dict):
@@ -322,18 +305,9 @@ class ResourceInstance(object):
                 if isinstance(value, dict):
                     value = [val for val in value.values()]
                 for aff in value:
-                    self._add_affordance(
-                        aff.get("name"),
-                        unserialize_link(aff)
-                    )
+                    self.affordances[aff.get('name')] = unserialize_link(aff)
             else:
-                self.state[key] = value
-
-    def __delitem__(self, key):
-        if key not in self.state:
-            raise KeyError("'%s'" % key)
-
-        del self.state[key]
+                self[key] = value
 
     def __repr__(self):
         return "<%s '%s' at %s>" % (
@@ -345,10 +319,10 @@ class ResourceInstance(object):
     def __str__(self):
         """ Print the state of the current Resource (in JSON).
 
-        Print the current state of the Resource as a JSOn string. Note that
+        Print the current state of the Resource as a JSON string. Note that
         embedded resources and afforances are not included.
         """
-        return json.dumps(self.state, sort_keys=True, indent=4)
+        return json.dumps(self, sort_keys=True, indent=4)
 
 
 def create_affordance(cfg, method, href, templated):
