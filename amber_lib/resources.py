@@ -309,7 +309,7 @@ class ResourceInstance(object):
 
 
         for key, value in dict_.items():
-            if key == '_embedded':
+            if key == '_embedded' and isinstance(value, dict):
                 for resName, resListing in value.items():
                     for embeddedState in resListing:
                         inst = ResourceInstance()
@@ -318,7 +318,7 @@ class ResourceInstance(object):
                         if resName not in self.embedded:
                             self.embedded[resName] = []
                         self.embedded[resName].append(inst)
-            elif key == '_links':
+            elif key == '_links' and isinstance(value, dict):
                 if isinstance(value, dict):
                     value = [val for val in value.values()]
                 for aff in value:
