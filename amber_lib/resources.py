@@ -315,7 +315,7 @@ class ResourceInstance(DictionaryWrapper):
 
     def __repr__(self):
         return "<%s '%s' at %s>" % (
-            'empty' if not self.state else 'populated',
+            'empty' if not self else 'populated',
             self.__class__.__name__,
             hex(id(self))
         )
