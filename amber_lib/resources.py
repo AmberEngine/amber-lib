@@ -298,7 +298,7 @@ class ResourceInstance(DictionaryWrapper):
         for key, value in dict_.items():
             if key == '_embedded' and isinstance(value, dict):
                 for resName, resListing in value.items():
-                    for embeddedState in resListing:
+                    for embeddedState in resListing.Values():
                         inst = ResourceInstance()
                         inst._from_response(cfg, embeddedState)
 
