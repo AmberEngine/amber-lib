@@ -13,6 +13,8 @@ from amber_lib import errors, query
 
 
 def _def_wrapper_recursion(val):
+    if isinstance(val, DictionaryWrapper):
+        return val
     if isinstance(val, dict):
         return DictionaryWrapper(val)
     if isinstance(val, (list, tuple)):
@@ -175,7 +177,6 @@ def send(method, cfg, endpoint, json_data=None, **uri_params):
         auth_string = sig
 
     headers['Authorization'] = 'Bearer %s' % auth_string
-
     r = None
     # If request fails and status code is any of the following, attempt a rety.
     retry_on = [408, 419, 500, 502, 504]
@@ -289,7 +290,7 @@ class ResourceInstance(DictionaryWrapper):
                     ),
                     body=body
                 )
-                link = type('Link', (dict,), {'__call__': new_call})()
+                link = type('Link', (DictionaryWrapper,), {'__call__': new_call})()
                 link['method'] = method
                 link['href'] = href
                 link['templated'] = templated
