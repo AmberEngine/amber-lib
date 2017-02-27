@@ -249,6 +249,14 @@ class BaseResource(object):
         raise AttributeError("'%s' does not exist" % key)
 
 
+class Link(DictionaryWrapper):
+    def __getattribute__(self, name):
+        if name in ['update', 'values']:
+            return self.__getattr__(name)
+        return super().__getattribute__(name)
+
+
+
 class ResourceInstance(DictionaryWrapper):
     """ Represent the state, affordances, and embedded entities for a Resource.
 
@@ -290,7 +298,7 @@ class ResourceInstance(DictionaryWrapper):
                     ),
                     body=body
                 )
-                link = type('Link', (DictionaryWrapper,), {'__call__': new_call})()
+                link = type('Link', (Link,), {'__call__': new_call})()
                 link['method'] = method
                 link['href'] = href
                 link['templated'] = templated
@@ -299,13 +307,13 @@ class ResourceInstance(DictionaryWrapper):
         for key, value in dict_.items():
             if key == '_embedded' and isinstance(value, dict):
                 for resName, resListing in value.items():
-                    for embeddedState in resListing.values():
+                    for embeddedID, embeddedState in resListing.items():
                         inst = ResourceInstance()
                         inst._from_response(cfg, embeddedState)
 
                         if resName not in self.embedded:
-                            self.embedded[resName] = []
-                        self.embedded[resName].append(inst)
+                            self.embedded[resName] = DictionaryWrapper()
+                        self.embedded[resName][embeddedID] = inst
             elif key == '_links' and isinstance(value, dict):
                 if isinstance(value, dict):
                     value = [val for val in value.values()]
