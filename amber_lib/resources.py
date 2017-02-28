@@ -90,6 +90,24 @@ class DictionaryWrapper(dict):
         return list(super().values())
 
 
+class BaseResource(object):
+    """ Represents generic affordances for a single API resource."""
+
+    def __init__(self):
+        super(BaseResource, self).__init__()
+
+        self._affordances = {}
+
+    def _add_affordance(self, name, fn):
+        self._affordances[name] = fn
+
+    def __getattr__(self, key):
+        if key in self._affordances:
+            return self._affordances[key]
+
+        raise AttributeError("'%s' does not exist" % key)
+
+
 class EmbeddedList(list):
     __pk_field = ""
     def __init__(self, type_=None, *args, **kwargs):
