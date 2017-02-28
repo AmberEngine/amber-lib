@@ -90,7 +90,7 @@ class DictionaryWrapper(dict):
         return list(super().values())
 
 
-def EmbeddedList(list):
+class EmbeddedList(list):
     def __init__(self, type_=None, *args, **kwargs):
         if type_ == "products":
             self.__pk_field = "guid"
@@ -343,7 +343,7 @@ class ResourceInstance(DictionaryWrapper):
                         inst._from_response(cfg, embeddedState)
 
                         if resName not in self.embedded:
-                            self.embedded[resName] = EmbeddedList()
+                            self.embedded[resName] = EmbeddedList(resName)
                         self.embedded[resName].append(inst)
             elif key == '_links' and isinstance(value, dict):
                 if isinstance(value, dict):
