@@ -344,7 +344,9 @@ class ResourceInstance(DictionaryWrapper):
 
                         if resName not in self._embedded:
                             self._embedded[resName] = EmbeddedList(resName)
+                            print("1111111", self._embedded[resName])
                         self._embedded[resName].append(inst)
+                        print("22222222", self._embedded[resName])
             elif key == '_links' and isinstance(value, dict):
                 if isinstance(value, dict):
                     value = [val for val in value.values()]
