@@ -17,6 +17,10 @@ def _def_wrapper_recursion(val):
         return val
     if isinstance(val, dict):
         return DictionaryWrapper(val)
+    if isinstance(val, EmbeddedList):
+        for index, v in enumerate(val):
+            val[index] = _def_wrapper_recursion(v)
+        return val
     if isinstance(val, (list, tuple)):
         return [_def_wrapper_recursion(e) for e in val]
     return val
@@ -109,8 +113,7 @@ class BaseResource(object):
 
 
 class EmbeddedList(list):
-    #__pk_field = ""
-    """
+    __pk_field = ""
     def __init__(self, type_=None, *args, **kwargs):
         if type_ == "products":
             self.__pk_field = "guid"
@@ -119,20 +122,18 @@ class EmbeddedList(list):
 
         self.__id_mapping = {} # contains pk->index pairs
         super().__init__(*args, **kwargs)
-    """
 
     def __setitem__(self, key, value):
         super().__setitem__(key, value)
-        #self.__id_mapping[getattr(value, self.__pk_field)] = key
+        self.__id_mapping[getattr(value, self.__pk_field)] = key
 
     def __delitem__(self, key):
         v = self[key]
         super().__delitem__(key)
-        #del self.__id_mapping[getattr(v, self.__pk_field)]
+        del self.__id_mapping[getattr(v, self.__pk_field)]
 
     def pk(self, id_):
-        print("shit")
-        #return self[self.__id_mapping[id_]]
+        return self[self.__id_mapping[id_]]
 
 def create_url(context, endpoint, **uri_args):
     """ Create a full URL using the provided components."""
