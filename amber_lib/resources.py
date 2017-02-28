@@ -87,7 +87,11 @@ class DictionaryWrapper(dict):
             self[key] = value
 
     def values(self):
-        return list(self.values())
+        return list(super().values())
+
+    def __call__(self, *args, **kwargs):
+        raise TypeError("DictionaryWrapper not callable. Are you missing 'affordances' accessor?")
+
 
 
 
@@ -257,9 +261,6 @@ class BaseResource(object):
             return self._affordances[key]
 
         raise AttributeError("'%s' does not exist" % key)
-
-    def __call__(self, *args, **kwargs):
-        raise TypeError("DictionaryWrapper not callable. Are you missing 'affordances' accessor?")
 
 
 class Link(DictionaryWrapper):
