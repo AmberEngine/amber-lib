@@ -117,16 +117,7 @@ class EmbeddedList(list):
             self.__pk_field == "id"
 
         self.__id_mapping = {} # contains pk->index pairs
-        print(self.pk)
-        print(self.pk)
-        print(self.pk)
         super().__init__(*args, **kwargs)
-        print("===============================")
-        print(self.pk)
-        print(self.pk)
-        print(self.pk)
-        print(self.pk)
-        print(self.pk)
 
 
     def __setitem__(self, key, value):
@@ -354,7 +345,10 @@ class ResourceInstance(DictionaryWrapper):
 
                         if resName not in self._embedded:
                             self._embedded[resName] = EmbeddedList(resName)
+                        #self._embedded[resName].append(inst)
+                        print("before is embebdded list? ", isinstance(self._embedded[resName], EmbeddedList))
                         self._embedded[resName].append(inst)
+                        print("after is embebdded list? ", isinstance(self._embedded[resName], EmbeddedList))
             elif key == '_links' and isinstance(value, dict):
                 if isinstance(value, dict):
                     value = [val for val in value.values()]
