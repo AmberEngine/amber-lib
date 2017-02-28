@@ -120,12 +120,13 @@ class EmbeddedList(list):
         print(self.pk)
         print(self.pk)
         print(self.pk)
-        print(self.pk)
-        print(self.pk)
-        print(self.pk)
-        print(self.pk)
-        print(self.pk)
         super().__init__(*args, **kwargs)
+        print("===============================")
+        print(self.pk)
+        print(self.pk)
+        print(self.pk)
+        print(self.pk)
+        print(self.pk)
 
 
     def __setitem__(self, key, value):
