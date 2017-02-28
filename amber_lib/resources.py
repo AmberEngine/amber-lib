@@ -56,13 +56,16 @@ class DictionaryWrapper(dict):
         try:
             return super(DictionaryWrapper, self).__getitem__(key)
         except KeyError:
-            raise AttributeError("'%s' not in %s" % (key, self.keys()))
+            raise AttributeError("'%s' not in %s" % (key, list(self.keys())))
 
     def __setattr__(self, key, value):
-        return super(DictionaryWrapper, self).__setitem__(
-            key,
-            _def_wrapper_recursion(value)
-        )
+        try:
+            return super(DictionaryWrapper, self).__setitem__(
+                key,
+                _def_wrapper_recursion(value)
+            )
+        except KeyError:
+            raise AttributeError("'%s' not in %s" % (key, list(self.keys())))
 
     def __setitem__(self, key, value):
         return super(DictionaryWrapper, self).__setitem__(
