@@ -263,30 +263,11 @@ def send(method, cfg, endpoint, json_data=None, **uri_params):
         raise Exception(method, url)
 
 
-class BaseResource(object):
-    """ Represents generic affordances for a single API resource."""
-
-    def __init__(self):
-        super(BaseResource, self).__init__()
-
-        self._affordances = {}
-
-    def _add_affordance(self, name, fn):
-        self._affordances[name] = fn
-
-    def __getattr__(self, key):
-        if key in self._affordances:
-            return self._affordances[key]
-
-        raise AttributeError("'%s' does not exist" % key)
-
-
 class LinkContainer(DictionaryWrapper):
     def __getattribute__(self, name):
         if name in ['update', 'values']:
             return self.__getattr__(name)
         return super().__getattribute__(name)
-
 
 
 class ResourceInstance(DictionaryWrapper):
@@ -299,8 +280,8 @@ class ResourceInstance(DictionaryWrapper):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.affordances = LinkContainer()
-        self.embedded = DictionaryWrapper()
+        self._links= LinkContainer()
+        self._embedded = DictionaryWrapper()
 
     def _from_response(self, cfg, dict_):
         def unserialize_link(link_dict):
@@ -343,14 +324,14 @@ class ResourceInstance(DictionaryWrapper):
                         inst = ResourceInstance()
                         inst._from_response(cfg, embeddedState)
 
-                        if resName not in self.embedded:
-                            self.embedded[resName] = EmbeddedList(resName)
-                        self.embedded[resName].append(inst)
+                        if resName not in self._embedded:
+                            self._embedded[resName] = EmbeddedList(resName)
+                        self._embedded[resName].append(inst)
             elif key == '_links' and isinstance(value, dict):
                 if isinstance(value, dict):
                     value = [val for val in value.values()]
                 for aff in value:
-                    self.affordances[aff.get('name')] = unserialize_link(aff)
+                    self._links[aff.get('name')] = unserialize_link(aff)
             else:
                 self[key] = value
 
