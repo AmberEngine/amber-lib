@@ -138,7 +138,7 @@ class EmbeddedList(list):
         if len(args) == 1:
             try:
                 return self[self.__id_mapping[id_]]
-            except IndexError:
+            except (IndexError, KeyError):
                 return args[0]
         else:
             return self[self.__id_mapping[id_]]
