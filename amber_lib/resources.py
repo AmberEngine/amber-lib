@@ -90,6 +90,27 @@ class DictionaryWrapper(dict):
         return list(super().values())
 
 
+def EmbeddedList(list):
+    def __init__(self, type_=None, *args, **kwargs):
+        if type_ == "products":
+            self.__pk_field = "guid"
+        else:
+            self.__pk_field == "id"
+
+        self.__id_mapping = {} # contains pk->index pairs
+        super().__init__(*args, **kwargs)
+
+    def __setitem__(self, key, value):
+        super().__setitem__(key, value)
+        self.__id_mapping[getattr(value, self.__pk_field)] = key
+
+    def __delitem__(self, key):
+        v = self[key]
+        super().__delitem__(key)
+        del self.__id_mapping[getattr(v, self.__pk_field)]
+
+    def pk(self, id_):
+        return self[self.__id_mapping[id_]]
 
 def create_url(context, endpoint, **uri_args):
     """ Create a full URL using the provided components."""
@@ -322,8 +343,8 @@ class ResourceInstance(DictionaryWrapper):
                         inst._from_response(cfg, embeddedState)
 
                         if resName not in self.embedded:
-                            self.embedded[resName] = DictionaryWrapper()
-                        self.embedded[resName][embeddedID] = inst
+                            self.embedded[resName] = EmbeddedList()
+                        self.embedded[resName][embeddedID].append(inst)
             elif key == '_links' and isinstance(value, dict):
                 if isinstance(value, dict):
                     value = [val for val in value.values()]
