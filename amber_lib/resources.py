@@ -53,7 +53,10 @@ class DictionaryWrapper(dict):
         super(DictionaryWrapper, self).__init__(*args, **kwargs)
 
     def __getattr__(self, key):
-        return super(DictionaryWrapper, self).__getitem__(key)
+        try:
+            return super(DictionaryWrapper, self).__getitem__(key)
+        except KeyError:
+            raise AttributeError("'%s' not in %s" % (key, self.keys()))
 
     def __setattr__(self, key, value):
         return super(DictionaryWrapper, self).__setitem__(
