@@ -89,10 +89,6 @@ class DictionaryWrapper(dict):
     def values(self):
         return list(super().values())
 
-    def __call__(self, *args, **kwargs):
-        raise TypeError("DictionaryWrapper not callable. Are you missing 'affordances' accessor?")
-
-
 
 
 def create_url(context, endpoint, **uri_args):
@@ -263,7 +259,7 @@ class BaseResource(object):
         raise AttributeError("'%s' does not exist" % key)
 
 
-class Link(DictionaryWrapper):
+class LinkContainer(DictionaryWrapper):
     def __getattribute__(self, name):
         if name in ['update', 'values']:
             return self.__getattr__(name)
@@ -281,7 +277,7 @@ class ResourceInstance(DictionaryWrapper):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.affordances = DictionaryWrapper()
+        self.affordances = LinkContainer()
         self.embedded = DictionaryWrapper()
 
     def _from_response(self, cfg, dict_):
@@ -301,7 +297,7 @@ class ResourceInstance(DictionaryWrapper):
                 l = unserialize_link(kid)
                 kids[kid["name"]] = l
             if kids:
-                return DictionaryWrapper(kids) # THIS WONT WORK WITH INJECTION STATE!! TODO TODO TODO
+                return LinkContainer(kids) # THIS WONT WORK WITH INJECTION STATE!! TODO TODO TODO
             else:
                 new_call = functools.partial(
                     create_affordance(
@@ -312,7 +308,7 @@ class ResourceInstance(DictionaryWrapper):
                     ),
                     body=body
                 )
-                link = type('Link', (Link,), {'__call__': new_call})()
+                link = type('Link', (DictionaryWrapper,), {'__call__': new_call})()
                 link['method'] = method
                 link['href'] = href
                 link['templated'] = templated
