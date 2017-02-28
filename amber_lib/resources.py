@@ -345,6 +345,7 @@ class ResourceInstance(DictionaryWrapper):
 
                         if resName not in self._embedded:
                             self._embedded[resName] = EmbeddedList(resName)
+                            print("is thing s a gaerg aerg erga gharge is embebdded list? ", isinstance(self._embedded[resName], EmbeddedList))
                         #self._embedded[resName].append(inst)
                         print("before is embebdded list? ", isinstance(self._embedded[resName], EmbeddedList))
                         self._embedded[resName].append(inst)
