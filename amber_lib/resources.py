@@ -86,6 +86,10 @@ class DictionaryWrapper(dict):
         for key, value in dict_.items():
             self[key] = value
 
+    def value(self):
+        return list(self.values())
+
+
 
 def create_url(context, endpoint, **uri_args):
     """ Create a full URL using the provided components."""
