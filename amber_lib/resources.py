@@ -132,8 +132,16 @@ class EmbeddedList(list):
         super().__delitem__(key)
         del self.__id_mapping[getattr(v, self.__pk_field)]
 
-    def pk(self, id_):
-        return self[self.__id_mapping[id_]]
+    def pk(self, id_, *args):
+        if len(args) > 1:
+            raise TypeError("pk expected at most 2 arguments, got %i" % len(args))
+        if len(args) == 1:
+            try:
+                return self[self.__id_mapping[id_]]
+            except IndexError:
+                return args[0]
+        else:
+            return self[self.__id_mapping[id_]]
 
 def create_url(context, endpoint, **uri_args):
     """ Create a full URL using the provided components."""
