@@ -117,7 +117,7 @@ class EmbeddedList(list):
             self.__pk_field == "id"
 
         self.__id_mapping = {} # contains pk->index pairs
-        super().__init__(*args, **kwargs)
+        #super().__init__(*args, **kwargs)
 
 
     def __setitem__(self, key, value):
