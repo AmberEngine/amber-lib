@@ -117,7 +117,7 @@ class EmbeddedList(list):
         if type_ == "products":
             self._pk_field = "guid"
         else:
-            self._pk_field == "id"
+            self._pk_field = "id"
 
         self._id_mapping = {} # contains pk->index pairs
         super().__init__(*args, **kwargs)
