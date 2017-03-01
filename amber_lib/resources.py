@@ -113,7 +113,6 @@ class BaseResource(object):
 
 
 class EmbeddedList(list):
-    __pk_field = ""
     def __init__(self, type_=None, *args, **kwargs):
         if type_ == "products":
             self.__pk_field = "guid"
