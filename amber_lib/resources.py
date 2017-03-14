@@ -353,10 +353,10 @@ class ResourceInstance(DictionaryWrapper):
         for key, value in dict_.items():
             if key == '_embedded' and isinstance(value, dict):
                 for resName, resListing in value.items():
-                    inst = ResourceInstance()
                     if resName not in self._embedded:
                         self._embedded[resName] = EmbeddedList(resName)
                     for embeddedState in resListing:
+                        inst = ResourceInstance()
                         inst._from_response(cfg, embeddedState)
                         self._embedded[resName].append(inst)
             elif key == '_links' and isinstance(value, dict):
