@@ -124,16 +124,19 @@ class EmbeddedList(list):
 
     def append(self, value):
         super().append(value)
-        self._id_mapping[getattr(value, self._pk_field)] = len(self) - 1
+        if hasattr(value, self._pk_field):
+            self._id_mapping[getattr(value, self._pk_field)] = len(self) - 1
 
     def __setitem__(self, key, value):
         super().__setitem__(key, value)
-        self._id_mapping[getattr(value, self._pk_field)] = key
+        if hasattr(value, self._pk_field):
+            self._id_mapping[getattr(value, self._pk_field)] = key
 
     def __delitem__(self, key):
         v = self[key]
         super().__delitem__(key)
-        del self._id_mapping[getattr(v, self._pk_field)]
+        if hasattr(v, self._pk_field):
+            del self._id_mapping[getattr(v, self._pk_field)]
 
     def pk(self, id_, *args):
         if len(args) > 1:
