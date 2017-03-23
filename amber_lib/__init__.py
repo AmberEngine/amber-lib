@@ -70,7 +70,7 @@ def _get_base_resource(cfg, res):
             )
         raise AttributeError('API does not have resource \'%s\'' % res)
 
-    if _base_resources[res]._cfg.__dict__ != cfg.__dict__:
+    if _base_resources[res]._cfg.public != cfg.public:
         print("contexts do not match! ohn no!")
         print(_base_resources[res]._cfg.__dict__ )
         print(cfg.__dict__ )
