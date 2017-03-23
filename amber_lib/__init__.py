@@ -29,7 +29,7 @@ def _refresh_base_resources(cfg):
 
     resp = send('options', cfg, '/')
     for key, val in resp.items():
-        res = BaseResource()
+        res = BaseResource(cfg)
         if key in _base_resources:
             res = _base_resources[key]
         for aff in val:
@@ -69,6 +69,11 @@ def _get_base_resource(cfg, res):
                 )
             )
         raise AttributeError('API does not have resource \'%s\'' % res)
+
+    if _base_resources[res]._cfg.__dict__ != cfg.__dict__:
+        print("contexts do not match! ohn no!")
+        _refresh_base_resources(cfg)
+        return _get_base_resource(cfg, res)
 
     return _base_resources[res]
 
