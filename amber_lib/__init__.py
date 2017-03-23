@@ -30,8 +30,8 @@ def _refresh_base_resources(cfg):
     resp = send('options', cfg, '/')
     for key, val in resp.items():
         res = BaseResource(cfg)
-        if key in _base_resources:
-            res = _base_resources[key]
+        #if key in _base_resources:
+        #    res = _base_resources[key]
         for aff in val:
             method = aff.get('method', 'get')
             templated = aff.get('templated', False)
