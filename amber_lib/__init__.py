@@ -72,6 +72,8 @@ def _get_base_resource(cfg, res):
 
     if _base_resources[res]._cfg.__dict__ != cfg.__dict__:
         print("contexts do not match! ohn no!")
+        print(_base_resources[res]._cfg.__dict__ )
+        print(cfg.__dict__ )
         _refresh_base_resources(cfg)
         return _get_base_resource(cfg, res)
 
