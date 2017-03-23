@@ -79,16 +79,16 @@ class _Config(object):
     Instances of this class are passed around, providing necessary connection
     information, along with a couple misc options.
     """
-    host = ''
-    port = ''
-    private = ''
-    public = ''
-    request_attempts = 3
-    token = ''
-    on_token_refresh = None
-    debug = None # Can specify a function that takes 1 argument
-
     def __init__(self, **kwargs):
+        self.host = ''
+        self.port = ''
+        self.private = ''
+        self.public = ''
+        self.request_attempts = 3
+        self.token = ''
+        self.on_token_refresh = None
+        self.debug = None # Can specify a function that takes 1 argument
+
         for key, value in kwargs.items():
             if hasattr(self, key):
                 if isinstance(value, str):
