@@ -2,7 +2,6 @@ import collections
 import json
 
 
-
 class WhereItem(object):
     def __init__(self, operand="", pred=None, items=None):
         self.operand = operand
@@ -33,45 +32,80 @@ class Predicate(object):
         return json.dumps(self.to_dict())
 
 
-def And(first, second):
-    if not isinstance(second, WhereItem):
-        second = WhereItem(pred=second)
-    if second.operand and second.operand != "and":
-        raise Exception(
-            'Second WhereItem has operand: %s, must be empty or "%s"' % (
-                second.operand,
-                'and'
-            )
-        )
-    second.operand = "and"
+class And(WhereItem):
+    def __init__(self, first, second, *args):
+        super(And, self).__init__()
 
-    if not isinstance(first, WhereItem):
-        first = WhereItem("", first, [second])
-    else:
-        if not first.items:
-            first.items = []
-        first.items.append(second)
+        children = [second]
+        if args:
+            children += args
 
-    return first
+        for index, child in enumerate(children):
+            if isinstance(child, Predicate):
+                child = WhereItem(pred=second)
+            elif not isinstance(child, WhereItem):
+                raise TypeError("'%s' must be a Predicate or WhereItem" % child)
+
+            if child.operand and child.operand != "and":
+                raise Exception(
+                    'WhereItem has operand: %s, must be empty or "%s"' % (
+                        child.operand,
+                        'and'
+                    )
+                )
+            child.operand = "and"
+            children[index] = child
+
+        if isinstance(first, Predicate):
+            self.operand = ""
+            self.pred = first
+            self.items = children
+        elif isinstance(first, WhereItem):
+            self.operand = ""
+            self.pred = None
+            self.items = [first] + children
+        else:
+            raise TypeError("'%s' must be a Predicate or WhereItem" % first)
+
+        for item in self.items[1:]:
+            item.operand = "AND"
 
 
-def Or(first, second):
-    if not isinstance(second, WhereItem):
-        second = WhereItem(pred=second)
-    if second.operand and second.operand != "or":
-        raise Exception(
-            'Second WhereItem has operand: %s, must be empty or "%s"' % (
-                second.operand,
-                'or'
-            )
-        )
-    second.operand = "or"
+class Or(WhereItem):
+    def __init__(self, first, second, *args):
+        super(Or, self).__init__()
 
-    if not isinstance(first, WhereItem):
-        first = WhereItem("", first, [second])
-    else:
-        if not first.items:
-            first.items = []
-        first.items.append(second)
+        children = [second]
+        if args:
+            children += args
 
-    return first
+        for index, child in enumerate(children):
+            if isinstance(child, Predicate):
+                child = WhereItem(pred=second)
+            elif not isinstance(child, WhereItem):
+                raise TypeError("'%s' must be a Predicate or WhereItem" % child)
+
+            if child.operand and child.operand != "or":
+                raise Exception(
+                    'WhereItem has operand: %s, must be empty or "%s"' % (
+                        child.operand,
+                        'or'
+                    )
+                )
+            child.operand = "or"
+            children[index] = child
+
+        if isinstance(first, Predicate):
+            self.operand = ""
+            self.pred = first
+            self.items = children
+        elif isinstance(first, WhereItem):
+            self.operand = ""
+            self.pred = None
+            self.items = [first] + children
+        else:
+            raise TypeError("'%s' must be a Predicate or WhereItem" % first)
+
+        for item in self.items[1:]:
+            item.operand = "AND"
+
