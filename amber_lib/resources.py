@@ -97,10 +97,9 @@ class DictionaryWrapper(dict):
 class BaseResource(object):
     """ Represents generic affordances for a single API resource."""
 
-    def __init__(self, cfg):
+    def __init__(self):
         super(BaseResource, self).__init__()
 
-        self._cfg = cfg
         self._affordances = {}
 
     def _add_affordance(self, name, fn):
