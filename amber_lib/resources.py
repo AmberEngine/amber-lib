@@ -262,8 +262,15 @@ def send(method, cfg, endpoint, json_data=None, **uri_params):
             claims = cfg.token.split('.')[1]
             if 4 - len(claims) % 4 > 0:
                 claims += '=' * (4 - len(claims) % 4)
+
+            claims_dict = json.loads(base64.b64decode(claims).decode("utf-8"))
             cfg.token = ''
-            cfg.token = cfg.create_token(public=sub)
+            cfg.token = send(
+                "post",
+                cfg,
+                "/tokens",
+                {"public": claims_dict["sub"]}
+            )["key"]
             cfg.on_token_refresh(cfg.token)
             return send(method, cfg, endpoint, json_data, **uri_params)
         elif status in retry_on:
