@@ -82,7 +82,8 @@ class Context(object):
         resp = send('options', self.config, '/')
         for key, val in resp.items():
             res = BaseResource()
-            for aff in val:
+            for name in val:
+                aff = val[name]
                 method = aff.get('method', 'get')
                 templated = aff.get('templated', False)
                 name = aff.get('name', '')
