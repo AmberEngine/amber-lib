@@ -211,6 +211,12 @@ def send(method, cfg, endpoint, json_data=None, **uri_params):
         payload = dump(json_data)
     else:
         payload = '{}'
+
+    print(payload)
+
+    with open('output.txt', 'a') as output_file:
+        output_file.write('\n\n\n\n==========\n{}\n\n\n==========\n'.format(payload))
+
     current_timestamp = datetime.isoformat(datetime.utcnow())
 
 
