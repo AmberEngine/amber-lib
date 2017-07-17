@@ -172,6 +172,7 @@ def create_url(context, endpoint, **uri_args):
     # Returns a validated URL
     return urlparse(url).geturl()
 
+ETAGS = {}
 
 def send(method, cfg, endpoint, json_data=None, **uri_params):
     """Execute an HTTP request constructed from the provided parameters.
@@ -251,7 +252,14 @@ def send(method, cfg, endpoint, json_data=None, **uri_params):
     attempts = 0
 
     while attempts < cfg.request_attempts:
+        reqStr = "%s%s%s" % (method, url, payload)
+        reqHash = hashlib.sha256(reqStr.encode("utf-8")).hexdigest()
+        if reqHash in ETAGS:
+            headers['If-None-Match'] = ETAGS[reqHash]
         r = getattr(requests, method)(url, data=payload, headers=headers)
+        etag = r.headers.get("ETag", None)
+        if etag:
+            ETAGS[reqHash] = etag
         status = r.status_code
         if status == 200:
             try:
