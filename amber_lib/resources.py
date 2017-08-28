@@ -454,6 +454,7 @@ def create_affordance(cfg, method, href, templated):
         print(posArgRegEx)
         print(args)
         print(posArgMatches)
+        print(href)
         if len(args) != len(posArgMatches):
             diff = len(args) - len(posArgMatches)
             if diff > 0:
