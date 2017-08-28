@@ -451,6 +451,9 @@ def create_affordance(cfg, method, href, templated):
 
         # Ensure that the number of provided args matches the required number
         # of positional arguments as determined from the tempalted href.
+        print(posArgRegEx)
+        print(args)
+        print(posArgMatches)
         if len(args) != len(posArgMatches):
             diff = len(args) - len(posArgMatches)
             if diff > 0:
